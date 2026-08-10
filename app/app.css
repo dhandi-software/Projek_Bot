@@ -1,0 +1,85 @@
+@import "./css/base.css";
+@import "./css/theme.css";
+@import "./css/light.css";
+@import "./css/dark.css";
+
+/* FORCE CUSTOM SCROLLBAR GLOBALLY */
+/* Standard (Firefox) */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.05) transparent;
+}
+
+/* WebKit (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.05); /* Slightly visible */
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.15); /* Darker on hover */
+}
+
+/* Specific class overrides if needed */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 5px !important;
+    height: 5px !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+    border-radius: 4px !important;
+}
+
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.15) !important;
+}
+
+/* PREMIUM PDF HIGHLIGHT STYLES */
+.Highlight__part {
+    mix-blend-mode: multiply;
+    border-radius: 2px;
+    opacity: 0.8;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.Highlight__part:hover {
+    opacity: 1;
+    filter: brightness(0.9);
+}
+
+/* Custom Highlight colors */
+.Highlight__part[style*="background-color: rgb(255, 255, 0)"],
+.Highlight__part[style*="background: rgb(255, 255, 0)"] {
+    background-color: rgba(255, 222, 33, 0.5) !important; /* Softer yellow */
+}
+
+/* Animation for scrolled to highlight */
+.Highlight__scrolledTo .Highlight__part {
+    animation: highlight-pulse 1.5s infinite;
+}
+
+@keyframes highlight-pulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(17, 157, 164, 0.4); }
+    70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(17, 157, 164, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(17, 157, 164, 0); }
+}
+
+@media print {
+    @page {
+        margin: 0; /* Menghilangkan URL dan header/footer bawaan browser */
+    }
+    body {
+        padding: 1.5cm; /* Memberikan jarak tepi agar konten tidak terpotong */
+    }
+}
