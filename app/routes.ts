@@ -23,6 +23,7 @@ export default [
     layout("routes/dashboard/layout.tsx", [
         route("dashboard", "routes/dashboard/index.tsx"),
         route("dashboard/koneksi", "routes/dashboard/koneksi.tsx"),
+        route("dashboard/chat", "routes/dashboard/chat.tsx"),
     ]),
 
     // Catch-all 404 Route

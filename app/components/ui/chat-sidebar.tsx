@@ -1,7 +1,7 @@
 import Avatar, { AvatarImage, AvatarFallback } from "~/components/ui/avatar";
 import type { ChatContact } from "~/types/chat";
 import { cn } from "~/lib/utils";
-import { Search, MessageSquarePlus, Users, ArrowLeft } from "lucide-react";
+import { Search, MessageSquarePlus, Users, ArrowLeft, RotateCw } from "lucide-react";
 import { useState } from "react";
 import { profileApi } from "~/api/profileApi";
 import {
@@ -20,9 +20,10 @@ interface ChatSidebarProps {
     currentUserRole?: string;
     currentUser?: any;
     onCreateGroup?: () => void;
+    onRefresh?: () => void;
 }
 
-export function ChatSidebar({ contacts, activeContact, onSelectContact, unreadCounts, currentUserRole, currentUser, onCreateGroup }: ChatSidebarProps) {
+export function ChatSidebar({ contacts, activeContact, onSelectContact, unreadCounts, currentUserRole, currentUser, onCreateGroup, onRefresh }: ChatSidebarProps) {
     // Helper to get initials
     // Helper to get avatar details
     const getAvatarDetails = (contact: ChatContact) => {
@@ -41,24 +42,12 @@ export function ChatSidebar({ contacts, activeContact, onSelectContact, unreadCo
             return { initials: contact.username.substring(0, 2).toUpperCase(), color: "bg-gradient-to-br from-blue-500 to-indigo-500 text-white shadow-sm", image: "" };
         }
 
-        if (role.includes("mahasiswa") || username.includes("mahasiswa")) {
-            image = "https://img.freepik.com/free-vector/smiling-young-man-illustration_1308-174669.jpg?semt=ais_hybrid&w=740&q=80";
-        } else if (role.includes("dosen") || username.includes("dosen")) {
-            image = "https://cdn-icons-png.flaticon.com/512/2784/2784488.png";
-        } else if (role.includes("kaprodi") || username.includes("kaprodi")) {
-            initials = "Ka";
-            color = "bg-[#fdffb6]"; 
-        } else if (role.includes("staf") || username.includes("staf")) {
-            initials = "Sf";
-            color = "bg-[#caffbf]"; 
-        } else {
-            initials = (contact.username || "U")
-                .split(" ")
-                .map((n) => n[0])
-                .join("")
-                .toUpperCase()
-                .slice(0, 2);
-        }
+        initials = (contact.username || "U")
+            .split(" ")
+            .map((n) => n[0])
+            .join("")
+            .toUpperCase()
+            .slice(0, 2);
 
         return { 
             initials, 
@@ -68,7 +57,18 @@ export function ChatSidebar({ contacts, activeContact, onSelectContact, unreadCo
     };
 
     const [searchQuery, setSearchQuery] = useState("");
+    const [isRefreshing, setIsRefreshing] = useState(false);
     const navigate = useNavigate();
+
+    const handleSyncClick = async () => {
+        if (!onRefresh || isRefreshing) return;
+        setIsRefreshing(true);
+        try {
+            await onRefresh();
+        } finally {
+            setTimeout(() => setIsRefreshing(false), 800);
+        }
+    };
 
     const filteredContacts = contacts.filter(c => {
         if (!searchQuery) return true;
@@ -77,11 +77,8 @@ export function ChatSidebar({ contacts, activeContact, onSelectContact, unreadCo
     });
 
     const getMyInitials = () => {
-        if (!currentUser) return "DA";
-        const name = currentUser.dosen?.nama || currentUser.mahasiswa?.nama || currentUser.username || "Dhandi Adam";
-        
-        if (/^\d+$/.test(name)) return "DA";
-        
+        if (!currentUser) return "ME";
+        const name = currentUser.username || "User";
         return name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
     };
 
@@ -117,43 +114,63 @@ export function ChatSidebar({ contacts, activeContact, onSelectContact, unreadCo
                             {getMyInitials()}
                         </AvatarFallback>
                      </Avatar>
-                     <h2 className="text-lg font-bold text-amber-800 tracking-tight">Pesan</h2>
+                     <h2 className="text-lg font-bold text-slate-800 tracking-tight">Pesan</h2>
                  </div>
-                 {currentUserRole?.toUpperCase() === 'DOSEN' && onCreateGroup && (
-                     <DropdownMenu>
-                         <DropdownMenuTrigger asChild>
-                             <button 
-                                 className="p-2 text-[#54656f] hover:bg-[#dfe3e5] rounded-full transition-colors focus:outline-none focus:ring-0" 
-                                 title="Chat Baru"
-                             >
-                                 <MessageSquarePlus className="w-5 h-5" />
-                             </button>
-                         </DropdownMenuTrigger>
-                         <DropdownMenuContent align="end" className="w-48 bg-white rounded-lg shadow-md border border-[#d1d7db]" sideOffset={8}>
-                             <DropdownMenuItem onClick={onCreateGroup} className="cursor-pointer py-2.5 px-3 focus:bg-[#f0f2f5] rounded-md transition-colors">
-                                 <Users className="w-5 h-5 mr-3 text-[#54656f]" />
-                                 <span className="text-[#111b21] font-medium text-[15px]">Grup Baru</span>
-                             </DropdownMenuItem>
-                         </DropdownMenuContent>
-                     </DropdownMenu>
-                 )}
+                 
+                 <div className="flex items-center gap-1">
+                     {onRefresh && (
+                         <button 
+                             onClick={handleSyncClick} 
+                             className="p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-colors focus:outline-none"
+                             title="Sinkronkan Obrolan"
+                         >
+                             <RotateCw className={cn("w-4 h-4", isRefreshing && "animate-spin text-blue-600")} />
+                         </button>
+                     )}
+                     {currentUserRole?.toUpperCase() === 'DOSEN' && onCreateGroup && (
+                         <DropdownMenu>
+                             <DropdownMenuTrigger asChild>
+                                 <button 
+                                     className="p-2 text-[#54656f] hover:bg-[#dfe3e5] rounded-full transition-colors focus:outline-none focus:ring-0" 
+                                     title="Chat Baru"
+                                 >
+                                     <MessageSquarePlus className="w-5 h-5" />
+                                 </button>
+                             </DropdownMenuTrigger>
+                             <DropdownMenuContent align="end" className="w-48 bg-white rounded-lg shadow-md border border-[#d1d7db]" sideOffset={8}>
+                                 <DropdownMenuItem onClick={onCreateGroup} className="cursor-pointer py-2.5 px-3 focus:bg-[#f0f2f5] rounded-md transition-colors">
+                                     <Users className="w-5 h-5 mr-3 text-[#54656f]" />
+                                     <span className="text-[#111b21] font-medium text-[15px]">Grup Baru</span>
+                                 </DropdownMenuItem>
+                             </DropdownMenuContent>
+                         </DropdownMenu>
+                     )}
+                 </div>
             </div>
 
             {/* Search Bar */}
-            <div className="px-4 py-3 bg-white">
-                <div className="flex items-center bg-slate-100/80 rounded-xl px-4 py-2 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-400/20 focus-within:border-blue-400 border border-transparent transition-all shadow-sm">
-                    <Search className="w-[18px] h-[18px] text-slate-400 mr-2.5" />
+            <div className="px-4 py-3 bg-white border-b border-slate-50">
+                <div className="flex items-center bg-slate-100 rounded-lg px-3 py-1.5 focus-within:bg-white focus-within:ring-1 focus-within:ring-blue-400 focus-within:border-blue-400 border border-transparent transition-all shadow-sm mb-3">
+                    <Search className="w-4 h-4 text-slate-400 mr-2" />
                     <input 
                         type="text"
-                        placeholder="Cari percakapan..."
+                        placeholder="Search chats..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="bg-transparent border-none outline-none text-slate-700 w-full text-[14px] placeholder:text-slate-400 py-0.5"
+                        className="bg-transparent border-none outline-none text-slate-700 w-full text-sm placeholder:text-slate-400 py-1"
                     />
+                </div>
+                
+                {/* Tabs */}
+                <div className="flex items-center gap-1.5 overflow-x-auto custom-scrollbar pb-1">
+                    <button className="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-semibold whitespace-nowrap border border-blue-100">All</button>
+                    <button className="px-3 py-1 text-slate-500 hover:bg-slate-50 rounded-full text-xs font-medium whitespace-nowrap">Mine</button>
+                    <button className="px-3 py-1 text-slate-500 hover:bg-slate-50 rounded-full text-xs font-medium whitespace-nowrap">Unread</button>
+                    <button className="px-3 py-1 text-slate-500 hover:bg-slate-50 rounded-full text-xs font-medium whitespace-nowrap">Groups</button>
                 </div>
             </div>
             
-            <div className="flex-1 overflow-y-auto custom-scrollbar px-2 pb-4">
+            <div className="flex-1 overflow-y-auto custom-scrollbar px-2 pb-4 pt-2">
                 {sortedFilteredContacts.length === 0 ? (
                     <div className="p-8 text-center text-slate-400 text-sm mt-4">
                         {searchQuery ? "Tidak ada hasil ditemukan" : "Belum ada percakapan"}

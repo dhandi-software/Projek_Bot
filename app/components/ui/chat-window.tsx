@@ -63,7 +63,7 @@ export function ChatWindow({
     const [isDeleteGroupOpen, setIsDeleteGroupOpen] = useState(false);
     
     // For Public Profile viewing
-    const [selectedPublicUserId, setSelectedPublicUserId] = useState<number | null>(null);
+    const [selectedPublicUserId, setSelectedPublicUserId] = useState<string | number | null>(null);
     
     const fileInputRef = useRef<HTMLInputElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -74,14 +74,6 @@ export function ChatWindow({
         // Allowed in all groups (isGroup or Public Room id 0)
         const isGroup = activeContact.isGroup || Number(activeContact.id) === 0;
         if (isGroup) return true;
-        
-        // For direct chats, if both are Mahasiswa, do not allow attachments
-        const currentRole = currentUser.role?.toUpperCase() || "";
-        const contactRole = activeContact.role?.toUpperCase() || "";
-        
-        if (currentRole === "MAHASISWA" && contactRole === "MAHASISWA") {
-            return false;
-        }
         
         return true;
     };
@@ -208,7 +200,7 @@ export function ChatWindow({
 
             {/* Header */}
             <div 
-                className={cn("flex items-center p-3 pl-16 md:pl-3 bg-[#f0f2f5] border-b border-[#d1d7db] z-10 shrink-0 h-[60px] cursor-pointer hover:bg-[#e9edef] transition-colors")}
+                className={cn("flex items-center p-3 pl-16 md:pl-3 bg-white border-b border-slate-100 z-10 shrink-0 h-[68px] cursor-pointer hover:bg-slate-50 transition-colors")}
                 onClick={() => {
                     if (activeContact.isGroup || Number(activeContact.id) === 0) {
                         setIsGroupInfoOpen(true);
@@ -217,27 +209,39 @@ export function ChatWindow({
                     }
                 }}
             >
-                <div className="flex items-center flex-1">
-                    <Button variant="ghost" size="icon" className="md:hidden mr-2 text-[#54656f]" onClick={(e) => { e.stopPropagation(); onBack?.(); }}>
-                        <ArrowLeft size={24} />
-                    </Button>
+                <div className="flex items-center flex-1 justify-between">
+                    <div className="flex items-center">
+                        <Button variant="ghost" size="icon" className="md:hidden mr-2 text-slate-500" onClick={(e) => { e.stopPropagation(); onBack?.(); }}>
+                            <ArrowLeft size={24} />
+                        </Button>
+                        
+                        <Avatar className={cn("h-10 w-10 mr-3", !avatarImage && avatarColor)} src={avatarImage || ""}>
+                            <AvatarImage src={avatarImage} />
+                            <AvatarFallback className={cn("text-sm font-bold", !avatarImage && avatarColor)}>
+                                {avatarInitials}
+                            </AvatarFallback>
+                        </Avatar>
+                        
+                        <div className="flex flex-col">
+                            <span className="text-slate-800 font-bold text-[15px]">{activeContact.username}</span>
+                            <span className="text-xs text-slate-500 mt-0.5">
+                                {Number(activeContact.id) === 0 
+                                    ? `${publicMembers.length} anggota` 
+                                    : activeContact.isGroup 
+                                        ? `${activeContact.members?.length || 0} anggota` 
+                                        : 'online'}
+                            </span>
+                        </div>
+                    </div>
                     
-                    <Avatar className={cn("h-10 w-10 mr-3", !avatarImage && avatarColor)} src={avatarImage || ""}>
-                        <AvatarImage src={avatarImage} />
-                        <AvatarFallback className={cn("text-sm font-bold text-[#54656f]", !avatarImage && avatarColor)}>
-                            {avatarInitials}
-                        </AvatarFallback>
-                    </Avatar>
-                    
-                    <div className="flex flex-col">
-                        <span className="text-[#111b21] font-medium">{activeContact.username}</span>
-                        <span className="text-xs text-[#667781]">
-                            {Number(activeContact.id) === 0 
-                                ? `${publicMembers.length} anggota` 
-                                : activeContact.isGroup 
-                                    ? `${activeContact.members?.length || 0} anggota` 
-                                    : 'online'}
-                        </span>
+                    {/* Header Actions (Phone, Menu) */}
+                    <div className="flex items-center gap-2 text-slate-500">
+                        <Button variant="ghost" size="icon" className="hover:bg-slate-100 rounded-full w-10 h-10">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                        </Button>
+                        <Button variant="ghost" size="icon" className="hover:bg-slate-100 rounded-full w-10 h-10">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                        </Button>
                     </div>
                 </div>
             </div>
@@ -251,7 +255,10 @@ export function ChatWindow({
                         </div>
                     ) : (
                         messages.map((msg, idx) => {
-                            const isMe = msg.senderId === currentUser?.id;
+                            const isMe = msg.senderId === "Admin" || 
+                                         (currentUser && String(msg.senderId) === String(currentUser.id)) || 
+                                         msg.sender?.role === "admin" ||
+                                         msg.sender?.role === "Admin";
                             const isPublic = Number(activeContact.id) === 0;
                             const isGroupChat = activeContact.isGroup || isPublic;
                             const showAvatarAndName = !isMe && isGroupChat;
@@ -269,16 +276,14 @@ export function ChatWindow({
                             // Warna teks nama tetap flat agar mudah dibaca
                             const textColors = ['#6366f1', '#0ea5e9', '#10b981', '#f43f5e', '#f59e0b', '#d946ef'];
                             
-                            const senderGradient = isGroupChat ? gradientColors[msg.senderId % 6] : "bg-slate-300";
-                            const senderColor = isGroupChat ? textColors[msg.senderId % 6] : undefined;
+                            const senderHash = typeof msg.senderId === 'string' ? msg.senderId.charCodeAt(0) : msg.senderId;
+                            const senderGradient = isGroupChat ? gradientColors[senderHash % 6] : "bg-slate-300";
+                            const senderColor = isGroupChat ? textColors[senderHash % 6] : undefined;
 
                             let senderAvatarImage = "";
                             let senderInitials = "";
                             if (showAvatarAndName && msg.sender) {
-                                const senderRole = msg.sender.role?.toLowerCase() || "";
                                 const senderUsername = msg.sender.username || "U";
-                                if (senderRole.includes("mahasiswa")) senderAvatarImage = "https://img.freepik.com/free-vector/smiling-young-man-illustration_1308-174669.jpg?semt=ais_hybrid&w=740&q=80";
-                                else if (senderRole.includes("dosen")) senderAvatarImage = "https://cdn-icons-png.flaticon.com/512/2784/2784488.png";
                                 if (msg.sender.photo) senderAvatarImage = profileApi.getProfilePhotoUrl(msg.sender.photo);
                                 senderInitials = senderUsername.substring(0, 2).toUpperCase();
                             }
@@ -472,65 +477,79 @@ export function ChatWindow({
             )}
 
             {/* Input Area */}
-            <div className="px-4 py-2 bg-[#f0f2f5] flex items-center gap-2 z-20 border-t border-[#d1d7db]">
-                 {canAttachFiles() && (
-                    <>
-                        <input 
-                            type="file" 
-                            ref={fileInputRef}
-                            className="hidden"
-                            onChange={handleFileUpload}
-                        />
-                        
-                        <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-[46px] w-[46px] rounded-full bg-white text-slate-500 hover:text-blue-500 hover:bg-blue-50 shadow-sm border border-slate-200 transition-all flex-shrink-0" 
-                            onClick={() => fileInputRef.current?.click()}
-                            disabled={isSending}
-                        >
-                            <Paperclip size={20} />
-                        </Button>
-                    </>
-                )}
-                
-                <div className="flex-1 bg-white rounded-3xl px-4 flex items-center min-h-[46px] py-1 shadow-sm border border-slate-200 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-400/20 transition-all">
-                    <Textarea
-                        placeholder={editingMessageId ? "Edit pesan Anda..." : "Ketik pesan"}
-                        value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter' && !e.shiftKey) {
-                                e.preventDefault();
-                                handleSend();
-                            }
-                        }}
-                        className="bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0 text-[#111b21] placeholder:text-[#667781] w-full resize-none py-2 min-h-[24px] max-h-[100px] leading-relaxed"
-                        rows={1}
-                        style={{ height: 'auto' }}
-                        onInput={(e) => {
-                             const target = e.target as HTMLTextAreaElement;
-                             target.style.height = 'auto';
-                             target.style.height = `${Math.min(target.scrollHeight, 100)}px`;
-                        }}
-                    />
+            <div className="px-6 py-4 bg-white flex flex-col z-20 border-t border-slate-100 shadow-[0_-4px_10px_-4px_rgba(0,0,0,0.05)]">
+                {/* Formatting Tools */}
+                <div className="flex items-center gap-4 mb-3 text-slate-500">
+                    <button className="flex items-center gap-1.5 text-blue-600 font-semibold text-sm hover:text-blue-700 transition-colors">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                        Reply
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                    </button>
+                    <div className="w-px h-4 bg-slate-200"></div>
+                    <button className="font-bold hover:text-slate-700 transition-colors">B</button>
+                    <button className="italic font-serif hover:text-slate-700 transition-colors">I</button>
+                    <button className="line-through hover:text-slate-700 transition-colors">S</button>
+                    <button className="hover:text-slate-700 transition-colors ml-1">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    </button>
                 </div>
-                
-                <button 
-                    onClick={handleSend} 
-                    disabled={!inputValue.trim() || isSending}
-                    className={cn(
-                        "rounded-full p-2 h-[48px] w-[48px] flex items-center justify-center transition-all flex-shrink-0 shadow-sm border-none outline-none",
-                         inputValue.trim() ? "text-white cursor-pointer shadow-md" : "bg-white text-slate-300 border border-slate-200 cursor-not-allowed"
+
+                <div className="flex items-end gap-2 w-full">
+                    {canAttachFiles() && (
+                        <>
+                            <input 
+                                type="file" 
+                                ref={fileInputRef}
+                                className="hidden"
+                                onChange={handleFileUpload}
+                            />
+                            
+                            <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-[46px] w-[46px] rounded-full text-slate-400 hover:text-blue-500 hover:bg-blue-50 transition-all flex-shrink-0" 
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={isSending}
+                            >
+                                <Paperclip size={20} />
+                            </Button>
+                        </>
                     )}
-                    style={{ backgroundColor: inputValue.trim() ? '#2563eb' : '' }}
-                >
-                    {editingMessageId ? (
-                         <Check size={26} />
-                    ) : ( 
-                         <Send size={26} className={inputValue.trim() ? "ml-1" : ""} />
-                    )}
-                </button>
+                    
+                    <div className="flex-1 bg-white border-b border-slate-200 focus-within:border-blue-500 transition-all pb-1 mb-1">
+                        <Textarea
+                            placeholder={editingMessageId ? "Edit pesan Anda..." : "Type a message ..."}
+                            value={inputValue}
+                            onChange={(e) => setInputValue(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSend();
+                                }
+                            }}
+                            className="bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0 text-[#111b21] placeholder:text-[#667781] w-full resize-none py-2 min-h-[24px] max-h-[100px] leading-relaxed"
+                            rows={1}
+                            style={{ height: 'auto' }}
+                            onInput={(e) => {
+                                 const target = e.target as HTMLTextAreaElement;
+                                 target.style.height = 'auto';
+                                 target.style.height = `${Math.min(target.scrollHeight, 100)}px`;
+                            }}
+                        />
+                    </div>
+                    
+                    <button 
+                        onClick={handleSend} 
+                        disabled={!inputValue.trim() || isSending}
+                        className="p-2 mb-1 h-[40px] w-[40px] flex items-center justify-center transition-all flex-shrink-0 border-none outline-none text-slate-400 hover:text-blue-500 bg-transparent disabled:opacity-50"
+                    >
+                        {editingMessageId ? (
+                             <Check size={24} />
+                        ) : ( 
+                             <Send size={22} className={inputValue.trim() ? "ml-1 text-blue-600" : ""} />
+                        )}
+                    </button>
+                </div>
             </div>
 
             <DeleteMessageDialog 
@@ -742,7 +761,7 @@ export function ChatWindow({
             />
 
             <PublicProfileModal 
-                userId={selectedPublicUserId} 
+                userId={typeof selectedPublicUserId === 'number' ? selectedPublicUserId : 0} 
                 open={selectedPublicUserId !== null} 
                 onOpenChange={(open) => {
                     if (!open) setSelectedPublicUserId(null);

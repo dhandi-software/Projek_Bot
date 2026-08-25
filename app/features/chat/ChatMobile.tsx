@@ -32,7 +32,8 @@ export function ChatMobile() {
         publicMembers,
         kickFromPublic,
         unbanFromPublic,
-        isSending
+        isSending,
+        fetchContacts
     } = useChat();
 
     const [view, setView] = useState<"list" | "chat">("list");
@@ -59,6 +60,7 @@ export function ChatMobile() {
                     currentUserRole={user?.role}
                     currentUser={user}
                     onCreateGroup={() => setIsCreateModalOpen(true)}
+                    onRefresh={fetchContacts}
                 />
             ) : (
                 <div className="flex flex-col h-full">

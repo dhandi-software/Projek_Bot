@@ -35,6 +35,7 @@ export default function Koneksi() {
                 if (statusData.is_logged_in) {
                     setIsWaLoggedIn(true);
                     clearInterval(interval);
+                    setTimeout(() => navigate("/dashboard/chat"), 1500);
                     return;
                 }
 
@@ -189,7 +190,11 @@ export default function Koneksi() {
                             <>
                                 <div className="bg-white p-4 rounded-xl shadow-sm border border-zinc-100 mb-6">
                                     {qrString ? (
-                                        <QRCodeSVG value={qrString} size={240} level="L" />
+                                        qrString.startsWith("data:image") ? (
+                                            <img src={qrString} alt="WhatsApp QR Code" className="w-[240px] h-[240px] object-contain" />
+                                        ) : (
+                                            <QRCodeSVG value={qrString} size={240} level="L" />
+                                        )
                                     ) : (
                                         <div className="w-[240px] h-[240px] flex items-center justify-center bg-zinc-50">
                                             <span className="text-zinc-400 text-sm animate-pulse">Memuat QR Code...</span>

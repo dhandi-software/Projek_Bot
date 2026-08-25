@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Outlet, useNavigate, NavLink } from "react-router";
 import { useAuth } from "~/hooks/useAuth";
-import { LayoutDashboard, Link as LinkIcon, LogOut } from "lucide-react";
+import { LayoutDashboard, Link as LinkIcon, LogOut, MessageSquare } from "lucide-react";
 
 export default function DashboardLayout() {
     const { isAuthenticated, logout, isLoading } = useAuth();
@@ -53,6 +53,19 @@ export default function DashboardLayout() {
                     >
                         <LinkIcon className="w-5 h-5" />
                         Koneksi
+                    </NavLink>
+                    <NavLink
+                        to="/dashboard/chat"
+                        className={({ isActive }) =>
+                            `flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
+                                isActive 
+                                    ? "bg-[#00a884]/10 text-[#00a884] font-semibold" 
+                                    : "text-zinc-600 hover:bg-zinc-100"
+                            }`
+                        }
+                    >
+                        <MessageSquare className="w-5 h-5" />
+                        Pesan Chat
                     </NavLink>
                 </nav>
 

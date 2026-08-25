@@ -2,11 +2,12 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router";
 import { ChatSidebar } from "~/components/ui/chat-sidebar";
 import { ChatWindow } from "~/components/ui/chat-window";
+import { ChatRightSidebar } from "~/components/ui/chat-right-sidebar";
 import { useChat } from "~/hooks/useChat";
 import { CreateGroupModal } from "./CreateGroupModal";
 import { AddMemberModal } from "./AddMemberModal";
 
-export function ChatDesktop({ title }: { title: string }) {
+export function ChatDesktop() {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
     
@@ -31,7 +32,8 @@ export function ChatDesktop({ title }: { title: string }) {
         removeMemberFromGroup,
         publicMembers,
         kickFromPublic,
-        unbanFromPublic
+        unbanFromPublic,
+        fetchContacts
     } = useChat();
 
     const [searchParams] = useSearchParams();
@@ -53,7 +55,8 @@ export function ChatDesktop({ title }: { title: string }) {
     };
 
     return (
-        <div className="flex h-full pb-[4px] overflow-hidden relative bg-white">
+        <div className="flex h-full pb-[4px] overflow-hidden relative bg-white w-full">
+            {/* Left Sidebar (Contacts) */}
             <ChatSidebar
                 contacts={contacts}
                 activeContact={activeContact}
@@ -62,33 +65,44 @@ export function ChatDesktop({ title }: { title: string }) {
                 currentUserRole={user?.role}
                 currentUser={user}
                 onCreateGroup={() => setIsCreateModalOpen(true)}
+                onRefresh={fetchContacts}
             />
-            <ChatWindow
-                activeContact={activeContact}
-                messages={messages}
-                currentUser={user}
-                onSendMessage={sendMessage}
-                onEditMessage={editMessage}
-                isLoadingHistory={isLoadingHistory}
-                isSending={isSending}
-                onMarkAsRead={markAsRead}
-                onDeleteMessage={deleteMessage}
-                onDeleteMessageForMe={deleteMessageForMe}
-                publicMembers={publicMembers}
-                onKickPublic={kickFromPublic}
-                onUnbanPublic={unbanFromPublic}
-                onAddMembers={() => setIsAddMemberOpen(true)}
-                onRemoveMember={(memberId) => {
-                    if (activeContact?.isGroup && activeContact.realId) {
-                        return removeMemberFromGroup(activeContact.realId, memberId);
-                    }
-                }}
-                onDeleteGroup={() => {
-                    if (activeContact?.isGroup && activeContact.realId) {
-                        return deleteGroup(activeContact.realId);
-                    }
-                }}
-            />
+            
+            {/* Middle (Chat Window) */}
+            <div className="flex-1 flex min-w-0">
+                <ChatWindow
+                    activeContact={activeContact}
+                    messages={messages}
+                    currentUser={user}
+                    onSendMessage={sendMessage}
+                    onEditMessage={editMessage}
+                    isLoadingHistory={isLoadingHistory}
+                    isSending={isSending}
+                    onMarkAsRead={markAsRead}
+                    onDeleteMessage={deleteMessage}
+                    onDeleteMessageForMe={deleteMessageForMe}
+                    publicMembers={publicMembers}
+                    onKickPublic={kickFromPublic}
+                    onUnbanPublic={unbanFromPublic}
+                    onAddMembers={() => setIsAddMemberOpen(true)}
+                    onRemoveMember={(memberId) => {
+                        if (activeContact?.isGroup && activeContact.realId) {
+                            return removeMemberFromGroup(activeContact.realId, memberId);
+                        }
+                    }}
+                    onDeleteGroup={() => {
+                        if (activeContact?.isGroup && activeContact.realId) {
+                            return deleteGroup(activeContact.realId);
+                        }
+                    }}
+                />
+            </div>
+
+            {/* Right Sidebar (Contact Info - visible on large screens) */}
+            {activeContact && (
+                <ChatRightSidebar activeContact={activeContact} />
+            )}
+
             <CreateGroupModal
                 isOpen={isCreateModalOpen}
                 onClose={() => setIsCreateModalOpen(false)}

@@ -1,13 +1,20 @@
 import { client } from "~/api/client";
 
 export const chatService = {
-  async getContacts(userId: number) {
-    const response = await client.get(`/chat/contacts/${userId}`);
+  async getContacts(userId?: number) {
+    // Calling the new WA endpoint instead of internal db
+    const response = await client.get(`/chat/contacts`);
     return response.data;
   },
 
-  async getChatHistory(userId: number, otherUserId: number | string) {
-    const response = await client.get(`/chat/history/${userId}/${otherUserId}`);
+  async getChatHistory(userId: number | undefined, otherUserId: string) {
+    // Calling the new WA history endpoint
+    const response = await client.get(`/chat/history/${otherUserId}`);
+    return response.data;
+  },
+
+  async sendMessage(to: string, message: string) {
+    const response = await client.post('/chat/send', { to, message });
     return response.data;
   },
 

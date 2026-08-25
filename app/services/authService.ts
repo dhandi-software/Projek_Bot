@@ -3,7 +3,7 @@ import { client } from "~/api/client";
 
 export const authService = {
   async login(credentials: LoginCredentials): Promise<LoginResponse> {
-    const response = await client.post("/login", credentials);
+    const response = await client.post("/auth/login", credentials);
     return response.data;
   },
 

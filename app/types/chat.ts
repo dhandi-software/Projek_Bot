@@ -4,9 +4,9 @@ export interface Message {
   attachmentUrl: string | null;
   attachmentType: 'image' | 'document' | 'none' | null;
   fileName?: string | null;
-  senderId: number;
-  receiverId?: number;
-  roomId?: number;
+  senderId: string | number;
+  receiverId?: string | number;
+  roomId?: string | number;
   createdAt: string;
   sender?: {
     username: string;
