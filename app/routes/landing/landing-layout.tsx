@@ -14,15 +14,17 @@ export default function LandingLayout() {
 
     return (
         <>
-            <div className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-all border-b border-border/40">
+            <div className="sticky top-0 z-50 w-full bg-white shadow-xs transition-all">
                 <Header isMobile={isMobile} />
-                {!isArticlePage && <Navbar />}
+                {isMobile && !isArticlePage && <Navbar />}
             </div>
-            <main>
+
+            <main className="w-full min-h-[calc(100vh-120px)] bg-white">
                 <Outlet
                     context={{ isMobile: isMobile } satisfies ContextType}
                 />
             </main>
+
             <Footer isMobile={isMobile} />
             <LandingChat />
         </>

@@ -1,5 +1,5 @@
-import NewFooter from "./NewFooter";
+import { EcommerceFooter } from "./EcommerceFooter";
 
 export default function FooterMobile() {
-    return <NewFooter />;
+    return <EcommerceFooter />;
 }

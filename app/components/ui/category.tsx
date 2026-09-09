@@ -1,5 +1,10 @@
 import { cn } from "~/lib/utils"
 import { Link } from "react-router"
+import { CategoryCard, type CategoryItem, type CategoryCardProps } from "./CategoryCard"
+import { CategoryGrid, type CategoryGridProps } from "./CategoryGrid"
+import { CategoryLeftSidebar, type CategoryLeftSidebarProps } from "./CategoryLeftSidebar"
+import { EcommerceFilterSidebar, type EcommerceFilterSidebarProps } from "./EcommerceFilterSidebar"
+
 interface CategoryProps {
     src: string,
     alt: string,
@@ -24,7 +29,6 @@ function Category({ src, alt, text, className }: CategoryProps) {
                 <span className="line-clamp-2">{text}</span>
             </div>
         </Link>
-
     )
 }
 
@@ -39,8 +43,22 @@ function CategorySmall({ src, alt, text, className }: CategoryProps) {
             </div>
             <span className="line-clamp-2">{text}</span>
         </div>
-
     )
 }
 
-export { Category, CategorySmall }
+export {
+    Category,
+    CategorySmall,
+    CategoryCard,
+    CategoryGrid,
+    CategoryLeftSidebar,
+    EcommerceFilterSidebar
+}
+
+export type {
+    CategoryItem,
+    CategoryCardProps,
+    CategoryGridProps,
+    CategoryLeftSidebarProps,
+    EcommerceFilterSidebarProps
+}

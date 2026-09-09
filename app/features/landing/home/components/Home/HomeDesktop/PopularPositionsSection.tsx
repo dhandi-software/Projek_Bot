@@ -1,54 +1,65 @@
-import { Code, Database, Cpu, GlobeLock } from "lucide-react";
+import * as React from "react";
+import { CategoryGrid, type CategoryItem } from "~/components/ui/category";
+import { Code, Database, Cpu, ShieldCheck, Cloud, Palette } from "lucide-react";
 
 export function PopularPositionsSection() {
-    const categories = [
-        { title: "Software Engineer", count: "5000+", icon: Code },
-        { title: "Artificial Intelligence", count: "5000+", icon: Cpu },
-        { title: "Data science", count: "4000+", icon: Database },
-        { title: "Network & Cyber Security", count: "3000+", icon: GlobeLock },
+    const [selectedId, setSelectedId] = React.useState<string | number>("1");
+
+    const categories: CategoryItem[] = [
+        {
+            id: "1",
+            name: "Software Engineering",
+            description: "Pengembangan aplikasi web, mobile, dan sistem enterprise.",
+            icon: <Code className="size-6 text-orange-500 group-hover:text-white transition-colors" />,
+            count: "5.2k+ Mahasiswa",
+            badge: "Populer",
+            gradient: "from-orange-500 to-amber-500",
+        },
+        {
+            id: "2",
+            name: "Artificial Intelligence",
+            description: "Machine learning, NLP, computer vision, dan kecerdasan buatan.",
+            icon: <Cpu className="size-6 text-orange-500 group-hover:text-white transition-colors" />,
+            count: "4.8k+ Mahasiswa",
+            badge: "Trending",
+            gradient: "from-amber-500 to-yellow-500",
+        },
+        {
+            id: "3",
+            name: "Data Science & Analytics",
+            description: "Analisis data, big data, business intelligence, dan visualisasi.",
+            icon: <Database className="size-6 text-orange-500 group-hover:text-white transition-colors" />,
+            count: "4.1k+ Mahasiswa",
+            badge: "Favorit",
+            gradient: "from-amber-600 to-orange-600",
+        },
+        {
+            id: "4",
+            name: "Network & Cyber Security",
+            description: "Keamanan informasi, penetration testing, dan sistem jaringan.",
+            icon: <ShieldCheck className="size-6 text-orange-500 group-hover:text-white transition-colors" />,
+            count: "3.5k+ Mahasiswa",
+            badge: "Hot",
+            gradient: "from-red-500 to-orange-500",
+        },
     ];
 
     return (
-        <section className="w-full py-24 bg-white">
-            <div className="container mx-auto px-4 md:px-6">
-                <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
-                    <div className="space-y-3 w-full">
-                        <h2 className="text-4xl font-bold text-zinc-950 font-geist leading-tight">
-                            Bidang Peminatan <br className="hidden md:block" />
-                            <span className="text-orange-500">Populer</span>
-                        </h2>
-                        <p className="text-lg text-gray-400 font-medium">
-                            Kategori posisi magang dengan jumlah peminat
-                            tertinggi semester ini.
-                        </p>
-                    </div>
-                    {/* Optional: Add browse all button here if needed */}
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {categories.map((cat, idx) => (
-                        <div
-                            key={idx}
-                            className="p-6 bg-white rounded-2xl border border-zinc-100 shadow-sm hover:shadow-lg hover:border-orange-100 transition-all duration-300 flex items-center gap-4 group cursor-default w-full"
-                        >
-                            <div className="shrink-0 p-3 bg-slate-50 rounded-xl flex items-center justify-center group-hover:bg-orange-500 group-hover:text-white transition-all duration-300">
-                                <cat.icon className="w-6 h-6 text-zinc-800 group-hover:text-white transition-colors" />
-                            </div>
-                            <div className="flex flex-col min-w-0">
-                                <h3 className="text-lg font-bold text-zinc-900 leading-tight group-hover:text-orange-600 transition-colors truncate">
-                                    {cat.title}
-                                </h3>
-                                <div className="flex items-center gap-1 text-gray-400 text-sm font-medium">
-                                    <span className="text-zinc-900 font-bold">
-                                        {cat.count}
-                                    </span>
-                                    <span>+ Mahasiswa</span>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
+        <section className="w-full py-16">
+            <CategoryGrid
+                categories={categories}
+                selectedCategoryId={selectedId}
+                onSelectCategory={(cat) => setSelectedId(cat.id)}
+                title="Bidang Peminatan Populer"
+                subtitle="Kategori posisi magang dan Kerja Praktik dengan peminat tertinggi semester ini"
+                badge="Pilihan Kategori"
+                columns={4}
+                cardVariant="grid-card"
+                cardSize="md"
+                showSearch={false}
+                showViewAll={true}
+                viewAllText="Eksplorasi Semua"
+            />
         </section>
     );
 }

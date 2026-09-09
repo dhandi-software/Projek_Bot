@@ -15,6 +15,7 @@ export default [
         route("faq", "routes/landing/FAQ.tsx"),
         route("article/:slug", "routes/landing/article.tsx"),
         route("search", "routes/search.tsx"),
+        route("category-demo", "routes/landing/CategoryDemo.tsx"),
     ]),
 
     // Authentication & Dashboard (no header/footer)

@@ -21,6 +21,7 @@ import { useTranslation } from "react-i18next";
 import { AuthProvider } from "~/context/AuthContext";
 // Tambahkan import PasswordProvider
 import { PasswordProvider } from "~/context/PasswordContext";
+import { CartProvider } from "~/context/CartContext";
 
 import "~/app.css";
 
@@ -87,7 +88,9 @@ export default function App() {
         <AuthProvider>
             {/* Tambahkan PasswordProvider di sini */}
             <PasswordProvider>
-                <Outlet context={{ isMobile } satisfies ContextType} />
+                <CartProvider>
+                    <Outlet context={{ isMobile } satisfies ContextType} />
+                </CartProvider>
             </PasswordProvider>
         </AuthProvider>
     );
