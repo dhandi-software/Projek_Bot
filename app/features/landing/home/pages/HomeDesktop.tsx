@@ -12,7 +12,7 @@ import { LatestNewsSection } from "~/features/landing/home/components/Home/HomeD
 
 export function HomeDesktop() {
     return (
-        <main className="w-full bg-slate-50/40 py-8 min-h-[calc(100vh-120px)] space-y-10">
+        <main className="w-full bg-[url('/images/Background_Eccomerce.png')] bg-cover bg-top bg-no-repeat bg-fixed py-8 min-h-[calc(100vh-120px)] space-y-10">
             <div className="container mx-auto px-4 md:px-6 max-w-7xl space-y-10">
                 {/* 1. Main Hero Banner Section */}
                 <MainHeroBannerDesktop />
@@ -31,7 +31,7 @@ export function HomeDesktop() {
 
                 {/* 6. Double Promo Banners Section (HomePod Mini & Xiaomi Mi 11 Ultra) */}
                 <PromoBannersSection />
-
+4
                 {/* 7. Computer Accessories Section */}
                 <ComputerAccessoriesSection />
 

@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, type ReactNode, useContext } from "react";
 import { authService } from "~/services/authService";
-import type { User, LoginCredentials } from "~/types/auth";
+import type { User, LoginCredentials, RegisterCredentials } from "~/types/auth";
 import { useNavigate, useLocation } from "react-router";
 
 interface AuthContextType {
@@ -8,6 +8,8 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (data: LoginCredentials) => Promise<void>;
+  loginCustomer: (data: LoginCredentials) => Promise<void>;
+  registerCustomer: (data: RegisterCredentials) => Promise<void>;
   logout: () => void;
 }
 
@@ -37,59 +39,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initializeAuth();
   }, []);
 
+  const handleAuthSuccess = (userData: User) => {
+    localStorage.setItem("user", JSON.stringify(userData));
+    setUser(userData);
+
+    const from = (location.state as any)?.from?.pathname || null;
+
+    if (from) {
+      navigate(from, { replace: true });
+    } else {
+      const role = (userData.role || 'customer').toLowerCase();
+      if (role === 'admin') {
+        navigate("/dashboard");
+      } else {
+        navigate("/");
+      }
+    }
+  };
+
   const login = async (data: LoginCredentials) => {
     setIsLoading(true);
     try {
-        // Map email to username if needed, backend expects 'username'
-        // But for this use case, we will assume the form sends 'email' or 'username' correctly.
-        // If the backend expects 'username' but the form uses 'email', we might need to adjust.
-        // Let's assume the user enters 'username' in the email field for now, or we map it.
         const payload = {
-            username: data.email || data.username, // using email field as username for now as per backend mock
+            username: data.email || data.username,
             password: data.password
         };
 
       const response = await authService.login(payload);
-
       if (response.user) {
-        const { user } = response;
-
-        localStorage.setItem("user", JSON.stringify(user));
-
-        setUser(user);
-
-        const from = (location.state as any)?.from?.pathname || null;
-
-        if (from) {
-          navigate(from, { replace: true });
-        } else {
-            // Normalize role to lowercase for consistent checking
-            const role = user.role.toLowerCase();
-
-            // Redirect based on role
-            switch (role) {
-                case 'kaprodi':
-                    navigate("/kaprodi");
-                    break;
-                case 'dosen': 
-                case 'dosen_pembimbing':
-                    navigate("/dosen"); // Fixed path to match routes.ts
-                    break;
-                case 'staf':
-                case 'staf_univ':
-                    navigate("/staf");
-                    break;
-                case 'mahasiswa':
-                    navigate("/mahasiswa");
-                    break;
-                case 'admin':
-                    navigate("/dashboard");
-                    break;
-                default:
-                    console.warn("Unknown role, redirecting to home:", role);
-                    navigate("/");
-            }
-        }
+        handleAuthSuccess(response.user);
       }
     } catch (error) {
       console.error("Login failed", error);
@@ -99,14 +77,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const loginCustomer = async (data: LoginCredentials) => {
+    setIsLoading(true);
+    try {
+      const response = await authService.loginCustomer(data);
+      if (response.user) {
+        handleAuthSuccess({ ...response.user, role: 'customer' });
+      }
+    } catch (error) {
+      console.error("Customer login failed", error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const registerCustomer = async (data: RegisterCredentials) => {
+    setIsLoading(true);
+    try {
+      const response = await authService.registerCustomer(data);
+      if (response.user) {
+        handleAuthSuccess({ ...response.user, role: 'customer' });
+      }
+    } catch (error) {
+      console.error("Customer registration failed", error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logout = async () => {
     localStorage.removeItem("user");
     
-    // Fire and forget the backend logout
     try {
       authService.logout().catch(e => console.error(e));
     } catch(e) { console.error(e) }
 
+    setUser(null);
     window.location.href = "/login";
   };
 
@@ -115,6 +123,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isAuthenticated: !!user,
     isLoading,
     login,
+    loginCustomer,
+    registerCustomer,
     logout
   }), [user, isLoading]);
 

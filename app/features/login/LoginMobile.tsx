@@ -51,8 +51,8 @@ export function LoginMobile() {
                 
                 {/* Header: Logo & Title */}
                 <div className="mb-6 flex flex-col items-center text-center">
-                    <div className="mb-4 rounded-[20px] bg-[#00a884] text-white p-4 shadow-[0_4px_20px_rgb(0,0,0,0.04)] text-5xl">
-                        🤖
+                    <div className="mb-4 rounded-[20px] bg-white text-white p-3 shadow-md border border-zinc-100 flex items-center justify-center">
+                        <img src="/images/Logo_Bot.png" alt="Logo Bot" className="w-12 h-12 object-contain" />
                     </div>
                     <div className="flex flex-col gap-1">
                         <h1 className="text-2xl md:text-3xl font-extrabold text-[#1a1f2c] tracking-tight">WhatsApp Bot</h1>
@@ -147,6 +147,13 @@ export function LoginMobile() {
                             {isLoading ? "Signing in..." : "Sign In"}
                         </Button>
                     </form>
+
+                    <div className="mt-4 pt-3 border-t border-zinc-100 flex items-center justify-between text-xs">
+                        <span className="text-zinc-500">Belum punya akun Customer?</span>
+                        <Link to="/register" className="font-semibold text-[#00a884] hover:underline">
+                            Daftar
+                        </Link>
+                    </div>
                 </div>
 
                 <div className="mt-4 pb-2 text-center">

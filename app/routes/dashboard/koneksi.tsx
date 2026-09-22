@@ -8,6 +8,7 @@ import { AuthAlert } from "~/components/ui/AuthAlert";
 
 export default function Koneksi() {
     const { isAuthenticated, isLoading } = useAuth();
+    const navigate = useNavigate();
 
     // States for WhatsApp
     const [qrString, setQrString] = useState<string>("");

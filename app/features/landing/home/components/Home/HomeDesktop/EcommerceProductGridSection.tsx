@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Link } from "react-router";
 import { Search, X, Star, Heart, ShoppingCart, Eye, ChevronDown } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { useCart } from "~/context/CartContext";
@@ -231,13 +232,13 @@ export function EcommerceProductGridSection() {
                 >
                   <ShoppingCart className="size-4" />
                 </button>
-                <button
-                  type="button"
+                <Link
+                  to={`/product/${product.id}`}
                   title="Quick View"
                   className="flex size-10 items-center justify-center rounded-full bg-[#FA8232] text-white shadow-md hover:bg-orange-600 transition-all transform translate-y-2 group-hover:translate-y-0 duration-300 delay-150 cursor-pointer"
                 >
                   <Eye className="size-4" />
-                </button>
+                </Link>
               </div>
             </div>
 

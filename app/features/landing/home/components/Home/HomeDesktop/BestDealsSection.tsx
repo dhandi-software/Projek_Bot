@@ -133,7 +133,7 @@ export function BestDealsSection() {
       </div>
 
       {/* 2. Main Grid Layout (12 Columns: 3 cols Left Featured Card + 9 cols Right Grid) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 border border-zinc-200 rounded-md bg-white shadow-2xs overflow-hidden">
+      <div className="grid grid-cols-1 lg:grid-cols-12 border border-white/80 rounded-2xl bg-white/80 backdrop-blur-md shadow-lg shadow-sky-950/5 overflow-hidden">
         
         {/* LEFT COLUMN: Featured Large Product Card */}
         <div className="lg:col-span-3 border-b lg:border-b-0 lg:border-r border-zinc-200 p-5 md:p-6 flex flex-col justify-between relative bg-white group">
@@ -221,13 +221,13 @@ export function BestDealsSection() {
               </button>
 
               {/* Quick View Button */}
-              <button
-                type="button"
+              <Link
+                to={`/product/1`}
                 title="Quick View"
                 className="w-10 h-10 rounded-xs bg-[#FFE7D6] hover:bg-[#ffd2b3] text-[#FA8232] flex items-center justify-center transition-colors cursor-pointer shrink-0"
               >
                 <Eye className="w-4 h-4" />
-              </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -256,12 +256,14 @@ export function BestDealsSection() {
 
               {/* Product Image & Hover Action Buttons */}
               <div className="relative h-44 sm:h-48 w-full overflow-hidden rounded-md flex items-center justify-center p-1 mb-2 bg-zinc-50/40">
-                <img
-                  src={product.image}
-                  alt={product.title}
-                  className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
-                  loading="lazy"
-                />
+                <Link to={`/product/${product.id}`} className="h-full w-full flex items-center justify-center">
+                  <img
+                    src={product.image}
+                    alt={product.title}
+                    className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                </Link>
 
                 {/* Hover Action Overlay Icons */}
                 <div className="absolute inset-0 bg-zinc-900/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
@@ -287,21 +289,23 @@ export function BestDealsSection() {
                   >
                     <ShoppingCart className="size-4" />
                   </button>
-                  <button
-                    type="button"
+                  <Link
+                    to={`/product/${product.id}`}
                     title="Quick View"
                     className="flex size-9 items-center justify-center rounded-full bg-white text-zinc-800 shadow-md hover:bg-[#FA8232] hover:text-white transition-all transform translate-y-2 group-hover:translate-y-0 duration-300 delay-150 cursor-pointer"
                   >
                     <Eye className="size-4" />
-                  </button>
+                  </Link>
                 </div>
               </div>
 
               {/* Product Details */}
               <div className="space-y-1">
-                <h3 className="text-xs font-semibold text-zinc-800 line-clamp-2 leading-snug group-hover:text-orange-500 transition-colors">
-                  {product.title}
-                </h3>
+                <Link to={`/product/${product.id}`}>
+                  <h3 className="text-xs font-semibold text-zinc-800 line-clamp-2 leading-snug group-hover:text-orange-500 transition-colors">
+                    {product.title}
+                  </h3>
+                </Link>
 
                 <div className="flex items-center gap-2 pt-1">
                   {product.originalPrice && (

@@ -1,24 +1,15 @@
-import { getInstance } from "~/middleware/i18next";
 import { useOutletContext } from "react-router";
 import type { ContextType } from "~/root";
 import { HomeDesktop, HomeMobile } from "~/features/landing/home/pages";
-import type { Route } from "./+types";
-export async function loader({ context }: Route.LoaderArgs) {
-    let i18next = getInstance(context);
-    return {
-        title: i18next.t("title"),
-        description: i18next.t("description"),
-    };
-}
 
-export default function Home({ loaderData }: Route.ComponentProps) {
+export default function Home() {
     const { isMobile } = useOutletContext<ContextType>();
     return isMobile ? <HomeMobile /> : <HomeDesktop />;
 }
 
-export function meta({ }: Route.MetaArgs) {
+export function meta() {
     return [
-        { title: "Kerja Praktik" },
-        { name: "description", content: "Welcome to Kerja Praktik Teknik Informatika" },
+        { title: "Dhandi Ecommerce" },
+        { name: "description", content: "Welcome to Dhandi Ecommerce" },
     ];
 }

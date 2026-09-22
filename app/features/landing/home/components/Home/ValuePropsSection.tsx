@@ -26,7 +26,7 @@ export function ValuePropsSection() {
   ];
 
   return (
-    <div className="w-full bg-white border border-zinc-200/80 rounded-md p-4 shadow-2xs font-sans">
+    <div className="w-full bg-white/80 backdrop-blur-md border border-white/80 rounded-2xl p-5 shadow-lg shadow-sky-950/5 font-sans">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 divide-y md:divide-y-0 md:divide-x divide-zinc-200/60">
         {features.map((feature, idx) => {
           const IconComp = feature.icon;

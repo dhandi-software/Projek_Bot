@@ -38,7 +38,7 @@ export const links: Route.LinksFunction = () => [
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap",
     },
-    { rel: "icon", href: "/images/Logo.png" },
+    { rel: "icon", href: "/images/Logo_Bot.png" },
 ];
 
 export async function loader({ context, request }: Route.LoaderArgs) {
@@ -62,8 +62,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     name="viewport"
                     content="width=device-width, initial-scale=1"
                 />
-                <title>WhatsApp Bot - Control Panel</title>
-                <link rel="icon" href="/images/Logo.png?v=2" type="image/png" />
+                <title>Dhandi Ecommerce</title>
+                <link rel="icon" href="/images/Logo_Bot.png" type="image/png" />
                 <Meta />
                 <Links />
             </head>

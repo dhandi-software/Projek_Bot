@@ -1,7 +1,7 @@
 export interface User {
     id: string;
     email: string;
-    role: "admin" | "mahasiswa" | "dosen" | "dosen_pembimbing" | "kaprodi" | "staf" | "staf_univ";
+    role: "admin" | "customer";
     token: string;
     name?: string;
     nama?: string;
@@ -30,7 +30,7 @@ export interface RegisterRequest {
     name: string;
     email: string;
     password: string;
-    role: "admin" | "mahasiswa" | "dosen" | "staf";
+    role: "admin" | "customer";
 }
 
 export interface RegisterResponse {
@@ -45,7 +45,7 @@ export interface RegisterResponse {
 export interface ProfileData {
     user_id: string;
     email: string;
-    role: "admin" | "mahasiswa" | "dosen" | "staf";
+    role: "admin" | "customer";
     name: string;
     username: string;
     photo: string;
@@ -87,14 +87,12 @@ export interface UpdatePasswordRequest {
     new_password: string;
     confirm_password: string;
 }
-// User Management Types
 
-// User Management Types
 export interface UserAccount {
     id: string;
     email: string;
     name: string;
-    role: "admin" | "mahasiswa" | "dosen" | "staf";
+    role: "admin" | "customer";
     created_at: string;
     updated_at: string;
     avatar?: string;
@@ -102,9 +100,6 @@ export interface UserAccount {
     username?: string;
     password?: string;
     bio?: string;
-    mahasiswa?: any;
-    dosen?: any;
-    staf?: any;
 }
 
 export interface UserAccountResponse {
@@ -118,41 +113,127 @@ export interface UpdateRoleRequest {
     role: string;
 }
 
-export interface PengajuanPayload {
-    dosenId: string;
-    judul: string;
-    peminatan: string;
-    semester: string;
-    tahunAkademik: string;
-    sksDicapai: string;
-    sksNilaiD: string;
-    ipk: string;
-    batasStudi: string;
+// Dashboard Analytics Types
+export interface OmsetStat {
+    amount: string;
+    change: string;
+    isPositive: boolean;
+    comparison: string;
 }
 
-export interface PengajuanResponse {
-    message: string;
-    data: any;
+export interface TotalOrderStat {
+    count: number;
+    change: string;
+    isPositive: boolean;
+    comparison: string;
 }
 
-export interface Pengajuan {
-    id: number;
-    mahasiswa: {
-        nama: string;
-        nim: string;
-    };
-    judul: string;
-    peminatan: string;
-    semester: string;
-    tahunAkademik: string;
-    ipk?: number;
-    sksDicapai?: number;
-    sksNilaiD?: number;
-    status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'REVISION' | 'PENDING_KOORDINATOR' | 'REVISION_KOORDINATOR' | 'REJECTED_KOORDINATOR';
-    dosenId: string;
-    batasStudi?: string;
-    remarks?: string;
-    deadlineRevisi?: string;
-    createdAt?: string;
-    updatedAt?: string;
+export interface AverageOrderValueStat {
+    value: string;
+    change: string;
+    isPositive: boolean;
+    comparison: string;
 }
+
+export interface ReturnRateStat {
+    rate: string;
+    change: string;
+    isPositive: boolean;
+    comparison: string;
+}
+
+export interface PencapaianTargetStat {
+    percentage: number;
+    status: string;
+    realisasi: string;
+    target: string;
+    surplus: string;
+}
+
+export interface MonthlyTrend {
+    month: string;
+    omset: number;
+    order: number;
+    target: number;
+}
+
+export interface TrafficSource {
+    name: string;
+    percentage: number;
+    color: string;
+}
+
+export interface WeeklyOrder {
+    day: string;
+    orders: number;
+    returns: number;
+}
+
+export interface TopProduct {
+    rank: number;
+    title: string;
+    soldCount: number;
+    change: string;
+    isPositive: boolean;
+    image?: string;
+}
+
+export interface LatestOrder {
+    id: string;
+    customer: string;
+    items: string;
+    total: string;
+    paymentMethod?: string;
+    date?: string;
+    time: string;
+    status: string;
+}
+
+export interface DashboardStats {
+    omset: OmsetStat;
+    totalOrder: TotalOrderStat;
+    averageOrderValue: AverageOrderValueStat;
+    returnRate: ReturnRateStat;
+    pencapaianTarget: PencapaianTargetStat;
+    monthlyTrends: MonthlyTrend[];
+    salesTrend?: Array<{ day: string; value: number }>;
+    topProducts?: TopProduct[];
+    trafficSources: TrafficSource[];
+    weeklyOrders: WeeklyOrder[];
+    latestOrders: LatestOrder[];
+}
+
+export interface HeatmapDay {
+    day: string;
+    level: number;
+}
+
+// User Profile Feature Types
+export interface UserProfileData {
+    id?: number | string;
+    name: string;
+    username: string;
+    email: string;
+    phone: string;
+    address: string;
+    bio: string;
+    photo: string;
+    role: 'admin' | 'customer';
+}
+
+export interface ProfileFormData {
+    name: string;
+    username: string;
+    email: string;
+    phone: string;
+    address: string;
+    bio: string;
+    photo: string;
+    photoFile: File | null;
+}
+
+export interface ToastMessage {
+    title: string;
+    variant: "success" | "destructive" | "default";
+}
+

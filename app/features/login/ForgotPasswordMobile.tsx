@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import { TextField } from "~/components/ui/TextField";
 import { Link, useNavigate } from "react-router";
@@ -128,16 +128,16 @@ export function ForgotPasswordMobile() {
 
                     {/* Header: Logo & Title */}
                     <div className="mb-6 mt-6 flex flex-col items-center text-center">
-                         <div className="mb-4 rounded-xl bg-gradient-to-br from-[#119DA4] to-[#FDE789] p-4 shadow-lg">
-                            <img 
-                                src="https://upload.wikimedia.org/wikipedia/id/thumb/4/46/Logo_Universitas_Pancasila.png/250px-Logo_Universitas_Pancasila.png" 
-                                alt="Logo Universitas Pancasila" 
-                                className="h-16 w-auto mix-blend-multiply"
-                            />
-                        </div>
+                            <div className="mb-4 rounded-2xl bg-white/90 p-3 shadow-md backdrop-blur-sm">
+                                <img 
+                                    src="/images/Logo_Bot.png" 
+                                    alt="Logo Bot" 
+                                    className="h-16 w-auto object-contain"
+                                />
+                            </div>
                         <div className="flex flex-col">
                             <span className="text-xl font-bold text-zinc-900 leading-tight tracking-tight">Sistem Informasi</span>
-                            <span className="text-base font-semibold text-[#119DA4] leading-tight tracking-wide">Kerja Praktik</span>
+                            <span className="text-base font-semibold text-[#119DA4] leading-tight tracking-wide">Dhandi Ecommerce</span>
                         </div>
                          <h2 className="mt-4 text-base font-medium text-zinc-600">
                             {step === 1 ? "Forgot Password" : "Create New Password"}

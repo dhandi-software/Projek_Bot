@@ -82,4 +82,63 @@
     body {
         padding: 1.5cm; /* Memberikan jarak tepi agar konten tidak terpotong */
     }
-}
+}
+
+/* MATERIAL 3 ULTRA-SMOOTH ELEGANT FLOAT ANIMATIONS */
+@keyframes m3-float-gentle-1 {
+    0%, 100% {
+        transform: translate(0px, 0px) rotate(0deg) scale(1);
+    }
+    50% {
+        transform: translate(50px, -25px) rotate(45deg) scale(1.08);
+    }
+}
+
+@keyframes m3-float-gentle-2 {
+    0%, 100% {
+        transform: translate(0px, 0px) rotate(0deg) scale(1);
+    }
+    50% {
+        transform: translate(-55px, 28px) rotate(-60deg) scale(1.06);
+    }
+}
+
+@keyframes m3-float-gentle-3 {
+    0%, 100% {
+        transform: translate(0px, 0px) scale(1) rotate(0deg);
+    }
+    50% {
+        transform: translate(45px, 22px) scale(1.1) rotate(30deg);
+    }
+}
+
+@keyframes m3-pulse-glow {
+    0%, 100% {
+        opacity: 0.35;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.65;
+        transform: scale(1.15);
+    }
+}
+
+.animate-m3-blob-1 {
+    animation: m3-float-gentle-1 16s infinite ease-in-out;
+}
+
+.animate-m3-blob-2 {
+    animation: m3-float-gentle-2 20s infinite ease-in-out;
+}
+
+.animate-m3-horizontal {
+    animation: m3-float-gentle-3 18s infinite ease-in-out;
+}
+
+.animate-m3-pulse {
+    animation: m3-pulse-glow 6s infinite ease-in-out;
+}
+
+
+
+

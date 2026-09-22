@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 import {
   ChevronDown,
+  ChevronRight,
+  ArrowRight,
   Search,
   ShoppingCart,
   Heart,
@@ -20,6 +22,8 @@ import {
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { useCart } from "~/context/CartContext";
+import { useAuth } from "~/hooks/useAuth";
+import { getAvatarInitials } from "~/lib/avatar";
 
 // Custom SVG components for Pinterest & Reddit icons
 const PinterestIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -36,9 +40,23 @@ const RedditIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function HeaderDesktop() {
   const navigate = useNavigate();
+  const { user, isAuthenticated, logout } = useAuth();
   const { cartItems, removeFromCart, totalCount, totalPrice, lastAddedItem } = useCart();
+  const [userPhoto, setUserPhoto] = useState<string | null>(null);
+
+  useEffect(() => {
+    const updatePhoto = () => {
+      const savedPhoto = localStorage.getItem("userPhoto");
+      setUserPhoto(savedPhoto || user?.photo || null);
+    };
+    updatePhoto();
+    window.addEventListener("user-profile-updated", updatePhoto);
+    return () => window.removeEventListener("user-profile-updated", updatePhoto);
+  }, [user]);
+
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [isCurrencyOpen, setIsCurrencyOpen] = useState(false);
   const [selectedLang, setSelectedLang] = useState("Eng");
@@ -48,20 +66,340 @@ export default function HeaderDesktop() {
   const [searchResults, setSearchResults] = useState<Array<{ id: string; title: string; category: string; price: string; image?: string; brand?: string }>>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<string>("smartphone");
+  const [activeBrand, setActiveBrand] = useState<string>("iPhone");
 
   const CATEGORIES = [
-    { id: "computer-laptop", name: "Computer & Laptop" },
-    { id: "computer-acc", name: "Computer Accessories" },
-    { id: "smartphone", name: "Smartphone" },
-    { id: "headphone", name: "Headphone" },
-    { id: "mobile-acc", name: "Mobile Accessories" },
-    { id: "gaming-console", name: "Gaming Console" },
-    { id: "camera-photo", name: "Camera & Photo" },
-    { id: "tv-appliances", name: "TV & Homes Appliances" },
-    { id: "watches-acc", name: "Watchs & Accessories" },
-    { id: "gps-navigation", name: "GPS & Navigation" },
-    { id: "wearable-tech", name: "Warable Technology" },
+    { id: "computer-laptop", name: "Computer & Laptop", hasSubmenu: true },
+    { id: "computer-acc", name: "Computer Accessories", hasSubmenu: true },
+    { id: "smartphone", name: "SmartPhone", hasSubmenu: true },
+    { id: "headphone", name: "Headphone", hasSubmenu: true },
+    { id: "mobile-acc", name: "Mobile Accessories", hasSubmenu: true },
+    { id: "gaming-console", name: "Gaming Console", hasSubmenu: true },
+    { id: "camera-photo", name: "Camera & Photo", hasSubmenu: true },
+    { id: "tv-appliances", name: "TV & Homes Appliances", hasSubmenu: true },
+    { id: "watches-acc", name: "Watchs & Accessories", hasSubmenu: true },
+    { id: "gps-navigation", name: "GPS & Navigation", hasSubmenu: true },
+    { id: "wearable-tech", name: "Warable Technology", hasSubmenu: true },
   ];
+
+  type FlyoutData = {
+    brands: string[];
+    featuredTitle: string;
+    products: Array<{ title: string; price: string; oldPrice?: string; image: string }>;
+    promo: { discount: string; description: string; startingPrice: string; image: string };
+  };
+
+  const CATEGORY_FLYOUT_DATA: Record<string, FlyoutData> = {
+    "computer-laptop": {
+      brands: ["All", "MacBook", "Dell", "HP", "Lenovo", "Asus", "Acer", "MSI"],
+      featuredTitle: "FEATURED COMPUTERS",
+      products: [
+        {
+          title: "Apple MacBook Pro 16-inch M3 Max 36GB",
+          price: "$3,499",
+          image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=200&q=80",
+        },
+        {
+          title: "Dell XPS 15 OLED Touch Intel i9 32GB",
+          price: "$1,899",
+          image: "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&w=200&q=80",
+        },
+        {
+          title: "ASUS ROG Zephyrus G14 Gaming Laptop",
+          oldPrice: "$1800",
+          price: "$1,499",
+          image: "https://images.unsplash.com/photo-1603302576837-37561b2e2302?auto=format&fit=crop&w=200&q=80",
+        },
+      ],
+      promo: {
+        discount: "20% Discount",
+        description: "Supercharge your productivity with M-series & OLED Laptops.",
+        startingPrice: "$899 USD",
+        image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=200&q=80",
+      },
+    },
+    "computer-acc": {
+      brands: ["All", "Logitech", "Razer", "Corsair", "Keychron", "SteelSeries", "Samsung"],
+      featuredTitle: "FEATURED ACCESSORIES",
+      products: [
+        {
+          title: "Logitech MX Master 3S Wireless Performance Mouse",
+          price: "$99",
+          image: "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?auto=format&fit=crop&w=200&q=80",
+        },
+        {
+          title: "Keychron K2 Wireless Mechanical Keyboard RGB",
+          price: "$89",
+          image: "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=200&q=80",
+        },
+        {
+          title: "Samsung 980 PRO NVMe M.2 SSD 2TB",
+          oldPrice: "$220",
+          price: "$169",
+          image: "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=200&q=80",
+        },
+      ],
+      promo: {
+        discount: "15% Discount",
+        description: "Upgrade your desk setup with ultra ergonomic peripherals.",
+        startingPrice: "$49 USD",
+        image: "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?auto=format&fit=crop&w=200&q=80",
+      },
+    },
+    "smartphone": {
+      brands: ["All", "iPhone", "Sansung", "Realme", "Xiaomi", "Oppo", "Vivo", "OnePlus", "Huawei", "Infinix", "Tecno"],
+      featuredTitle: "FEATURED PHONES",
+      products: [
+        {
+          title: "Samsung Electronics Samsung Galexy S21 5G",
+          price: "$160",
+          image: "/images/PS.png",
+        },
+        {
+          title: "Simple Mobile 5G LTE Galexy 12 Mini 512GB Gaming Phone",
+          price: "$1,500",
+          image: "https://images.unsplash.com/photo-1557862921-37829c790f19?auto=format&fit=crop&w=400&q=80",
+        },
+        {
+          title: "Sony DSCHX8 High Zoom Point & Shoot Camera",
+          oldPrice: "$3200",
+          price: "$2,300",
+          image: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=400&q=80",
+        },
+      ],
+      promo: {
+        discount: "21% Discount",
+        description: "Escape the noise, It's time to hear the magic with Xiaomi Earbuds.",
+        startingPrice: "$99 USD",
+        image: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=600&q=80",
+      },
+    },
+    "headphone": {
+      brands: ["All", "Sony", "Bose", "Sennheiser", "AirPods", "JBL", "Audio-Technica"],
+      featuredTitle: "FEATURED AUDIO",
+      products: [
+        {
+          title: "Sony WH-1000XM5 Wireless Noise Canceling Headphones",
+          price: "$399",
+          image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=200&q=80",
+        },
+        {
+          title: "Bose QuietComfort Ultra Headphones",
+          price: "$379",
+          image: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=200&q=80",
+        },
+        {
+          title: "Apple AirPods Pro 2nd Generation MagSafe",
+          oldPrice: "$299",
+          price: "$249",
+          image: "https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?auto=format&fit=crop&w=200&q=80",
+        },
+      ],
+      promo: {
+        discount: "30% Discount",
+        description: "Immerse in pure acoustic sound with active noise cancellation.",
+        startingPrice: "$129 USD",
+        image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=200&q=80",
+      },
+    },
+    "mobile-acc": {
+      brands: ["All", "Anker", "Belkin", "Spigen", "Ugreen", "Baseus"],
+      featuredTitle: "MOBILE ESSENTIALS",
+      products: [
+        {
+          title: "Anker 737 Power Bank 24,000mAh 140W Fast Charging",
+          price: "$129",
+          image: "https://images.unsplash.com/photo-1609592424074-2790757754d9?auto=format&fit=crop&w=200&q=80",
+        },
+        {
+          title: "Spigen MagSafe AirVent Car Mount Phone Holder",
+          price: "$29",
+          image: "https://images.unsplash.com/photo-1586105251261-72a756497a11?auto=format&fit=crop&w=200&q=80",
+        },
+        {
+          title: "Ugreen Nexode 65W GaN Fast Wall Charger 3-Port",
+          oldPrice: "$50",
+          price: "$39",
+          image: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=200&q=80",
+        },
+      ],
+      promo: {
+        discount: "25% Discount",
+        description: "Keep your mobile devices powered up and protected anywhere.",
+        startingPrice: "$19 USD",
+        image: "https://images.unsplash.com/photo-1609592424074-2790757754d9?auto=format&fit=crop&w=200&q=80",
+      },
+    },
+    "gaming-console": {
+      brands: ["All", "PlayStation", "Xbox", "Nintendo", "Steam Deck", "ASUS ROG"],
+      featuredTitle: "FEATURED GAMING",
+      products: [
+        {
+          title: "Sony PlayStation 5 Slim Digital Edition Console",
+          price: "$449",
+          image: "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&w=200&q=80",
+        },
+        {
+          title: "Xbox Series X 1TB High-Performance Gaming Console",
+          price: "$489",
+          image: "https://images.unsplash.com/photo-1621259182978-fbf93132d53d?auto=format&fit=crop&w=200&q=80",
+        },
+        {
+          title: "Nintendo Switch OLED Model White Set",
+          oldPrice: "$399",
+          price: "$349",
+          image: "https://images.unsplash.com/photo-1578303512597-81e6cc155b3e?auto=format&fit=crop&w=200&q=80",
+        },
+      ],
+      promo: {
+        discount: "18% Discount",
+        description: "Level up your gaming experience with next-gen 4K consoles.",
+        startingPrice: "$299 USD",
+        image: "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&w=200&q=80",
+      },
+    },
+    "camera-photo": {
+      brands: ["All", "Canon", "Sony", "Nikon", "Fujifilm", "DJI", "GoPro"],
+      featuredTitle: "FEATURED CAMERAS",
+      products: [
+        {
+          title: "Sony Alpha A7 IV Full-Frame Mirrorless Camera",
+          price: "$2,498",
+          image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=200&q=80",
+        },
+        {
+          title: "Canon EOS R6 Mark II Mirrorless Body",
+          price: "$2,299",
+          image: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=200&q=80",
+        },
+        {
+          title: "DJI Mini 4 Pro Drone Fly More Combo",
+          oldPrice: "$1099",
+          price: "$959",
+          image: "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=200&q=80",
+        },
+      ],
+      promo: {
+        discount: "15% Discount",
+        description: "Capture breathtaking 4K video and pro photographs.",
+        startingPrice: "$499 USD",
+        image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=200&q=80",
+      },
+    },
+    "tv-appliances": {
+      brands: ["All", "Samsung", "LG", "Sony", "TCL", "Philips", "Dyson"],
+      featuredTitle: "SMART HOME & TV",
+      products: [
+        {
+          title: "LG C3 65-inch OLED 4K Smart TV Cinema HDR",
+          price: "$1,599",
+          image: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=200&q=80",
+        },
+        {
+          title: "Samsung Neo QLED 4K 55-inch Quantum HDR",
+          price: "$1,299",
+          image: "https://images.unsplash.com/photo-1593784991095-a205069470b6?auto=format&fit=crop&w=200&q=80",
+        },
+        {
+          title: "Dyson V15 Detect Cordless Vacuum Cleaner",
+          oldPrice: "$749",
+          price: "$649",
+          image: "https://images.unsplash.com/photo-1558317374-067fb5f30001?auto=format&fit=crop&w=200&q=80",
+        },
+      ],
+      promo: {
+        discount: "22% Discount",
+        description: "Transform your living room into a cinema smart home.",
+        startingPrice: "$399 USD",
+        image: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=200&q=80",
+      },
+    },
+    "watches-acc": {
+      brands: ["All", "Apple Watch", "Garmin", "Samsung Watch", "Casio", "Fossil"],
+      featuredTitle: "SMARTWATCHES",
+      products: [
+        {
+          title: "Apple Watch Ultra 2 GPS + Cellular Titanium 49mm",
+          price: "$799",
+          image: "https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?auto=format&fit=crop&w=200&q=80",
+        },
+        {
+          title: "Garmin Fenix 7X Pro Sapphire Solar Multisport",
+          price: "$899",
+          image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=200&q=80",
+        },
+        {
+          title: "Samsung Galaxy Watch 6 Classic 47mm LTE",
+          oldPrice: "$420",
+          price: "$349",
+          image: "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?auto=format&fit=crop&w=200&q=80",
+        },
+      ],
+      promo: {
+        discount: "20% Discount",
+        description: "Track health metrics & stay connected right on your wrist.",
+        startingPrice: "$199 USD",
+        image: "https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?auto=format&fit=crop&w=200&q=80",
+      },
+    },
+    "gps-navigation": {
+      brands: ["All", "Garmin", "TomTom", "Rand McNally", "Magellan", "Apple"],
+      featuredTitle: "GPS & NAVIGATION",
+      products: [
+        {
+          title: "Garmin DriveSmart 76 7-inch GPS Navigator",
+          price: "$249",
+          image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=200&q=80",
+        },
+        {
+          title: "Garmin Zumo XT Motorcycle All-Terrain GPS",
+          price: "$499",
+          image: "https://images.unsplash.com/photo-1517524008697-84bbe3c3fd98?auto=format&fit=crop&w=200&q=80",
+        },
+        {
+          title: "Apple AirTag 4-Pack Bluetooth Item Tracker",
+          oldPrice: "$119",
+          price: "$99",
+          image: "https://images.unsplash.com/photo-1621259182978-fbf93132d53d?auto=format&fit=crop&w=200&q=80",
+        },
+      ],
+      promo: {
+        discount: "15% Discount",
+        description: "High-precision satellite navigation for road trips & tracking.",
+        startingPrice: "$149 USD",
+        image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=200&q=80",
+      },
+    },
+    "wearable-tech": {
+      brands: ["All", "Meta Quest", "Oura", "Ray-Ban Meta", "XREAL", "Whoop"],
+      featuredTitle: "WEARABLE TECH",
+      products: [
+        {
+          title: "Meta Quest 3 128GB VR Mixed Reality Headset",
+          price: "$499",
+          image: "https://images.unsplash.com/photo-1622979135225-d2ba269bc1bd?auto=format&fit=crop&w=200&q=80",
+        },
+        {
+          title: "Oura Ring Gen3 Horizon Smart Fitness Tracker",
+          price: "$299",
+          image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=200&q=80",
+        },
+        {
+          title: "Ray-Ban Meta Smart Sunglasses Wayfarer Black",
+          oldPrice: "$349",
+          price: "$299",
+          image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=200&q=80",
+        },
+      ],
+      promo: {
+        discount: "25% Discount",
+        description: "Step into virtual reality & smart wearable optics.",
+        startingPrice: "$249 USD",
+        image: "https://images.unsplash.com/photo-1622979135225-d2ba269bc1bd?auto=format&fit=crop&w=200&q=80",
+      },
+    },
+  };
 
   // Debounce search query input (300ms)
   React.useEffect(() => {
@@ -216,9 +554,11 @@ export default function HeaderDesktop() {
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-6">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 shrink-0 group">
-            <div className="w-10 h-10 rounded-full border-[3px] border-white flex items-center justify-center bg-white/10 transition-transform group-hover:scale-105">
-              <div className="w-4 h-4 rounded-full bg-white" />
-            </div>
+            <img
+              src="/images/Logo_Bot.png"
+              alt="Logo Bot"
+              className="w-12 h-12 object-contain transition-transform group-hover:scale-105"
+            />
             <div className="flex flex-col">
               <span className="text-2xl font-extrabold tracking-tight text-white leading-none">
                 Dhandi
@@ -401,10 +741,94 @@ export default function HeaderDesktop() {
               <Heart className="w-6 h-6 stroke-[1.75]" />
             </Link>
 
-            {/* Profile User Icon */}
-            <Link to="/login" className="text-white hover:opacity-85 transition-opacity p-2 rounded-full hover:bg-white/10">
-              <User className="w-6 h-6 stroke-[1.75]" />
-            </Link>
+            {/* Profile User Icon & Dropdown Menu */}
+            <div className="relative">
+              <button
+                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                className="text-white hover:opacity-85 transition-opacity p-1.5 rounded-full hover:bg-white/10 flex items-center justify-center cursor-pointer ring-2 ring-white/20"
+                title="Akun Pengguna"
+              >
+                {userPhoto && userPhoto !== "/images/avatar.svg" ? (
+                  <img
+                    src={userPhoto}
+                    alt={user?.name || "User"}
+                    className="w-7 h-7 rounded-full object-cover border border-white/40"
+                  />
+                ) : user ? (
+                  <div className="w-7 h-7 rounded-full bg-emerald-400 text-zinc-950 font-black text-xs flex items-center justify-center uppercase shadow-xs">
+                    {getAvatarInitials(user.name)}
+                  </div>
+                ) : (
+                  <User className="w-6 h-6 stroke-[1.75]" />
+                )}
+              </button>
+
+              {isUserMenuOpen && (
+                <div className="absolute right-0 top-full mt-3 w-60 bg-white text-zinc-800 rounded-xl shadow-2xl border border-zinc-200 p-3 z-50 animate-in fade-in slide-in-from-top-2">
+                  {isAuthenticated && user ? (
+                    <div className="space-y-2">
+                      <div className="p-2 border-b border-zinc-100 flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-[#00a884] text-white font-black text-sm flex items-center justify-center shrink-0 overflow-hidden">
+                          {userPhoto && userPhoto !== "/images/avatar.svg" ? (
+                            <img src={userPhoto} alt={user.name} className="w-full h-full object-cover" />
+                          ) : (
+                            getAvatarInitials(user.name)
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-bold text-sm text-zinc-900 truncate">{user.name}</p>
+                          <p className="text-xs text-zinc-500 capitalize truncate">Role: {user.role || 'customer'}</p>
+                        </div>
+                      </div>
+
+                      <Link
+                        to="/profile"
+                        onClick={() => setIsUserMenuOpen(false)}
+                        className="flex items-center gap-2 p-2 rounded-lg hover:bg-zinc-100 text-xs font-semibold text-zinc-700"
+                      >
+                        👤 Edit Profil Saya
+                      </Link>
+
+                      {user.role === 'admin' && (
+                        <Link
+                          to="/dashboard"
+                          onClick={() => setIsUserMenuOpen(false)}
+                          className="flex items-center gap-2 p-2 rounded-lg hover:bg-zinc-100 text-xs font-semibold text-zinc-700"
+                        >
+                          ⚡ Dashboard Admin
+                        </Link>
+                      )}
+                      <button
+                        onClick={() => {
+                          setIsUserMenuOpen(false);
+                          logout();
+                        }}
+                        className="w-full text-left flex items-center gap-2 p-2 rounded-lg hover:bg-red-50 text-xs font-semibold text-red-600 cursor-pointer"
+                      >
+                        🚪 Keluar (Sign Out)
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-1.5 p-1">
+                      <Link
+                        to="/login"
+                        onClick={() => setIsUserMenuOpen(false)}
+                        className="block w-full text-center bg-[#00a884] hover:bg-[#0d7c82] text-white text-xs font-bold py-2 px-3 rounded-lg shadow-sm"
+                      >
+                        Masuk (Login)
+                      </Link>
+                      <Link
+                        to="/register"
+                        onClick={() => setIsUserMenuOpen(false)}
+                        className="block w-full text-center border border-zinc-200 hover:bg-zinc-100 text-zinc-800 text-xs font-semibold py-2 px-3 rounded-lg"
+                      >
+                        Daftar Customer
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -420,29 +844,168 @@ export default function HeaderDesktop() {
                 variant="secondary"
                 size="md"
                 onClick={() => setIsCategoryOpen(!isCategoryOpen)}
-                className="bg-zinc-100 hover:bg-zinc-200 text-zinc-900 gap-2 font-medium px-4 rounded-xs border-0 shadow-none cursor-pointer"
+                className="bg-[#FA8232] hover:bg-[#de6c20] text-white gap-2.5 font-medium px-4 py-2.5 rounded-sm border-0 shadow-sm cursor-pointer transition-colors"
               >
                 <span>All Category</span>
-                <ChevronDown className={`w-4 h-4 text-zinc-600 transition-transform ${isCategoryOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-4 h-4 text-white transition-transform duration-200 ${isCategoryOpen ? 'rotate-180' : ''}`} />
               </Button>
 
               {isCategoryOpen && (
-                <div className="absolute top-full left-0 mt-1.5 w-64 bg-white border border-zinc-200 rounded-md shadow-xl py-2 z-50 animate-in fade-in">
-                  <p className="px-4 py-1.5 text-xs font-bold text-zinc-400 uppercase tracking-wider">Kategori Produk</p>
-                  {CATEGORIES.map((cat) => (
-                    <button
-                      key={cat.id}
-                      onClick={() => {
-                        setIsCategoryOpen(false);
-                        navigate(`/category-demo?category=${encodeURIComponent(cat.name)}`);
-                      }}
-                      className="w-full text-left px-4 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 flex items-center justify-between cursor-pointer transition-colors"
-                    >
-                      <span>{cat.name}</span>
-                      <ChevronDown className="w-3 h-3 text-zinc-400 -rotate-90" />
-                    </button>
-                  ))}
-                </div>
+                <>
+                  {/* Backdrop overlay to close menu when clicking outside */}
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setIsCategoryOpen(false)}
+                  />
+
+                  {/* Mega Menu Dropdown Container */}
+                  <div className="absolute top-full left-0 mt-2 z-50 flex bg-white border border-zinc-200 rounded-lg shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
+                    {/* Left Column: Category List */}
+                    <div className="w-48 py-2 bg-white flex flex-col shrink-0 border-r border-zinc-100">
+                      {CATEGORIES.map((cat) => {
+                        const isSelected = activeCategory === cat.id;
+                        return (
+                          <button
+                            key={cat.id}
+                            onMouseEnter={() => {
+                              setActiveCategory(cat.id);
+                              const flyData = CATEGORY_FLYOUT_DATA[cat.id];
+                              if (flyData && flyData.brands.length > 0) {
+                                setActiveBrand(flyData.brands[0]);
+                              }
+                            }}
+                            onClick={() => {
+                              setIsCategoryOpen(false);
+                              navigate(`/category-demo?category=${encodeURIComponent(cat.name)}`);
+                            }}
+                            className={`w-full text-left px-3.5 py-2 text-xs font-medium flex items-center justify-between cursor-pointer transition-colors ${
+                              isSelected
+                                ? "bg-zinc-100 text-zinc-950 font-semibold"
+                                : "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900"
+                            }`}
+                          >
+                            <span>{cat.name}</span>
+                            {cat.hasSubmenu && (
+                              <ChevronRight className={`w-3.5 h-3.5 ${isSelected ? "text-zinc-900" : "text-zinc-400"}`} />
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Right Column: Mega Menu Subcontent (Dynamic for active category) */}
+                    {(() => {
+                      const flyoutData = CATEGORY_FLYOUT_DATA[activeCategory] || CATEGORY_FLYOUT_DATA["smartphone"];
+                      return (
+                        <div className="p-6 flex gap-6 bg-white shrink-0">
+                          {/* Sub-column 1: Brand list */}
+                          <div className="w-36 flex flex-col gap-1.5 pr-4 border-r border-zinc-100 shrink-0">
+                            {flyoutData.brands.map((brand) => {
+                              const isBrandActive = activeBrand === brand;
+                              return (
+                                <button
+                                  key={brand}
+                                  onClick={() => setActiveBrand(brand)}
+                                  className={`text-left px-3 py-1.5 rounded-md text-xs transition-colors cursor-pointer truncate ${
+                                    isBrandActive
+                                      ? "bg-zinc-100 text-zinc-900 font-bold shadow-xs"
+                                      : "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 font-medium"
+                                  }`}
+                                >
+                                  {brand}
+                                </button>
+                              );
+                            })}
+                          </div>
+
+                          {/* Sub-column 2: FEATURED PRODUCTS (450 x 450 images) */}
+                          <div className="w-72 sm:w-80 flex flex-col gap-3.5 shrink-0">
+                            <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-900">
+                              {flyoutData.featuredTitle}
+                            </h4>
+                            <div className="flex flex-col gap-3">
+                              {flyoutData.products.map((item, idx) => (
+                                <div
+                                  key={idx}
+                                  onClick={() => {
+                                    setIsCategoryOpen(false);
+                                    navigate(`/category-demo?search=${encodeURIComponent(item.title)}`);
+                                  }}
+                                  className="flex items-center gap-3.5 p-3 rounded-xl border border-zinc-100 hover:border-zinc-200 hover:shadow-md transition-all cursor-pointer bg-white group"
+                                >
+                                  {/* 450x450 Product Thumbnail Container */}
+                                  <div className="w-20 h-20 aspect-square rounded-lg bg-zinc-50 p-1.5 flex items-center justify-center shrink-0 border border-zinc-100">
+                                    <img
+                                      src={item.image}
+                                      alt={item.title}
+                                      className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform"
+                                    />
+                                  </div>
+                                  <div className="flex flex-col gap-1.5 min-w-0 flex-1">
+                                    <h5 className="text-xs font-semibold text-zinc-900 line-clamp-2 leading-snug group-hover:text-[#FA8232] transition-colors">
+                                      {item.title}
+                                    </h5>
+                                    <div className="flex items-center gap-2">
+                                      {item.oldPrice && (
+                                        <span className="text-xs text-zinc-400 line-through font-normal">
+                                          {item.oldPrice}
+                                        </span>
+                                      )}
+                                      <span className="text-sm font-bold text-[#2DA5F3]">
+                                        {item.price}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Sub-column 3: Yellow Promo Card (537 x 716 banner image) */}
+                          <div className="w-72 sm:w-80 bg-[#FAF0AF] rounded-2xl p-6 flex flex-col justify-between items-center text-center border border-amber-200/60 shadow-xs shrink-0 relative">
+                            {/* 537x716 Aspect Ratio Banner Image */}
+                            <div className="w-44 h-56 aspect-[3/4] my-2 flex items-center justify-center">
+                              <img
+                                src={flyoutData.promo.image}
+                                alt="Category Promo"
+                                className="max-h-full max-w-full object-contain drop-shadow-xl rounded-xl"
+                              />
+                            </div>
+
+                            <div className="flex flex-col items-center gap-2 my-2">
+                              <h3 className="text-2xl sm:text-3xl font-black text-zinc-900 tracking-tight">
+                                {flyoutData.promo.discount}
+                              </h3>
+                              <p className="text-xs sm:text-sm text-zinc-700 leading-relaxed font-medium max-w-[220px]">
+                                {flyoutData.promo.description}
+                              </p>
+                            </div>
+
+                            <div className="w-full flex flex-col items-center gap-3.5 mt-2">
+                              <div className="text-xs sm:text-sm text-zinc-800 font-medium flex items-center gap-1.5">
+                                Starting price:
+                                <span className="bg-white text-zinc-900 font-bold px-3 py-1 rounded-md text-xs sm:text-sm shadow-xs border border-zinc-200/50">
+                                  {flyoutData.promo.startingPrice}
+                                </span>
+                              </div>
+
+                              <button
+                                onClick={() => {
+                                  setIsCategoryOpen(false);
+                                  navigate("/category-demo");
+                                }}
+                                className="w-full bg-[#FA8232] hover:bg-[#de6c20] text-white text-xs sm:text-sm font-bold py-3 px-5 rounded-xl flex items-center justify-center gap-2 shadow-md transition-colors cursor-pointer"
+                              >
+                                <span>SHOP NOW</span>
+                                <ArrowRight className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                </>
               )}
             </div>
 

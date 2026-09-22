@@ -70,9 +70,7 @@ export function LoginDesktop() {
 
                         <div className="relative z-10 flex flex-col items-center text-center">
                             <div className="mb-8 rounded-2xl bg-white/90 p-4 shadow-lg shadow-black/5 backdrop-blur-sm">
-                                <div className="w-32 h-32 flex items-center justify-center bg-[#00a884] rounded-xl text-white text-6xl shadow-inner">
-                                    🤖
-                                </div>
+                                <img src="/images/Logo_Bot.png" alt="Logo Bot" className="w-28 h-28 object-contain" />
                             </div>
                             <div className="flex flex-col gap-2 text-white">
                                 <span className="text-3xl font-bold leading-tight tracking-tight drop-shadow-sm">WhatsApp Bot</span>
@@ -170,10 +168,11 @@ export function LoginDesktop() {
                             </Button>
                         </form>
 
-                        <div className="mt-10 pt-6 border-t border-zinc-100 text-center">
-                            <p className="text-xs text-zinc-400">
-                                © {new Date().getFullYear()} Bot Control Panel. All rights reserved.
-                            </p>
+                        <div className="mt-8 pt-6 border-t border-zinc-100 flex items-center justify-between text-sm">
+                            <span className="text-zinc-500">Belum punya akun Customer?</span>
+                            <Link to="/register" className="font-semibold text-[#00a884] hover:underline">
+                                Daftar Akun Baru
+                            </Link>
                         </div>
                     </div>
                 </div>

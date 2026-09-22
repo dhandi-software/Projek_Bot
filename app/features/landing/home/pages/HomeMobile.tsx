@@ -12,7 +12,7 @@ import { LatestNewsSectionMobile } from "~/features/landing/home/components/Home
 
 export function HomeMobile() {
     return (
-        <main className="w-full bg-slate-50/40 min-h-screen p-4 space-y-6">
+        <main className="w-full bg-[url('/images/Background_Mobile.png')] bg-cover bg-top bg-no-repeat bg-fixed min-h-screen p-4 space-y-6">
             {/* 1. Mobile Hero Banner */}
             <MainHeroBannerMobile />
 

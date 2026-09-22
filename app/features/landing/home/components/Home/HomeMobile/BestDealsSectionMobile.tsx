@@ -207,21 +207,22 @@ export function BestDealsSectionMobile() {
             <span>ADD TO CART</span>
           </button>
 
-          <button
-            type="button"
+          <Link
+            to="/product/1"
             title="Quick View"
             className="w-10 h-10 rounded-xs bg-[#FFE7D6] hover:bg-[#ffd2b3] text-[#FA8232] flex items-center justify-center shrink-0 cursor-pointer"
           >
             <Eye className="w-4 h-4" />
-          </button>
+          </Link>
         </div>
       </div>
 
       {/* 3. Mobile Product Grid (2 Columns) */}
       <div className="grid grid-cols-2 gap-3 pt-1">
         {GRID_DEALS.map((product) => (
-          <div
+          <Link
             key={product.id}
+            to={`/product/${product.id}`}
             className="bg-white border border-zinc-200 rounded-xl p-3 shadow-2xs flex flex-col justify-between relative space-y-2 group"
           >
             {/* Badge */}
@@ -269,20 +270,22 @@ export function BestDealsSectionMobile() {
             {/* Add to Cart Button */}
             <button
               type="button"
-              onClick={() =>
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 addToCart({
                   id: product.id,
                   title: product.title,
                   price: product.price,
                   image: product.image,
-                })
-              }
+                });
+              }}
               className="w-full h-8 bg-zinc-100 hover:bg-[#FA8232] hover:text-white text-zinc-800 font-bold text-[11px] rounded-md flex items-center justify-center gap-1 transition-colors active:scale-95 cursor-pointer mt-1"
             >
               <ShoppingCart className="w-3.5 h-3.5" />
               <span>Beli</span>
             </button>
-          </div>
+          </Link>
         ))}
       </div>
     </section>

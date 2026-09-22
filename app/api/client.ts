@@ -9,9 +9,9 @@ const getEnvUrl = () => {
         return envUrl;
     }
     if (typeof window !== "undefined") {
-        return `http://${window.location.hostname}:8000`;
+        return `http://${window.location.hostname}:8080`;
     }
-    return "http://localhost:8000";
+    return "http://localhost:8080";
 };
 
 const envUrl = getEnvUrl();

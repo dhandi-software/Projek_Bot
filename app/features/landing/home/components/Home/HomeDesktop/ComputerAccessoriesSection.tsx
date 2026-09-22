@@ -241,16 +241,13 @@ export function ComputerAccessoriesSection() {
                       </button>
 
                       {/* View Detail Button */}
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                        }}
+                      <Link
+                        to={`/product/${product.id}`}
                         className="w-9 h-9 rounded-full bg-[#FA8232] text-white flex items-center justify-center hover:bg-[#e07228] shadow transition-all duration-200"
                         title="Quick View"
                       >
                         <Eye className="w-4 h-4" />
-                      </button>
+                      </Link>
                     </div>
                   </div>
 
