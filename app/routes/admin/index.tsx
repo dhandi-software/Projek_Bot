@@ -5,12 +5,12 @@ import { DashboardDesktop, DashboardMobile } from "~/features/dashboard/pages";
 
 export function meta() {
     return [
-        { title: "Dashboard Overview - Projek Bot" },
-        { name: "description", content: "Dashboard Ringkasan Penjualan dan Performa Bot" },
+        { title: "Admin Dashboard - Projek Bot" },
+        { name: "description", content: "Dashboard Admin Ringkasan Penjualan dan Performa Bot" },
     ];
 }
 
-export default function DashboardIndex() {
+export default function AdminDashboardIndex() {
     const context = useOutletContext<ContextType | undefined>();
     const [isMobileWindow, setIsMobileWindow] = useState(false);
 

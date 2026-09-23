@@ -531,11 +531,11 @@ export default function HeaderMobile() {
 
           <div className="border-t border-zinc-100 pt-3 space-y-3">
             <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Services</p>
-            <Link to="#" className="flex items-center gap-2.5 text-sm text-zinc-600">
+            <Link to="/track-order" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-2.5 text-sm text-zinc-600 hover:text-[#1B6392]">
               <MapPin className="w-4 h-4 text-zinc-500" />
               <span>Track Order</span>
             </Link>
-            <Link to="#" className="flex items-center gap-2.5 text-sm text-zinc-600">
+            <Link to="/compare" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-2.5 text-sm text-zinc-600 hover:text-[#1B6392]">
               <ArrowLeftRight className="w-4 h-4 text-zinc-500" />
               <span>Compare</span>
             </Link>

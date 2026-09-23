@@ -789,9 +789,17 @@ export default function HeaderDesktop() {
                         👤 Edit Profil Saya
                       </Link>
 
+                      <Link
+                        to="/track-order"
+                        onClick={() => setIsUserMenuOpen(false)}
+                        className="flex items-center gap-2 p-2 rounded-lg hover:bg-zinc-100 text-xs font-semibold text-zinc-700"
+                      >
+                        🚚 Lacak Pesanan
+                      </Link>
+
                       {user.role === 'admin' && (
                         <Link
-                          to="/dashboard"
+                          to="/admin/dashboard"
                           onClick={() => setIsUserMenuOpen(false)}
                           className="flex items-center gap-2 p-2 rounded-lg hover:bg-zinc-100 text-xs font-semibold text-zinc-700"
                         >
@@ -1011,11 +1019,11 @@ export default function HeaderDesktop() {
 
             {/* Quick Links with Lucide Icons */}
             <div className="flex items-center gap-6">
-              <Link to="#" className="flex items-center gap-2 text-sm text-zinc-600 hover:text-zinc-900 transition-colors">
+              <Link to="/track-order" className="flex items-center gap-2 text-sm text-zinc-600 hover:text-[#1B6392] transition-colors">
                 <MapPin className="w-4 h-4 text-zinc-500" />
                 <span>Track Order</span>
               </Link>
-              <Link to="#" className="flex items-center gap-2 text-sm text-zinc-600 hover:text-zinc-900 transition-colors">
+              <Link to="/compare" className="flex items-center gap-2 text-sm text-zinc-600 hover:text-[#1B6392] transition-colors">
                 <ArrowLeftRight className="w-4 h-4 text-zinc-500" />
                 <span>Compare</span>
               </Link>

@@ -9,12 +9,11 @@ import {
     Package,
     Image as ImageIcon,
     ChevronLeft,
-    ChevronRight,
 } from "lucide-react";
 import type { ContextType } from "~/root";
 import { DashboardTopbar } from "~/features/dashboard/components/DashboardTopbar";
 
-export default function DashboardLayout() {
+export default function AdminLayout() {
     const { isAuthenticated, logout, isLoading, user } = useAuth();
     const navigate = useNavigate();
     const context = useOutletContext<ContextType>();
@@ -22,7 +21,7 @@ export default function DashboardLayout() {
     // Sidebar collapsed state initialized from localStorage
     const [isCollapsed, setIsCollapsed] = useState<boolean>(() => {
         if (typeof window !== "undefined") {
-            return localStorage.getItem("dashboard_sidebar_collapsed") === "true";
+            return localStorage.getItem("admin_sidebar_collapsed") === "true";
         }
         return false;
     });
@@ -37,7 +36,7 @@ export default function DashboardLayout() {
         setIsCollapsed((prev) => {
             const nextState = !prev;
             if (typeof window !== "undefined") {
-                localStorage.setItem("dashboard_sidebar_collapsed", String(nextState));
+                localStorage.setItem("admin_sidebar_collapsed", String(nextState));
             }
             return nextState;
         });
@@ -67,7 +66,7 @@ export default function DashboardLayout() {
                         />
                         {!isCollapsed && (
                             <span className="font-bold text-base text-zinc-900 truncate tracking-tight">
-                                WhatsApp Bot
+                                Admin Panel
                             </span>
                         )}
                     </div>
@@ -88,7 +87,7 @@ export default function DashboardLayout() {
                 {/* Navigation Menu */}
                 <nav className="flex-1 p-3 space-y-1.5 overflow-y-auto overflow-x-hidden">
                     <NavLink
-                        to="/dashboard"
+                        to="/admin/dashboard"
                         end
                         title={isCollapsed ? "Dashboard" : undefined}
                         className={({ isActive }) =>
@@ -106,7 +105,7 @@ export default function DashboardLayout() {
                     </NavLink>
 
                     <NavLink
-                        to="/dashboard/produk"
+                        to="/admin/produk"
                         title={isCollapsed ? "Produk & Stok" : undefined}
                         className={({ isActive }) =>
                             `flex items-center gap-3.5 px-3.5 py-3 rounded-xl transition-all ${
@@ -123,7 +122,7 @@ export default function DashboardLayout() {
                     </NavLink>
 
                     <NavLink
-                        to="/dashboard/banner"
+                        to="/admin/banner"
                         title={isCollapsed ? "Banner Promo" : undefined}
                         className={({ isActive }) =>
                             `flex items-center gap-3.5 px-3.5 py-3 rounded-xl transition-all ${
@@ -140,7 +139,7 @@ export default function DashboardLayout() {
                     </NavLink>
 
                     <NavLink
-                        to="/dashboard/koneksi"
+                        to="/admin/koneksi"
                         title={isCollapsed ? "Koneksi" : undefined}
                         className={({ isActive }) =>
                             `flex items-center gap-3.5 px-3.5 py-3 rounded-xl transition-all ${
@@ -157,7 +156,7 @@ export default function DashboardLayout() {
                     </NavLink>
 
                     <NavLink
-                        to="/dashboard/chat"
+                        to="/admin/chat"
                         title={isCollapsed ? "Pesan Chat" : undefined}
                         className={({ isActive }) =>
                             `flex items-center gap-3.5 px-3.5 py-3 rounded-xl transition-all ${

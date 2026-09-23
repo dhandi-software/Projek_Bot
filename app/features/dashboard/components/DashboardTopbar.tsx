@@ -31,11 +31,11 @@ export function DashboardTopbar({ user, isSidebarCollapsed, onToggleSidebar }: D
 
     // Determine current page title based on pathname
     const getPageTitle = (pathname: string) => {
-        if (pathname === "/dashboard" || pathname === "/dashboard/") return "Dashboard";
-        if (pathname.startsWith("/dashboard/produk")) return "Manajemen Produk & Stok";
-        if (pathname.startsWith("/dashboard/banner")) return "Banner Promo";
-        if (pathname.startsWith("/dashboard/koneksi")) return "Koneksi WhatsApp";
-        if (pathname.startsWith("/dashboard/chat")) return "Pesan Chat";
+        if (pathname === "/admin" || pathname === "/admin/" || pathname === "/admin/dashboard" || pathname === "/dashboard" || pathname === "/dashboard/") return "Dashboard";
+        if (pathname.includes("/produk")) return "Manajemen Produk & Stok";
+        if (pathname.includes("/banner")) return "Banner Promo";
+        if (pathname.includes("/koneksi")) return "Koneksi WhatsApp";
+        if (pathname.includes("/chat")) return "Pesan Chat";
         return "Dashboard";
     };
 
@@ -127,9 +127,9 @@ export function DashboardTopbar({ user, isSidebarCollapsed, onToggleSidebar }: D
             {isMobileMenuOpen && (
                 <div className="md:hidden absolute top-full left-0 w-full bg-white border-b border-zinc-200 p-4 space-y-2 shadow-lg animate-in slide-in-from-top-2 duration-200">
                     <a
-                        href="/dashboard"
+                        href="/admin/dashboard"
                         className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
-                            location.pathname === "/dashboard" ? "bg-[#00a884]/10 text-[#00a884] font-semibold" : "text-zinc-600 hover:bg-zinc-100"
+                            location.pathname === "/admin/dashboard" || location.pathname === "/admin" || location.pathname === "/dashboard" ? "bg-[#00a884]/10 text-[#00a884] font-semibold" : "text-zinc-600 hover:bg-zinc-100"
                         }`}
                         onClick={() => setIsMobileMenuOpen(false)}
                     >
@@ -137,9 +137,9 @@ export function DashboardTopbar({ user, isSidebarCollapsed, onToggleSidebar }: D
                         Dashboard
                     </a>
                     <a
-                        href="/dashboard/produk"
+                        href="/admin/produk"
                         className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
-                            location.pathname.startsWith("/dashboard/produk") ? "bg-[#00a884]/10 text-[#00a884] font-semibold" : "text-zinc-600 hover:bg-zinc-100"
+                            location.pathname.includes("/produk") ? "bg-[#00a884]/10 text-[#00a884] font-semibold" : "text-zinc-600 hover:bg-zinc-100"
                         }`}
                         onClick={() => setIsMobileMenuOpen(false)}
                     >
@@ -147,9 +147,9 @@ export function DashboardTopbar({ user, isSidebarCollapsed, onToggleSidebar }: D
                         Produk & Stok
                     </a>
                     <a
-                        href="/dashboard/banner"
+                        href="/admin/banner"
                         className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
-                            location.pathname.startsWith("/dashboard/banner") ? "bg-[#00a884]/10 text-[#00a884] font-semibold" : "text-zinc-600 hover:bg-zinc-100"
+                            location.pathname.includes("/banner") ? "bg-[#00a884]/10 text-[#00a884] font-semibold" : "text-zinc-600 hover:bg-zinc-100"
                         }`}
                         onClick={() => setIsMobileMenuOpen(false)}
                     >
@@ -157,9 +157,9 @@ export function DashboardTopbar({ user, isSidebarCollapsed, onToggleSidebar }: D
                         Banner Promo
                     </a>
                     <a
-                        href="/dashboard/koneksi"
+                        href="/admin/koneksi"
                         className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
-                            location.pathname.startsWith("/dashboard/koneksi") ? "bg-[#00a884]/10 text-[#00a884] font-semibold" : "text-zinc-600 hover:bg-zinc-100"
+                            location.pathname.includes("/koneksi") ? "bg-[#00a884]/10 text-[#00a884] font-semibold" : "text-zinc-600 hover:bg-zinc-100"
                         }`}
                         onClick={() => setIsMobileMenuOpen(false)}
                     >
@@ -167,9 +167,9 @@ export function DashboardTopbar({ user, isSidebarCollapsed, onToggleSidebar }: D
                         Koneksi
                     </a>
                     <a
-                        href="/dashboard/chat"
+                        href="/admin/chat"
                         className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
-                            location.pathname.startsWith("/dashboard/chat") ? "bg-[#00a884]/10 text-[#00a884] font-semibold" : "text-zinc-600 hover:bg-zinc-100"
+                            location.pathname.includes("/chat") ? "bg-[#00a884]/10 text-[#00a884] font-semibold" : "text-zinc-600 hover:bg-zinc-100"
                         }`}
                         onClick={() => setIsMobileMenuOpen(false)}
                     >

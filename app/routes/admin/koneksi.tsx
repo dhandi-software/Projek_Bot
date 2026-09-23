@@ -6,7 +6,7 @@ import { Button } from "~/components/ui/button";
 import { TextField } from "~/components/ui/TextField";
 import { AuthAlert } from "~/components/ui/AuthAlert";
 
-export default function Koneksi() {
+export default function AdminKoneksi() {
     const { isAuthenticated, isLoading } = useAuth();
     const navigate = useNavigate();
 
@@ -19,8 +19,6 @@ export default function Koneksi() {
     const [spreadsheetId, setSpreadsheetId] = useState("");
     const [configStatus, setConfigStatus] = useState<{type: "success"|"error"|null, message: string}>({type: null, message: ""});
     const [isSaving, setIsSaving] = useState(false);
-
-
 
     // WA QR Polling
     useEffect(() => {
@@ -36,7 +34,7 @@ export default function Koneksi() {
                 if (statusData.is_logged_in) {
                     setIsWaLoggedIn(true);
                     clearInterval(interval);
-                    setTimeout(() => navigate("/dashboard/chat"), 1500);
+                    setTimeout(() => navigate("/admin/chat"), 1500);
                     return;
                 }
 
@@ -60,7 +58,7 @@ export default function Koneksi() {
         }).catch(() => setWaError("Tidak dapat terhubung ke Backend Bot."));
 
         return () => clearInterval(interval);
-    }, [isAuthenticated, qrString]);
+    }, [isAuthenticated, qrString, navigate]);
 
     // Fetch Spreadsheet Config
     useEffect(() => {
@@ -118,7 +116,7 @@ export default function Koneksi() {
     if (isLoading || !isAuthenticated) return null;
 
     return (
-        <div className="animate-in fade-in duration-500">
+        <div className="animate-in fade-in duration-500 p-6">
             <header className="mb-8">
                 <h1 className="text-2xl font-bold text-zinc-800">Koneksi Layanan</h1>
                 <p className="text-zinc-500 mt-1">Konfigurasi tautan WhatsApp dan Spreadsheet Anda.</p>

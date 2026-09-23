@@ -7,12 +7,12 @@ import { ChatMobile } from "~/features/chat/ChatMobile";
 
 export function meta() {
   return [
-    { title: "Chat - Projek Bot" },
-    { name: "description", content: "WhatsApp Chat Interface" },
+    { title: "Admin Chat - Projek Bot" },
+    { name: "description", content: "WhatsApp Chat Interface Admin" },
   ];
 }
 
-export default function ChatRoute() {
+export default function AdminChatRoute() {
   const context = useOutletContext<ContextType | undefined>();
   const [isMobileWindow, setIsMobileWindow] = useState(false);
 
