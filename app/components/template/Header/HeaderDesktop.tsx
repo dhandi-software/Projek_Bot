@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useLocation } from "react-router";
 import {
   ChevronDown,
   ChevronRight,
@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { useCart } from "~/context/CartContext";
+import { useWishlist } from "~/hooks/useWishlist";
 import { useAuth } from "~/hooks/useAuth";
 import { getAvatarInitials } from "~/lib/avatar";
 
@@ -40,8 +41,10 @@ const RedditIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function HeaderDesktop() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, isAuthenticated, logout } = useAuth();
   const { cartItems, removeFromCart, totalCount, totalPrice, lastAddedItem } = useCart();
+  const { wishlistCount } = useWishlist();
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
 
   useEffect(() => {
@@ -97,25 +100,25 @@ export default function HeaderDesktop() {
       products: [
         {
           title: "Apple MacBook Pro 16-inch M3 Max 36GB",
-          price: "$3,499",
+          price: "Rp 54.990.000",
           image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=200&q=80",
         },
         {
           title: "Dell XPS 15 OLED Touch Intel i9 32GB",
-          price: "$1,899",
+          price: "Rp 28.990.000",
           image: "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&w=200&q=80",
         },
         {
           title: "ASUS ROG Zephyrus G14 Gaming Laptop",
-          oldPrice: "$1800",
-          price: "$1,499",
+          oldPrice: "Rp 27.000.000",
+          price: "Rp 22.990.000",
           image: "https://images.unsplash.com/photo-1603302576837-37561b2e2302?auto=format&fit=crop&w=200&q=80",
         },
       ],
       promo: {
         discount: "20% Discount",
         description: "Supercharge your productivity with M-series & OLED Laptops.",
-        startingPrice: "$899 USD",
+        startingPrice: "Rp 13.990.000",
         image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=200&q=80",
       },
     },
@@ -125,25 +128,25 @@ export default function HeaderDesktop() {
       products: [
         {
           title: "Logitech MX Master 3S Wireless Performance Mouse",
-          price: "$99",
+          price: "Rp 1.490.000",
           image: "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?auto=format&fit=crop&w=200&q=80",
         },
         {
           title: "Keychron K2 Wireless Mechanical Keyboard RGB",
-          price: "$89",
+          price: "Rp 1.350.000",
           image: "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=200&q=80",
         },
         {
           title: "Samsung 980 PRO NVMe M.2 SSD 2TB",
-          oldPrice: "$220",
-          price: "$169",
+          oldPrice: "Rp 3.300.000",
+          price: "Rp 2.590.000",
           image: "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=200&q=80",
         },
       ],
       promo: {
         discount: "15% Discount",
         description: "Upgrade your desk setup with ultra ergonomic peripherals.",
-        startingPrice: "$49 USD",
+        startingPrice: "Rp 750.000",
         image: "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?auto=format&fit=crop&w=200&q=80",
       },
     },
@@ -153,25 +156,25 @@ export default function HeaderDesktop() {
       products: [
         {
           title: "Samsung Electronics Samsung Galexy S21 5G",
-          price: "$160",
+          price: "Rp 2.490.000",
           image: "/images/PS.png",
         },
         {
           title: "Simple Mobile 5G LTE Galexy 12 Mini 512GB Gaming Phone",
-          price: "$1,500",
+          price: "Rp 22.500.000",
           image: "https://images.unsplash.com/photo-1557862921-37829c790f19?auto=format&fit=crop&w=400&q=80",
         },
         {
           title: "Sony DSCHX8 High Zoom Point & Shoot Camera",
-          oldPrice: "$3200",
-          price: "$2,300",
+          oldPrice: "Rp 48.000.000",
+          price: "Rp 34.500.000",
           image: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=400&q=80",
         },
       ],
       promo: {
         discount: "21% Discount",
         description: "Escape the noise, It's time to hear the magic with Xiaomi Earbuds.",
-        startingPrice: "$99 USD",
+        startingPrice: "Rp 1.490.000",
         image: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=600&q=80",
       },
     },
@@ -181,25 +184,25 @@ export default function HeaderDesktop() {
       products: [
         {
           title: "Sony WH-1000XM5 Wireless Noise Canceling Headphones",
-          price: "$399",
+          price: "Rp 5.990.000",
           image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=200&q=80",
         },
         {
           title: "Bose QuietComfort Ultra Headphones",
-          price: "$379",
+          price: "Rp 5.690.000",
           image: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=200&q=80",
         },
         {
           title: "Apple AirPods Pro 2nd Generation MagSafe",
-          oldPrice: "$299",
-          price: "$249",
+          oldPrice: "Rp 4.490.000",
+          price: "Rp 3.790.000",
           image: "https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?auto=format&fit=crop&w=200&q=80",
         },
       ],
       promo: {
         discount: "30% Discount",
         description: "Immerse in pure acoustic sound with active noise cancellation.",
-        startingPrice: "$129 USD",
+        startingPrice: "Rp 1.950.000",
         image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=200&q=80",
       },
     },
@@ -209,25 +212,25 @@ export default function HeaderDesktop() {
       products: [
         {
           title: "Anker 737 Power Bank 24,000mAh 140W Fast Charging",
-          price: "$129",
+          price: "Rp 1.950.000",
           image: "https://images.unsplash.com/photo-1609592424074-2790757754d9?auto=format&fit=crop&w=200&q=80",
         },
         {
           title: "Spigen MagSafe AirVent Car Mount Phone Holder",
-          price: "$29",
+          price: "Rp 450.000",
           image: "https://images.unsplash.com/photo-1586105251261-72a756497a11?auto=format&fit=crop&w=200&q=80",
         },
         {
           title: "Ugreen Nexode 65W GaN Fast Wall Charger 3-Port",
-          oldPrice: "$50",
-          price: "$39",
+          oldPrice: "Rp 750.000",
+          price: "Rp 590.000",
           image: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=200&q=80",
         },
       ],
       promo: {
         discount: "25% Discount",
         description: "Keep your mobile devices powered up and protected anywhere.",
-        startingPrice: "$19 USD",
+        startingPrice: "Rp 290.000",
         image: "https://images.unsplash.com/photo-1609592424074-2790757754d9?auto=format&fit=crop&w=200&q=80",
       },
     },
@@ -237,25 +240,25 @@ export default function HeaderDesktop() {
       products: [
         {
           title: "Sony PlayStation 5 Slim Digital Edition Console",
-          price: "$449",
+          price: "Rp 6.990.000",
           image: "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&w=200&q=80",
         },
         {
           title: "Xbox Series X 1TB High-Performance Gaming Console",
-          price: "$489",
+          price: "Rp 7.590.000",
           image: "https://images.unsplash.com/photo-1621259182978-fbf93132d53d?auto=format&fit=crop&w=200&q=80",
         },
         {
           title: "Nintendo Switch OLED Model White Set",
-          oldPrice: "$399",
-          price: "$349",
+          oldPrice: "Rp 5.990.000",
+          price: "Rp 5.290.000",
           image: "https://images.unsplash.com/photo-1578303512597-81e6cc155b3e?auto=format&fit=crop&w=200&q=80",
         },
       ],
       promo: {
         discount: "18% Discount",
         description: "Level up your gaming experience with next-gen 4K consoles.",
-        startingPrice: "$299 USD",
+        startingPrice: "Rp 4.500.000",
         image: "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&w=200&q=80",
       },
     },
@@ -265,25 +268,25 @@ export default function HeaderDesktop() {
       products: [
         {
           title: "Sony Alpha A7 IV Full-Frame Mirrorless Camera",
-          price: "$2,498",
+          price: "Rp 37.990.000",
           image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=200&q=80",
         },
         {
           title: "Canon EOS R6 Mark II Mirrorless Body",
-          price: "$2,299",
+          price: "Rp 34.990.000",
           image: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=200&q=80",
         },
         {
           title: "DJI Mini 4 Pro Drone Fly More Combo",
-          oldPrice: "$1099",
-          price: "$959",
+          oldPrice: "Rp 16.500.000",
+          price: "Rp 14.500.000",
           image: "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=200&q=80",
         },
       ],
       promo: {
         discount: "15% Discount",
         description: "Capture breathtaking 4K video and pro photographs.",
-        startingPrice: "$499 USD",
+        startingPrice: "Rp 7.500.000",
         image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=200&q=80",
       },
     },
@@ -293,25 +296,25 @@ export default function HeaderDesktop() {
       products: [
         {
           title: "LG C3 65-inch OLED 4K Smart TV Cinema HDR",
-          price: "$1,599",
+          price: "Rp 23.990.000",
           image: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=200&q=80",
         },
         {
           title: "Samsung Neo QLED 4K 55-inch Quantum HDR",
-          price: "$1,299",
+          price: "Rp 19.990.000",
           image: "https://images.unsplash.com/photo-1593784991095-a205069470b6?auto=format&fit=crop&w=200&q=80",
         },
         {
           title: "Dyson V15 Detect Cordless Vacuum Cleaner",
-          oldPrice: "$749",
-          price: "$649",
+          oldPrice: "Rp 11.200.000",
+          price: "Rp 9.990.000",
           image: "https://images.unsplash.com/photo-1558317374-067fb5f30001?auto=format&fit=crop&w=200&q=80",
         },
       ],
       promo: {
         discount: "22% Discount",
         description: "Transform your living room into a cinema smart home.",
-        startingPrice: "$399 USD",
+        startingPrice: "Rp 5.990.000",
         image: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=200&q=80",
       },
     },
@@ -321,25 +324,25 @@ export default function HeaderDesktop() {
       products: [
         {
           title: "Apple Watch Ultra 2 GPS + Cellular Titanium 49mm",
-          price: "$799",
+          price: "Rp 11.990.000",
           image: "https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?auto=format&fit=crop&w=200&q=80",
         },
         {
           title: "Garmin Fenix 7X Pro Sapphire Solar Multisport",
-          price: "$899",
+          price: "Rp 13.500.000",
           image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=200&q=80",
         },
         {
           title: "Samsung Galaxy Watch 6 Classic 47mm LTE",
-          oldPrice: "$420",
-          price: "$349",
+          oldPrice: "Rp 6.300.000",
+          price: "Rp 5.290.000",
           image: "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?auto=format&fit=crop&w=200&q=80",
         },
       ],
       promo: {
         discount: "20% Discount",
         description: "Track health metrics & stay connected right on your wrist.",
-        startingPrice: "$199 USD",
+        startingPrice: "Rp 2.990.000",
         image: "https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?auto=format&fit=crop&w=200&q=80",
       },
     },
@@ -349,25 +352,25 @@ export default function HeaderDesktop() {
       products: [
         {
           title: "Garmin DriveSmart 76 7-inch GPS Navigator",
-          price: "$249",
+          price: "Rp 3.790.000",
           image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=200&q=80",
         },
         {
           title: "Garmin Zumo XT Motorcycle All-Terrain GPS",
-          price: "$499",
+          price: "Rp 7.500.000",
           image: "https://images.unsplash.com/photo-1517524008697-84bbe3c3fd98?auto=format&fit=crop&w=200&q=80",
         },
         {
           title: "Apple AirTag 4-Pack Bluetooth Item Tracker",
-          oldPrice: "$119",
-          price: "$99",
+          oldPrice: "Rp 1.790.000",
+          price: "Rp 1.490.000",
           image: "https://images.unsplash.com/photo-1621259182978-fbf93132d53d?auto=format&fit=crop&w=200&q=80",
         },
       ],
       promo: {
         discount: "15% Discount",
         description: "High-precision satellite navigation for road trips & tracking.",
-        startingPrice: "$149 USD",
+        startingPrice: "Rp 2.250.000",
         image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=200&q=80",
       },
     },
@@ -377,25 +380,25 @@ export default function HeaderDesktop() {
       products: [
         {
           title: "Meta Quest 3 128GB VR Mixed Reality Headset",
-          price: "$499",
+          price: "Rp 7.500.000",
           image: "https://images.unsplash.com/photo-1622979135225-d2ba269bc1bd?auto=format&fit=crop&w=200&q=80",
         },
         {
           title: "Oura Ring Gen3 Horizon Smart Fitness Tracker",
-          price: "$299",
+          price: "Rp 4.500.000",
           image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=200&q=80",
         },
         {
           title: "Ray-Ban Meta Smart Sunglasses Wayfarer Black",
-          oldPrice: "$349",
-          price: "$299",
+          oldPrice: "Rp 5.200.000",
+          price: "Rp 4.500.000",
           image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=200&q=80",
         },
       ],
       promo: {
         discount: "25% Discount",
         description: "Step into virtual reality & smart wearable optics.",
-        startingPrice: "$249 USD",
+        startingPrice: "Rp 3.750.000",
         image: "https://images.unsplash.com/photo-1622979135225-d2ba269bc1bd?auto=format&fit=crop&w=200&q=80",
       },
     },
@@ -587,8 +590,9 @@ export default function HeaderDesktop() {
               {/* Search Button Component */}
               <Button 
                 type="submit" 
+                variant="default"
                 size="sm"
-                className="bg-[#1B6392] hover:bg-[#134b70] text-white gap-2 px-5 rounded-sm shrink-0 cursor-pointer font-semibold"
+                className="gap-2 px-5 shrink-0"
               >
                 <Search className="w-4 h-4" />
                 <span className="hidden sm:inline font-medium">Search</span>
@@ -737,8 +741,13 @@ export default function HeaderDesktop() {
             </div>
 
             {/* Wishlist Heart Icon */}
-            <Link to="#" className="text-white hover:opacity-85 transition-opacity p-2 rounded-full hover:bg-white/10">
+            <Link to="/wishlist" className="relative text-white hover:opacity-85 transition-opacity p-2 rounded-full hover:bg-white/10 flex items-center justify-center cursor-pointer" title="Wishlist">
               <Heart className="w-6 h-6 stroke-[1.75]" />
+              {wishlistCount > 0 && (
+                <span className="absolute top-0 right-0 bg-[#2DA5F3] text-white font-extrabold text-[10px] min-w-4.5 h-4.5 px-1 rounded-full flex items-center justify-center shadow-xs">
+                  {wishlistCount}
+                </span>
+              )}
             </Link>
 
             {/* Profile User Icon & Dropdown Menu */}
@@ -852,7 +861,7 @@ export default function HeaderDesktop() {
                 variant="secondary"
                 size="md"
                 onClick={() => setIsCategoryOpen(!isCategoryOpen)}
-                className="bg-[#FA8232] hover:bg-[#de6c20] text-white gap-2.5 font-medium px-4 py-2.5 rounded-sm border-0 shadow-sm cursor-pointer transition-colors"
+                className="bg-[#2DA5F3] hover:bg-[#1B6392] text-white gap-2.5 font-medium px-4 py-2.5 rounded-sm border-0 shadow-sm cursor-pointer transition-colors"
               >
                 <span>All Category</span>
                 <ChevronDown className={`w-4 h-4 text-white transition-transform duration-200 ${isCategoryOpen ? 'rotate-180' : ''}`} />
@@ -950,7 +959,7 @@ export default function HeaderDesktop() {
                                     />
                                   </div>
                                   <div className="flex flex-col gap-1.5 min-w-0 flex-1">
-                                    <h5 className="text-xs font-semibold text-zinc-900 line-clamp-2 leading-snug group-hover:text-[#FA8232] transition-colors">
+                                    <h5 className="text-xs font-semibold text-zinc-900 line-clamp-2 leading-snug group-hover:text-[#2DA5F3] transition-colors">
                                       {item.title}
                                     </h5>
                                     <div className="flex items-center gap-2">
@@ -1002,7 +1011,7 @@ export default function HeaderDesktop() {
                                   setIsCategoryOpen(false);
                                   navigate("/category-demo");
                                 }}
-                                className="w-full bg-[#FA8232] hover:bg-[#de6c20] text-white text-xs sm:text-sm font-bold py-3 px-5 rounded-xl flex items-center justify-center gap-2 shadow-md transition-colors cursor-pointer"
+                                className="w-full bg-[#2DA5F3] hover:bg-[#1B6392] text-white text-xs sm:text-sm font-bold py-3 px-5 rounded-xl flex items-center justify-center gap-2 shadow-md transition-colors cursor-pointer"
                               >
                                 <span>SHOP NOW</span>
                                 <ArrowRight className="w-4 h-4" />
@@ -1017,22 +1026,50 @@ export default function HeaderDesktop() {
               )}
             </div>
 
-            {/* Quick Links with Lucide Icons */}
+            {/* Quick Links with Lucide Icons & Active Highlights */}
             <div className="flex items-center gap-6">
-              <Link to="/track-order" className="flex items-center gap-2 text-sm text-zinc-600 hover:text-[#1B6392] transition-colors">
-                <MapPin className="w-4 h-4 text-zinc-500" />
+              <Link
+                to="/track-order"
+                className={`flex items-center gap-2 text-sm transition-all px-2.5 py-1 rounded-lg ${
+                  location.pathname === "/track-order"
+                    ? "text-[#2DA5F3] font-bold bg-sky-50 border border-sky-200"
+                    : "text-zinc-600 hover:text-[#1B6392]"
+                }`}
+              >
+                <MapPin className={`w-4 h-4 ${location.pathname === "/track-order" ? "text-[#2DA5F3]" : "text-zinc-500"}`} />
                 <span>Track Order</span>
               </Link>
-              <Link to="/compare" className="flex items-center gap-2 text-sm text-zinc-600 hover:text-[#1B6392] transition-colors">
-                <ArrowLeftRight className="w-4 h-4 text-zinc-500" />
+              <Link
+                to="/compare"
+                className={`flex items-center gap-2 text-sm transition-all px-2.5 py-1 rounded-lg ${
+                  location.pathname === "/compare"
+                    ? "text-[#2DA5F3] font-bold bg-sky-50 border border-sky-200"
+                    : "text-zinc-600 hover:text-[#1B6392]"
+                }`}
+              >
+                <ArrowLeftRight className={`w-4 h-4 ${location.pathname === "/compare" ? "text-[#2DA5F3]" : "text-zinc-500"}`} />
                 <span>Compare</span>
               </Link>
-              <Link to="#" className="flex items-center gap-2 text-sm text-zinc-600 hover:text-zinc-900 transition-colors">
-                <Headphones className="w-4 h-4 text-zinc-500" />
+              <Link
+                to="/customer-support"
+                className={`flex items-center gap-2 text-sm transition-all px-2.5 py-1 rounded-lg ${
+                  location.pathname === "/customer-support" || location.pathname === "/customer-services"
+                    ? "text-[#2DA5F3] font-bold bg-sky-50 border border-sky-200"
+                    : "text-zinc-600 hover:text-zinc-900"
+                }`}
+              >
+                <Headphones className={`w-4 h-4 ${location.pathname === "/customer-support" || location.pathname === "/customer-services" ? "text-[#2DA5F3]" : "text-zinc-500"}`} />
                 <span>Customer Support</span>
               </Link>
-              <Link to="#" className="flex items-center gap-2 text-sm text-zinc-600 hover:text-zinc-900 transition-colors">
-                <HelpCircle className="w-4 h-4 text-zinc-500" />
+              <Link
+                to="/need-help"
+                className={`flex items-center gap-2 text-sm transition-all px-2.5 py-1 rounded-lg ${
+                  location.pathname === "/need-help" || location.pathname === "/bantuan"
+                    ? "text-[#2DA5F3] font-bold bg-sky-50 border border-sky-200"
+                    : "text-zinc-600 hover:text-zinc-900"
+                }`}
+              >
+                <HelpCircle className={`w-4 h-4 ${location.pathname === "/need-help" || location.pathname === "/bantuan" ? "text-[#2DA5F3]" : "text-zinc-500"}`} />
                 <span>Need Help</span>
               </Link>
             </div>

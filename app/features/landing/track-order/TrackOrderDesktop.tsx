@@ -59,7 +59,7 @@ export function TrackOrderDesktop() {
                     value={orderId}
                     onChange={(e) => setOrderId(e.target.value)}
                     placeholder="ID..."
-                    className="w-full h-11 px-4 bg-white border border-[#E4E7E9] rounded-md text-sm text-[#191C1E] placeholder-[#929FA5] focus:outline-none focus:border-[#FA8232] focus:ring-1 focus:ring-[#FA8232] transition-all"
+                    className="w-full h-11 px-4 bg-white border border-[#E4E7E9] rounded-md text-sm text-[#191C1E] placeholder-[#929FA5] focus:outline-none focus:border-[#2DA5F3] focus:ring-1 focus:ring-[#2DA5F3] transition-all"
                   />
                 </div>
 
@@ -73,7 +73,7 @@ export function TrackOrderDesktop() {
                     value={emailOrPhone}
                     onChange={(e) => setEmailOrPhone(e.target.value)}
                     placeholder="Email address"
-                    className="w-full h-11 px-4 bg-white border border-[#E4E7E9] rounded-md text-sm text-[#191C1E] placeholder-[#929FA5] focus:outline-none focus:border-[#FA8232] focus:ring-1 focus:ring-[#FA8232] transition-all"
+                    className="w-full h-11 px-4 bg-white border border-[#E4E7E9] rounded-md text-sm text-[#191C1E] placeholder-[#929FA5] focus:outline-none focus:border-[#2DA5F3] focus:ring-1 focus:ring-[#2DA5F3] transition-all"
                   />
                 </div>
               </div>
@@ -88,7 +88,9 @@ export function TrackOrderDesktop() {
               <div className="pt-2">
                 <Button
                   type="submit"
-                  className="bg-[#FA8232] hover:bg-[#de6c20] text-white font-bold text-sm tracking-wider uppercase h-12 px-8 rounded-md flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-xs"
+                  variant="default"
+                  size="lg"
+                  className="px-8 uppercase tracking-wider flex items-center justify-center gap-2"
                 >
                   <span>TRACK ORDER</span>
                   <ArrowRight className="w-4 h-4" />
@@ -111,7 +113,7 @@ export function TrackOrderDesktop() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Card 1 */}
                 <div className="bg-[#F2F4F5] p-6 rounded-xl border border-[#E4E7E9] space-y-2.5">
-                  <div className="w-10 h-10 rounded-lg bg-white border border-[#E4E7E9] flex items-center justify-center text-[#FA8232]">
+                  <div className="w-10 h-10 rounded-lg bg-white border border-[#E4E7E9] flex items-center justify-center text-[#2DA5F3]">
                     <HelpCircle className="w-5 h-5" />
                   </div>
                   <h4 className="font-bold text-sm text-[#191C1E]">

@@ -22,6 +22,7 @@ import { AuthProvider } from "~/context/AuthContext";
 // Tambahkan import PasswordProvider
 import { PasswordProvider } from "~/context/PasswordContext";
 import { CartProvider } from "~/context/CartContext";
+import { WishlistProvider } from "~/context/WishlistContext";
 
 import "~/app.css";
 
@@ -89,7 +90,9 @@ export default function App() {
             {/* Tambahkan PasswordProvider di sini */}
             <PasswordProvider>
                 <CartProvider>
-                    <Outlet context={{ isMobile } satisfies ContextType} />
+                    <WishlistProvider>
+                        <Outlet context={{ isMobile } satisfies ContextType} />
+                    </WishlistProvider>
                 </CartProvider>
             </PasswordProvider>
         </AuthProvider>

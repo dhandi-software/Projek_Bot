@@ -40,45 +40,57 @@ export function useUserProfile() {
     // Load profile on mount
     useEffect(() => {
         const savedUserStr = localStorage.getItem("user");
-        const savedProfileStr = localStorage.getItem("userProfile");
-        const savedPhoto = localStorage.getItem("userPhoto");
 
-        let loadedData: UserProfileData = {
-            name: user?.name || "Pengguna Bot",
-            username: user?.username || "user_bot",
-            email: user?.email || "user@example.com",
-            phone: user?.phone || "081234567890",
-            address: user?.address || "Jakarta, Indonesia",
-            bio: "Pengguna aktif platform eCommerce & Bot Automation.",
-            photo: savedPhoto || user?.photo || "/images/avatar.svg",
-            role: user?.role || "customer",
-        };
+        let currentEmail = user?.email;
+        let currentRole = (user?.role || "customer").toLowerCase();
 
-        if (savedProfileStr) {
-            try {
-                const parsed = JSON.parse(savedProfileStr);
-                loadedData = { ...loadedData, ...parsed };
-            } catch (e) {
-                console.error("Error parsing cached profile", e);
-            }
-        } else if (savedUserStr) {
+        if (!currentEmail && savedUserStr) {
             try {
                 const parsedUser = JSON.parse(savedUserStr);
-                loadedData = {
-                    ...loadedData,
-                    name: parsedUser.name || loadedData.name,
-                    email: parsedUser.email || loadedData.email,
-                    phone: parsedUser.phone || loadedData.phone,
-                    address: parsedUser.address || loadedData.address,
-                    role: parsedUser.role || loadedData.role,
-                };
+                currentEmail = parsedUser.email;
+                currentRole = (parsedUser.role || "customer").toLowerCase();
             } catch (e) {
-                console.error("Error parsing cached user", e);
+                console.error("Error parsing saved user", e);
             }
         }
 
-        if (savedPhoto) {
-            loadedData.photo = savedPhoto;
+        const isAdmin = currentRole === "admin";
+
+        // Admin accounts must NEVER use customer photo cache
+        if (isAdmin) {
+            localStorage.removeItem("userPhoto");
+            localStorage.removeItem("userProfile");
+        }
+
+        const rolePhotoKey = `userPhoto_${currentRole}_${currentEmail || "guest"}`;
+        const roleProfileKey = `userProfile_${currentRole}_${currentEmail || "guest"}`;
+
+        const savedRolePhoto = localStorage.getItem(rolePhotoKey);
+        const savedRoleProfileStr = localStorage.getItem(roleProfileKey);
+
+        let loadedData: UserProfileData = {
+            name: user?.name || (isAdmin ? "Administrator System" : "Pengguna Bot"),
+            username: user?.username || (isAdmin ? "admin" : "user_bot"),
+            email: currentEmail || (isAdmin ? "admin@dhandiecommerce.com" : "user@example.com"),
+            phone: user?.phone || "081234567890",
+            address: user?.address || "Jakarta, Indonesia",
+            bio: isAdmin ? "Administrator Platform Dhandi Ecommerce." : "Pengguna aktif platform eCommerce & Bot Automation.",
+            photo: savedRolePhoto || (isAdmin ? "/images/avatar.svg" : (user?.photo || "/images/avatar.svg")),
+            role: currentRole,
+        };
+
+        if (savedRoleProfileStr) {
+            try {
+                const parsed = JSON.parse(savedRoleProfileStr);
+                if (parsed.email === currentEmail) {
+                    loadedData = { ...loadedData, ...parsed };
+                    if (savedRolePhoto) {
+                        loadedData.photo = savedRolePhoto;
+                    }
+                }
+            } catch (e) {
+                console.error("Error parsing cached role profile", e);
+            }
         }
 
         setProfile(loadedData);
@@ -129,23 +141,38 @@ export function useUserProfile() {
                     photo: base64Photo,
                 }));
 
-                // Immediately persist uploaded photo to localStorage
-                localStorage.setItem("userPhoto", base64Photo);
-                const currentUserStr = localStorage.getItem("user");
-                if (currentUserStr) {
-                    try {
-                        const currentUserObj = JSON.parse(currentUserStr);
-                        localStorage.setItem("user", JSON.stringify({ ...currentUserObj, photo: base64Photo }));
-                    } catch (e) {
-                        console.error("Failed to update user photo in localStorage", e);
-                    }
-                }
+                // Role & Email scoped photo key
+                const currentRole = (profile.role || "customer").toLowerCase();
+                const rolePhotoKey = `userPhoto_${currentRole}_${profile.email}`;
+                localStorage.setItem(rolePhotoKey, base64Photo);
 
                 showToast("Foto profil berhasil diupload & disimpan!", "success");
                 window.dispatchEvent(new Event("user-profile-updated"));
             }
         };
         reader.readAsDataURL(file);
+    };
+
+    const handleResetPhoto = () => {
+        const defaultPhoto = "/images/avatar.svg";
+        const currentRole = (profile.role || "customer").toLowerCase();
+        const rolePhotoKey = `userPhoto_${currentRole}_${profile.email}`;
+        
+        localStorage.removeItem(rolePhotoKey);
+        localStorage.removeItem("userPhoto");
+
+        setFormData((prev) => ({
+            ...prev,
+            photo: defaultPhoto,
+            photoFile: null,
+        }));
+        setProfile((prev) => ({
+            ...prev,
+            photo: defaultPhoto,
+        }));
+
+        showToast("Foto profil berhasil direset!", "success");
+        window.dispatchEvent(new Event("user-profile-updated"));
     };
 
     const handleSaveProfile = async () => {
@@ -162,36 +189,17 @@ export function useUserProfile() {
                 photo: formData.photo,
             };
 
-            // Save to localStorage for instant persistence across pages & components
-            localStorage.setItem("userProfile", JSON.stringify(updatedProfile));
-            localStorage.setItem("userPhoto", formData.photo);
-            localStorage.setItem("userUsername", formData.username);
+            const currentRole = (profile.role || "customer").toLowerCase();
+            const roleProfileKey = `userProfile_${currentRole}_${formData.email}`;
+            const rolePhotoKey = `userPhoto_${currentRole}_${formData.email}`;
 
-            // Update main user object in localStorage
-            const currentUserStr = localStorage.getItem("user");
-            if (currentUserStr) {
-                try {
-                    const currentUserObj = JSON.parse(currentUserStr);
-                    const newAuthUser = {
-                        ...currentUserObj,
-                        name: formData.name,
-                        email: formData.email,
-                        username: formData.username,
-                        phone: formData.phone,
-                        address: formData.address,
-                        photo: formData.photo,
-                    };
-                    localStorage.setItem("user", JSON.stringify(newAuthUser));
-                } catch (e) {
-                    console.error("Failed to update user localStorage", e);
-                }
-            }
+            localStorage.setItem(roleProfileKey, JSON.stringify(updatedProfile));
+            localStorage.setItem(rolePhotoKey, formData.photo);
 
             setProfile(updatedProfile);
             setIsEditing(false);
             showToast("Profil berhasil diperbarui dan disimpan!", "success");
 
-            // Dispatch window event so Header components immediately re-render avatar
             window.dispatchEvent(new Event("user-profile-updated"));
         } catch (err: any) {
             showToast(err.message || "Gagal menyimpan profil", "destructive");
@@ -224,6 +232,7 @@ export function useUserProfile() {
         logout,
         handleInputChange,
         handlePhotoUpload,
+        handleResetPhoto,
         handleSaveProfile,
         handleCancel,
     };

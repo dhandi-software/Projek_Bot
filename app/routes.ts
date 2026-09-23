@@ -22,7 +22,18 @@ export default [
         route("track-order", "routes/landing/TrackOrder.tsx"),
         route("track-order/detail", "routes/landing/TrackOrderDetail.tsx"),
         route("compare", "routes/landing/Compare.tsx"),
+        route("wishlist", "routes/landing/Wishlist.tsx"),
+        route("cart", "routes/landing/Cart.tsx"),
+        route("keranjang", "routes/landing/Cart.tsx", { id: "keranjang-alias" }),
+        route("checkout", "routes/landing/Checkout.tsx"),
+        route("checkout/success", "routes/landing/CheckoutSuccess.tsx"),
+        route("customer-support", "routes/landing/CustomerSupport.tsx"),
+        route("customer-services", "routes/landing/CustomerSupport.tsx", { id: "customer-services-alias" }),
+        route("need-help", "routes/landing/NeedHelp.tsx"),
+        route("bantuan", "routes/landing/NeedHelp.tsx", { id: "need-help-bantuan-alias" }),
     ]),
+
+
 
 
     // API Routes

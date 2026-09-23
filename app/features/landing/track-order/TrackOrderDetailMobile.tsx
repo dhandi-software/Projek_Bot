@@ -53,7 +53,7 @@ export function TrackOrderDetailMobile() {
 
         {isLoading ? (
           <div className="py-12 flex flex-col items-center justify-center space-y-2">
-            <div className="w-7 h-7 border-2 border-[#FA8232] border-t-transparent rounded-full animate-spin" />
+            <div className="w-7 h-7 border-2 border-[#2DA5F3] border-t-transparent rounded-full animate-spin" />
             <p className="text-xs text-[#5F6C72]">Memuat detail pesanan...</p>
           </div>
         ) : order ? (
@@ -99,7 +99,7 @@ export function TrackOrderDetailMobile() {
             {/* Timeline */}
             <div className="bg-white rounded-xl border border-[#E4E7E9] p-4 space-y-4">
               <h3 className="text-xs font-bold text-[#191C1E] flex items-center gap-2 border-b border-[#E4E7E9] pb-2">
-                <Clock className="w-3.5 h-3.5 text-[#FA8232]" />
+                <Clock className="w-3.5 h-3.5 text-[#2DA5F3]" />
                 Riwayat Pengiriman
               </h3>
 
@@ -109,7 +109,7 @@ export function TrackOrderDetailMobile() {
                     <div
                       className={`absolute -left-4 top-1 w-2.5 h-2.5 rounded-full ring-2 ring-white ${
                         event.current
-                          ? "bg-[#FA8232] animate-pulse"
+                          ? "bg-[#2DA5F3] animate-pulse"
                           : event.completed
                           ? "bg-[#00a884]"
                           : "bg-[#E4E7E9]"
@@ -134,7 +134,7 @@ export function TrackOrderDetailMobile() {
             {/* Address & Products Summary */}
             <div className="bg-white rounded-xl border border-[#E4E7E9] p-4 space-y-4">
               <h4 className="text-xs font-bold text-[#191C1E] flex items-center gap-2 border-b border-[#E4E7E9] pb-2">
-                <MapPin className="w-3.5 h-3.5 text-[#FA8232]" />
+                <MapPin className="w-3.5 h-3.5 text-[#2DA5F3]" />
                 Alamat Tujuan
               </h4>
               <div className="text-xs text-[#5F6C72] space-y-0.5">
@@ -144,7 +144,7 @@ export function TrackOrderDetailMobile() {
               </div>
 
               <h4 className="text-xs font-bold text-[#191C1E] flex items-center gap-2 border-b border-[#E4E7E9] pt-2 pb-2">
-                <PackageCheck className="w-3.5 h-3.5 text-[#FA8232]" />
+                <PackageCheck className="w-3.5 h-3.5 text-[#2DA5F3]" />
                 Barang Dipesan
               </h4>
 
@@ -177,7 +177,7 @@ export function TrackOrderDetailMobile() {
         ) : (
           <div className="py-12 text-center space-y-3">
             <p className="text-xs text-[#5F6C72]">Pesanan tidak ditemukan.</p>
-            <Button asChild variant="default" className="bg-[#FA8232] text-white text-xs font-bold w-full">
+            <Button asChild variant="default" className="bg-[#2DA5F3] hover:bg-[#1B6392] text-white text-xs font-bold w-full">
               <Link to="/track-order">Cari Pesanan Lain</Link>
             </Button>
           </div>

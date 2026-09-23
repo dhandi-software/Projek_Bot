@@ -15,6 +15,7 @@ export function ProfileDesktop() {
         showToast,
         handleInputChange,
         handlePhotoUpload,
+        handleResetPhoto,
         handleSaveProfile,
         handleCancel,
     } = useUserProfile();
@@ -45,6 +46,7 @@ export function ProfileDesktop() {
                     profile={profile}
                     formData={formData}
                     onPhotoUpload={handlePhotoUpload}
+                    onResetPhoto={handleResetPhoto}
                 />
 
                 {/* Main Profile Info Form */}

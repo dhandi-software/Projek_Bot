@@ -3,26 +3,26 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "~/lib/utils";
 
 const buttonVariants = cva(
-    "inline-flex cursor-pointer items-center justify-center whitespace-nowrap rounded-md transition-all disabled:pointer-events-none shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+    "inline-flex cursor-pointer items-center justify-center whitespace-nowrap rounded-md font-semibold transition-all disabled:pointer-events-none shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
     {
         variants: {
             variant: {
                 default:
-                    "bg-brand-primary !text-brand-primary-foreground hover:bg-brand-primary-hover disabled:bg-brand-primary-muted disabled:text-brand-primary-muted-foreground focus-visible:ring-outline-focus-primary",
+                    "bg-brand-primary text-white hover:bg-brand-primary-hover active:bg-brand-primary-hover disabled:bg-zinc-200 disabled:text-zinc-400 focus-visible:ring-brand-primary/50 shadow-xs",
                 secondary:
-                    "bg-brand-secondary !text-brand-secondary-foreground hover:bg-brand-secondary-hover disabled:bg-brand-secondary-muted disabled:text-brand-secondary-muted-foreground focus-visible:ring-outline-focus-destructive",
+                    "bg-zinc-100 text-zinc-900 hover:bg-zinc-200 disabled:bg-zinc-100 disabled:text-zinc-400",
                 destructive:
-                    "bg-brand-destructive !text-brand-destructive-foreground hover:bg-brand-destructive-hover disabled:bg-brand-destructive-muted disabled:text-brand-destructive-muted-foreground",
-                ghost: "backdrop-blur-[5px] !text-brand-secondary-foreground hover:bg-brand-secondary-muted disabled:shadow-xs disabled:backdrop-blur-[5px] disabled:text-brand-secondary-muted-foreground",
+                    "bg-rose-600 text-white hover:bg-rose-700 disabled:bg-rose-200 disabled:text-rose-400",
+                ghost: "text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 disabled:text-zinc-400",
                 outline:
-                    "border border hover:bg-brand-secondary-muted disabled:border-border-subtle disabled:text-brand-secondary-muted-foreground",
-                link: "!text-link underline-offset-4 hover:underline hover:text-link-hover disabled:text-brand-secondary-muted-foreground",
+                    "border border-brand-primary text-brand-primary hover:bg-brand-primary/10 disabled:border-zinc-200 disabled:text-zinc-400",
+                link: "text-brand-primary underline-offset-4 hover:underline disabled:text-zinc-400",
             },
             size: {
-                sm: "h-[2rem] text-label-sm py-lg px-md gap-sm [&_svg]:!size-[0.875rem]",
-                md: "h-[2.25rem] py-sm px-lg gap-sm [&_svg]:!size-[1rem] text-label",
-                lg: "h-[2.5rem] py-sm px-2xl gap-sm [&_svg]:!size-[1rem] text-label",
-                icon: "size-9 [&_svg]:!size-[1rem]",
+                sm: "h-8 text-xs px-3 gap-1.5 [&_svg]:size-3.5",
+                md: "h-10 text-xs px-4 gap-2 [&_svg]:size-4",
+                lg: "h-12 text-sm px-6 gap-2 [&_svg]:size-4.5",
+                icon: "size-9 [&_svg]:size-4",
             },
         },
         defaultVariants: {

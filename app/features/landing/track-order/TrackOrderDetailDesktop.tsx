@@ -64,7 +64,7 @@ export function TrackOrderDetailDesktop() {
 
         {isLoading ? (
           <div className="py-20 flex flex-col items-center justify-center space-y-3">
-            <div className="w-8 h-8 border-3 border-[#FA8232] border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-3 border-[#2DA5F3] border-t-transparent rounded-full animate-spin" />
             <p className="text-xs text-[#5F6C72] font-medium">Memuat detail pesanan...</p>
           </div>
         ) : order ? (
@@ -144,7 +144,7 @@ export function TrackOrderDetailDesktop() {
               {/* Left 2 Cols: Detailed Activity Timeline */}
               <div className="lg:col-span-2 bg-white rounded-xl border border-[#E4E7E9] p-6 space-y-6">
                 <h3 className="text-base font-bold text-[#191C1E] flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-[#FA8232]" />
+                  <Clock className="w-4 h-4 text-[#2DA5F3]" />
                   Riwayat Aktivitas Pengiriman
                 </h3>
 
@@ -154,7 +154,7 @@ export function TrackOrderDetailDesktop() {
                       <div
                         className={`absolute -left-6 top-1 w-3.5 h-3.5 rounded-full ring-4 ring-white ${
                           event.current
-                            ? "bg-[#FA8232] animate-pulse"
+                            ? "bg-[#2DA5F3] animate-pulse"
                             : event.completed
                             ? "bg-[#00a884]"
                             : "bg-[#E4E7E9]"
@@ -183,7 +183,7 @@ export function TrackOrderDetailDesktop() {
                 {/* Shipping Address Card */}
                 <div className="bg-white rounded-xl border border-[#E4E7E9] p-5 space-y-3">
                   <h4 className="text-xs font-bold text-[#191C1E] flex items-center gap-2 border-b border-[#E4E7E9] pb-2">
-                    <MapPin className="w-4 h-4 text-[#FA8232]" />
+                    <MapPin className="w-4 h-4 text-[#2DA5F3]" />
                     Alamat Pengiriman
                   </h4>
                   <div className="text-xs text-[#5F6C72] space-y-0.5">
@@ -197,7 +197,7 @@ export function TrackOrderDetailDesktop() {
                 {/* Items & Payment Summary Card */}
                 <div className="bg-white rounded-xl border border-[#E4E7E9] p-5 space-y-3">
                   <h4 className="text-xs font-bold text-[#191C1E] flex items-center gap-2 border-b border-[#E4E7E9] pb-2">
-                    <PackageCheck className="w-4 h-4 text-[#FA8232]" />
+                    <PackageCheck className="w-4 h-4 text-[#2DA5F3]" />
                     Rincian Produk Dipesan
                   </h4>
                   <div className="space-y-2.5">
@@ -237,7 +237,7 @@ export function TrackOrderDetailDesktop() {
         ) : (
           <div className="py-16 text-center space-y-3">
             <p className="text-sm text-[#5F6C72]">Pesanan tidak ditemukan.</p>
-            <Button asChild variant="default" className="bg-[#FA8232] text-white text-xs font-bold">
+            <Button asChild variant="default" className="bg-[#2DA5F3] hover:bg-[#1B6392] text-white text-xs font-bold">
               <Link to="/track-order">Cari Pesanan Lain</Link>
             </Button>
           </div>

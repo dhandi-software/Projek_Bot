@@ -53,7 +53,7 @@ export function TrackOrderMobile() {
                 value={orderId}
                 onChange={(e) => setOrderId(e.target.value)}
                 placeholder="ID..."
-                className="w-full h-11 px-3.5 bg-white border border-[#E4E7E9] rounded-md text-sm text-[#191C1E] placeholder-[#929FA5] focus:outline-none focus:border-[#FA8232] focus:ring-1 focus:ring-[#FA8232]"
+                className="w-full h-11 px-3.5 bg-white border border-[#E4E7E9] rounded-md text-sm text-[#191C1E] placeholder-[#929FA5] focus:outline-none focus:border-[#2DA5F3] focus:ring-1 focus:ring-[#2DA5F3]"
               />
             </div>
 
@@ -66,7 +66,7 @@ export function TrackOrderMobile() {
                 value={emailOrPhone}
                 onChange={(e) => setEmailOrPhone(e.target.value)}
                 placeholder="Email address"
-                className="w-full h-11 px-3.5 bg-white border border-[#E4E7E9] rounded-md text-sm text-[#191C1E] placeholder-[#929FA5] focus:outline-none focus:border-[#FA8232] focus:ring-1 focus:ring-[#FA8232]"
+                className="w-full h-11 px-3.5 bg-white border border-[#E4E7E9] rounded-md text-sm text-[#191C1E] placeholder-[#929FA5] focus:outline-none focus:border-[#2DA5F3] focus:ring-1 focus:ring-[#2DA5F3]"
               />
             </div>
 
@@ -78,7 +78,9 @@ export function TrackOrderMobile() {
             <div className="pt-2">
               <Button
                 type="submit"
-                className="w-full bg-[#FA8232] hover:bg-[#de6c20] text-white font-bold text-xs tracking-wider uppercase h-12 rounded-md flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-xs"
+                variant="default"
+                size="lg"
+                className="w-full uppercase tracking-wider flex items-center justify-center gap-2"
               >
                 <span>TRACK ORDER</span>
                 <ArrowRight className="w-4 h-4" />
@@ -101,7 +103,7 @@ export function TrackOrderMobile() {
             <div className="space-y-3">
               <div className="bg-[#F2F4F5] p-4 rounded-lg border border-[#E4E7E9] space-y-1.5">
                 <div className="flex items-center gap-2">
-                  <HelpCircle className="w-4 h-4 text-[#FA8232]" />
+                  <HelpCircle className="w-4 h-4 text-[#2DA5F3]" />
                   <h4 className="font-bold text-xs text-[#191C1E]">
                     Dimana Saya Menemukan Order ID?
                   </h4>

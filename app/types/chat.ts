@@ -53,3 +53,9 @@ export interface SendMessagePayload {
   fileName?: string;
   isPublic?: boolean;
 }
+
+export interface LandingChatMessage {
+  role: "user" | "model";
+  text: string;
+}
+

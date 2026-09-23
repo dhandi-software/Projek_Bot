@@ -29,7 +29,7 @@ export function CompareDesktop() {
                                 <RotateCcw className="w-4 h-4" />
                                 <span>Reset Default</span>
                             </Button>
-                            <Button asChild className="bg-[#FA8232] hover:bg-[#E07026] text-white">
+                            <Button asChild>
                                 <Link to="/" className="flex items-center gap-2">
                                     <ArrowLeft className="w-4 h-4" />
                                     <span>Continue Shopping</span>
@@ -103,11 +103,7 @@ export function CompareDesktop() {
                                     <div className="flex items-center gap-2 pt-4 mt-2">
                                         <Button
                                             disabled={item.stockStatus === "OUT OF STOCK"}
-                                            className={`flex-1 font-semibold text-xs py-2.5 h-11 transition-all ${
-                                                item.stockStatus === "OUT OF STOCK"
-                                                    ? "bg-zinc-200 text-zinc-500 border-zinc-200 cursor-not-allowed"
-                                                    : "bg-[#FA8232] hover:bg-[#E07026] text-white shadow-xs"
-                                            }`}
+                                            className="flex-1"
                                         >
                                             <ShoppingCart className="w-4 h-4 mr-1.5" />
                                             <span>ADD TO CART</span>

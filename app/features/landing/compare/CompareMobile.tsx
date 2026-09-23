@@ -29,7 +29,7 @@ export function CompareMobile() {
                                 <RotateCcw className="w-4 h-4" />
                                 <span>Reset Default</span>
                             </Button>
-                            <Button asChild className="w-full min-h-[44px] bg-[#FA8232] hover:bg-[#E07026] text-white">
+                            <Button asChild className="w-full min-h-[44px] bg-[#2DA5F3] hover:bg-[#1B6392] text-white">
                                 <Link to="/" className="flex items-center justify-center gap-2">
                                     <ArrowLeft className="w-4 h-4" />
                                     <span>Continue Shopping</span>
@@ -106,7 +106,7 @@ export function CompareMobile() {
                                         className={`flex-1 font-semibold text-[11px] min-h-[40px] px-2 ${
                                             item.stockStatus === "OUT OF STOCK"
                                                 ? "bg-zinc-200 text-zinc-500 border-zinc-200 cursor-not-allowed"
-                                                : "bg-[#FA8232] hover:bg-[#E07026] text-white"
+                                                : "bg-[#2DA5F3] hover:bg-[#1B6392] text-white"
                                         }`}
                                     >
                                         <ShoppingCart className="w-3.5 h-3.5 mr-1" />

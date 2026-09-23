@@ -64,7 +64,7 @@ export function EcommerceFooter() {
               </span>
               <a
                 href="tel:6295550129"
-                className="text-white font-bold text-lg hover:text-[#FA8232] transition-colors block"
+                className="text-white font-bold text-lg hover:text-[#2DA5F3] transition-colors block"
               >
                 (629) 555-0129
               </a>
@@ -76,7 +76,7 @@ export function EcommerceFooter() {
 
             <a
               href="mailto:info@dhandi.com"
-              className="text-xs text-white font-semibold block hover:text-[#FA8232] transition-colors pt-1"
+              className="text-xs text-white font-semibold block hover:text-[#2DA5F3] transition-colors pt-1"
             >
               info@dhandi.com
             </a>

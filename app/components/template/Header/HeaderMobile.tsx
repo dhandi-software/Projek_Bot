@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useLocation } from "react-router";
 import {
   Search,
   ShoppingCart,
@@ -8,6 +8,7 @@ import {
   X,
   MapPin,
   ArrowLeftRight,
+  Heart,
   Headphones,
   HelpCircle,
   PhoneCall,
@@ -21,6 +22,7 @@ import { getAvatarInitials } from "~/lib/avatar";
 
 export default function HeaderMobile() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, isAuthenticated, logout } = useAuth();
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
 
@@ -392,7 +394,7 @@ export default function HeaderMobile() {
           <div className="border-b border-zinc-100 pb-3">
             <button
               onClick={() => setIsCategoryOpen(!isCategoryOpen)}
-              className="w-full bg-[#FA8232] hover:bg-[#de6c20] text-white px-4 py-2.5 rounded-md flex items-center justify-between text-sm font-semibold cursor-pointer shadow-xs transition-colors"
+              className="w-full bg-[#2DA5F3] hover:bg-[#1B6392] text-white px-4 py-2.5 rounded-md flex items-center justify-between text-sm font-semibold cursor-pointer shadow-xs transition-colors"
             >
               <div className="flex items-center gap-2">
                 <Menu className="w-4 h-4" />
@@ -443,7 +445,7 @@ export default function HeaderMobile() {
                                     onClick={() => setSelectedBrand(brand)}
                                     className={`px-2.5 py-1 rounded-full text-[11px] whitespace-nowrap font-medium transition-colors cursor-pointer shrink-0 ${
                                       selectedBrand === brand
-                                        ? "bg-[#FA8232] text-white shadow-xs"
+                                        ? "bg-[#2DA5F3] text-white shadow-xs"
                                         : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
                                     }`}
                                   >
@@ -504,7 +506,7 @@ export default function HeaderMobile() {
                                   setIsMenuOpen(false);
                                   navigate("/category-demo");
                                 }}
-                                className="w-full bg-[#FA8232] text-white text-xs font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow-xs cursor-pointer"
+                                className="w-full bg-[#2DA5F3] hover:bg-[#1B6392] text-white text-xs font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow-xs cursor-pointer"
                               >
                                 <span>SHOP NOW</span>
                                 <ArrowRight className="w-4 h-4" />
@@ -531,20 +533,64 @@ export default function HeaderMobile() {
 
           <div className="border-t border-zinc-100 pt-3 space-y-3">
             <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Services</p>
-            <Link to="/track-order" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-2.5 text-sm text-zinc-600 hover:text-[#1B6392]">
-              <MapPin className="w-4 h-4 text-zinc-500" />
+            <Link
+              to="/track-order"
+              onClick={() => setIsMenuOpen(false)}
+              className={`flex items-center gap-2.5 text-sm p-2 rounded-lg transition-colors ${
+                location.pathname === "/track-order"
+                  ? "text-[#2DA5F3] font-bold bg-sky-50 border border-sky-200"
+                  : "text-zinc-600 hover:text-[#1B6392]"
+              }`}
+            >
+              <MapPin className={`w-4 h-4 ${location.pathname === "/track-order" ? "text-[#2DA5F3]" : "text-zinc-500"}`} />
               <span>Track Order</span>
             </Link>
-            <Link to="/compare" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-2.5 text-sm text-zinc-600 hover:text-[#1B6392]">
-              <ArrowLeftRight className="w-4 h-4 text-zinc-500" />
+            <Link
+              to="/compare"
+              onClick={() => setIsMenuOpen(false)}
+              className={`flex items-center gap-2.5 text-sm p-2 rounded-lg transition-colors ${
+                location.pathname === "/compare"
+                  ? "text-[#2DA5F3] font-bold bg-sky-50 border border-sky-200"
+                  : "text-zinc-600 hover:text-[#1B6392]"
+              }`}
+            >
+              <ArrowLeftRight className={`w-4 h-4 ${location.pathname === "/compare" ? "text-[#2DA5F3]" : "text-zinc-500"}`} />
               <span>Compare</span>
             </Link>
-            <Link to="#" className="flex items-center gap-2.5 text-sm text-zinc-600">
-              <Headphones className="w-4 h-4 text-zinc-500" />
+            <Link
+              to="/wishlist"
+              onClick={() => setIsMenuOpen(false)}
+              className={`flex items-center gap-2.5 text-sm p-2 rounded-lg transition-colors ${
+                location.pathname === "/wishlist"
+                  ? "text-[#2DA5F3] font-bold bg-sky-50 border border-sky-200"
+                  : "text-zinc-600 hover:text-[#1B6392]"
+              }`}
+            >
+              <Heart className={`w-4 h-4 ${location.pathname === "/wishlist" ? "text-[#2DA5F3]" : "text-zinc-500"}`} />
+              <span>Wishlist</span>
+            </Link>
+            <Link
+              to="/customer-support"
+              onClick={() => setIsMenuOpen(false)}
+              className={`flex items-center gap-2.5 text-sm p-2 rounded-lg transition-colors ${
+                location.pathname === "/customer-support" || location.pathname === "/customer-services"
+                  ? "text-[#2DA5F3] font-bold bg-sky-50 border border-sky-200"
+                  : "text-zinc-600 hover:text-[#1B6392]"
+              }`}
+            >
+              <Headphones className={`w-4 h-4 ${location.pathname === "/customer-support" || location.pathname === "/customer-services" ? "text-[#2DA5F3]" : "text-zinc-500"}`} />
               <span>Customer Support</span>
             </Link>
-            <Link to="#" className="flex items-center gap-2.5 text-sm text-zinc-600">
-              <HelpCircle className="w-4 h-4 text-zinc-500" />
+            <Link
+              to="/need-help"
+              onClick={() => setIsMenuOpen(false)}
+              className={`flex items-center gap-2.5 text-sm p-2 rounded-lg transition-colors ${
+                location.pathname === "/need-help" || location.pathname === "/bantuan"
+                  ? "text-[#2DA5F3] font-bold bg-sky-50 border border-sky-200"
+                  : "text-zinc-600 hover:text-[#1B6392]"
+              }`}
+            >
+              <HelpCircle className={`w-4 h-4 ${location.pathname === "/need-help" || location.pathname === "/bantuan" ? "text-[#2DA5F3]" : "text-zinc-500"}`} />
               <span>Need Help</span>
             </Link>
           </div>

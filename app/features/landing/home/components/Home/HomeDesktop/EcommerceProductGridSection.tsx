@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { Search, X, Star, Heart, ShoppingCart, Eye, ChevronDown } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { useCart } from "~/context/CartContext";
+import { useWishlist } from "~/hooks/useWishlist";
 
 export interface ProductItem {
   id: string;
@@ -92,6 +93,7 @@ const SAMPLE_PRODUCTS: ProductItem[] = [
 
 export function EcommerceProductGridSection() {
   const { addToCart } = useCart();
+  const { addToWishlist, isInWishlist } = useWishlist();
   const [activeFilters, setActiveFilters] = React.useState<string[]>([
     "Electronics Devices",
     "5 Star Rating",
@@ -220,9 +222,23 @@ export function EcommerceProductGridSection() {
                 <button
                   type="button"
                   title="Add to Wishlist"
-                  className="flex size-10 items-center justify-center rounded-full bg-white text-slate-800 shadow-md hover:bg-orange-500 hover:text-white transition-all transform translate-y-2 group-hover:translate-y-0 duration-300 cursor-pointer"
+                  onClick={() => {
+                    const priceNum = parseFloat(product.price.replace(/[^0-9.]/g, "")) || 0;
+                    addToWishlist({
+                      id: product.id,
+                      name: product.title,
+                      price: priceNum,
+                      image: product.image,
+                    });
+                  }}
+                  className={cn(
+                    "flex size-10 items-center justify-center rounded-full shadow-md transition-all transform translate-y-2 group-hover:translate-y-0 duration-300 cursor-pointer",
+                    isInWishlist(product.id)
+                      ? "bg-[#FA8232] text-white"
+                      : "bg-white text-slate-800 hover:bg-orange-500 hover:text-white"
+                  )}
                 >
-                  <Heart className="size-4" />
+                  <Heart className={cn("size-4", isInWishlist(product.id) && "fill-current")} />
                 </button>
                 <button
                   type="button"

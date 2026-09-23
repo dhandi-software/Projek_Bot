@@ -15,6 +15,7 @@ export function ProfileMobile() {
         showToast,
         handleInputChange,
         handlePhotoUpload,
+        handleResetPhoto,
         handleSaveProfile,
         handleCancel,
     } = useUserProfile();
@@ -44,6 +45,7 @@ export function ProfileMobile() {
                 profile={profile}
                 formData={formData}
                 onPhotoUpload={handlePhotoUpload}
+                onResetPhoto={handleResetPhoto}
             />
 
             {/* Main Form Info */}

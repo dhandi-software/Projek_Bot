@@ -13,6 +13,7 @@ interface CartContextType {
   cartItems: CartItem[];
   addToCart: (product: { id: string; title: string; price: string; image: string }) => void;
   removeFromCart: (id: string) => void;
+  updateQuantity: (id: string, delta: number) => void;
   totalCount: number;
   totalPrice: number;
   lastAddedItem: string | null;
@@ -20,20 +21,20 @@ interface CartContextType {
 
 const initialCartItems: CartItem[] = [
   {
-    id: "item-smartwatch",
-    title: "Smart Watch Wireless Series 7",
-    price: "Rp 450.000",
-    numericPrice: 450000,
-    image: "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=400&q=80",
+    id: "chk-1",
+    title: "4K UHD LED Smart TV with Chromecast Built-in",
+    price: "Rp 1.050.000",
+    numericPrice: 1050000,
+    image: "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=500&auto=format&fit=crop&q=80",
     quantity: 1,
   },
   {
-    id: "item-[#1B6392]",
-    title: "Headphone Noise Cancelling",
-    price: "Rp 850.000",
-    numericPrice: 850000,
-    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=400&q=80",
-    quantity: 1,
+    id: "chk-2",
+    title: "Wired Over-Ear Gaming Headphones with USB",
+    price: "Rp 3.750.000",
+    numericPrice: 3750000,
+    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop&q=80",
+    quantity: 3,
   },
 ];
 
@@ -44,11 +45,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [lastAddedItem, setLastAddedItem] = useState<string | null>(null);
 
   const parseNumericPrice = (priceStr: string): number => {
-    // Check if price is in dollars (e.g. "$70", "$2,300")
     if (priceStr.includes("$")) {
       const cleaned = priceStr.replace(/[^0-9.]/g, "");
       const parsed = parseFloat(cleaned);
-      // Convert to IDR approx or return numeric
       return isNaN(parsed) ? 100000 : Math.round(parsed * 15000);
     }
     const cleaned = priceStr.replace(/[^0-9]/g, "");
@@ -90,6 +89,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
   };
 
+  const updateQuantity = (id: string, delta: number) => {
+    setCartItems((prevItems) =>
+      prevItems
+        .map((item) => {
+          if (item.id === id) {
+            const newQty = item.quantity + delta;
+            return newQty > 0 ? { ...item, quantity: newQty } : null;
+          }
+          return item;
+        })
+        .filter((item): item is CartItem => item !== null)
+    );
+  };
+
   const totalCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
   const totalPrice = cartItems.reduce((acc, item) => acc + item.numericPrice * item.quantity, 0);
 
@@ -99,6 +112,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         cartItems,
         addToCart,
         removeFromCart,
+        updateQuantity,
         totalCount,
         totalPrice,
         lastAddedItem,
@@ -116,8 +130,9 @@ export function useCart() {
       cartItems: initialCartItems,
       addToCart: () => {},
       removeFromCart: () => {},
-      totalCount: 2,
-      totalPrice: 1300000,
+      updateQuantity: () => {},
+      totalCount: 4,
+      totalPrice: 12300000,
       lastAddedItem: null,
     };
   }

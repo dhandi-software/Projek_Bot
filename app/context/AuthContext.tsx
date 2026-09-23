@@ -40,6 +40,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const handleAuthSuccess = (userData: User) => {
+    const oldUserStr = localStorage.getItem("user");
+    if (oldUserStr) {
+      try {
+        const oldUser = JSON.parse(oldUserStr);
+        if (oldUser.email !== userData.email || oldUser.id !== userData.id) {
+          localStorage.removeItem("userPhoto");
+          localStorage.removeItem("userProfile");
+          localStorage.removeItem("userUsername");
+          localStorage.removeItem("userBio");
+        }
+      } catch (e) {
+        localStorage.removeItem("userPhoto");
+        localStorage.removeItem("userProfile");
+      }
+    }
     localStorage.setItem("user", JSON.stringify(userData));
     setUser(userData);
 
@@ -109,6 +124,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     localStorage.removeItem("user");
+    localStorage.removeItem("userPhoto");
+    localStorage.removeItem("userProfile");
+    localStorage.removeItem("userUsername");
+    localStorage.removeItem("userBio");
+    localStorage.removeItem("jwt");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("lastPasswordUpdate");
     
     try {
       authService.logout().catch(e => console.error(e));
