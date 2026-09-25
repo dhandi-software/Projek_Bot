@@ -45,7 +45,7 @@ export function renderCategoryIcon(name: string, className = "w-4 h-4") {
   return React.createElement(Folder, { className: `${className} text-amber-500` });
 }
 
-export function usePriceInput(value: number, onChange: (val: number) => void) {
+export function usePriceInput(value: number | undefined | null, onChange: (val: number) => void) {
   const formatNumber = (num: number): string => {
     if (!num && num !== 0) return "";
     if (num === 0) return "";
@@ -62,8 +62,10 @@ export function usePriceInput(value: number, onChange: (val: number) => void) {
       if (isNaN(parsed) || parsed === 0) {
         setDisplayValue("");
       }
-    } else if (value > 0) {
+    } else if (value && value > 0) {
       setDisplayValue(formatNumber(value));
+    } else if (value === undefined || value === null) {
+      setDisplayValue("");
     }
   }, [value]);
 
@@ -85,17 +87,23 @@ export function usePriceInput(value: number, onChange: (val: number) => void) {
   return { displayValue, handleChange };
 }
 
-export function useNumberInput(value: number, step: string, onChange: (val: number) => void) {
+export function useNumberInput(value: number | undefined | null, step: string, onChange: (val: number) => void) {
   const [displayValue, setDisplayValue] = useState<string>(
     value !== undefined && value !== null && value !== 0 ? String(value) : ""
   );
 
-  const prevValueRef = useRef<number>(value);
+  const prevValueRef = useRef<number | undefined | null>(value);
 
   useEffect(() => {
     if (prevValueRef.current !== value) {
       prevValueRef.current = value;
-      setDisplayValue(value !== undefined && value !== null && value !== 0 ? String(value) : "");
+      if (value === undefined || value === null || value === 0) {
+        if (displayValue !== "" && value !== 0) {
+          setDisplayValue("");
+        }
+      } else {
+        setDisplayValue(String(value));
+      }
     }
   }, [value]);
 

@@ -10,6 +10,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrumb";
+import { getProductDetailUrl } from "~/lib/utils";
 import { useCart } from "~/context/CartContext";
 import { useCategory } from "./UseCategory";
 
@@ -122,7 +123,7 @@ export function CategoryDesktop() {
                   return (
                     <Link
                       key={prod.id}
-                      to={`/product/${prod.id}`}
+                      to={getProductDetailUrl(prod)}
                       className="group rounded-2xl border border-slate-200 p-4 bg-white hover:border-orange-500/50 hover:shadow-md transition-all duration-300 flex flex-col justify-between"
                     >
                       <div className="space-y-3">
@@ -172,7 +173,7 @@ export function CategoryDesktop() {
 
                             {/* Quick View / Detail Link Button */}
                             <Link
-                              to={`/product/${prod.id}`}
+                              to={getProductDetailUrl(prod)}
                               title="Quick View"
                               onClick={(e) => e.stopPropagation()}
                               className="size-11 rounded-full bg-white text-slate-800 hover:bg-orange-500 hover:text-white shadow-lg transition-all duration-300 transform -translate-y-2 group-hover:translate-y-0 flex items-center justify-center cursor-pointer"

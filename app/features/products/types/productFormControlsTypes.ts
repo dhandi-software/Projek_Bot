@@ -1,7 +1,7 @@
 export interface PriceInputProps {
   label: string;
   required?: boolean;
-  value: number;
+  value?: number;
   onChange: (val: number) => void;
   placeholder?: string;
   id?: string;
@@ -10,7 +10,7 @@ export interface PriceInputProps {
 export interface NumberInputProps {
   label: string;
   required?: boolean;
-  value: number;
+  value?: number;
   onChange: (val: number) => void;
   placeholder?: string;
   step?: string;

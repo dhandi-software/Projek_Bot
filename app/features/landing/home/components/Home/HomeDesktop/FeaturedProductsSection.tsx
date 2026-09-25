@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router";
 import { ArrowRight, Star, Heart, ShoppingCart, Eye, Check } from "lucide-react";
-import { cn } from "~/lib/utils";
+import { cn, getProductDetailUrl } from "~/lib/utils";
 import { useCart } from "~/context/CartContext";
 
 export interface FeaturedProduct {
@@ -294,7 +294,7 @@ export function FeaturedProductsSection() {
 
                       {/* View Detail Button */}
                       <Link
-                        to={`/product/${product.id}`}
+                        to={getProductDetailUrl(product)}
                         className="w-9 h-9 rounded-full bg-[#FA8232] text-white flex items-center justify-center hover:bg-[#e07228] shadow transition-all duration-200"
                         title="Quick View"
                       >

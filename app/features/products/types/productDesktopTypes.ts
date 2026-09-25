@@ -12,6 +12,7 @@ export interface ProductDesktopState {
   deleteConfirmId: number | string | null;
   actionLoading: boolean;
   toastMessage: string | null;
+  recentlyUpdatedIds?: Set<string | number>;
 }
 
 export interface ProductDesktopActions {

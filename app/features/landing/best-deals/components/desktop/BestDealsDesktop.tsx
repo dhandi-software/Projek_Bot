@@ -10,7 +10,7 @@ import {
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrumb";
 import { Button } from "~/components/ui/button";
-import { cn } from "~/lib/utils";
+import { cn, getProductDetailUrl } from "~/lib/utils";
 import { useBestDealsPage } from "../../hooks/useBestDealsPage";
 
 export function BestDealsDesktop() {
@@ -148,12 +148,15 @@ export function BestDealsDesktop() {
 
                   {/* Product Image & Overlay Actions */}
                   <div className="relative h-48 w-full overflow-hidden rounded-lg flex items-center justify-center p-2 mb-3 bg-zinc-50/60">
-                    <Link to={`/product/${product.id}`} className="h-full w-full flex items-center justify-center">
+                    <Link to={getProductDetailUrl(product)} className="h-full w-full flex items-center justify-center">
                       <img
                         src={product.image}
                         alt={product.title}
                         className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
                         loading="lazy"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80";
+                        }}
                       />
                     </Link>
 
@@ -185,7 +188,7 @@ export function BestDealsDesktop() {
                       </Button>
 
                       <Link
-                        to={`/product/${product.id}`}
+                        to={getProductDetailUrl(product)}
                         title="View detail"
                         className="flex size-9 items-center justify-center rounded-full bg-white text-zinc-800 shadow-md hover:bg-[#FA8232] hover:text-white transition-all transform translate-y-2 group-hover:translate-y-0 duration-300 delay-150 cursor-pointer"
                       >
@@ -216,7 +219,7 @@ export function BestDealsDesktop() {
                       </div>
 
                       {/* Title */}
-                      <Link to={`/product/${product.id}`}>
+                      <Link to={getProductDetailUrl(product)}>
                         <h3 className="text-xs font-semibold text-zinc-800 line-clamp-2 leading-snug group-hover:text-[#FA8232] transition-colors">
                           {product.title}
                         </h3>

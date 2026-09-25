@@ -2,7 +2,7 @@ import * as React from "react";
 import { Link } from "react-router";
 import { Star, Heart, ShoppingCart, Clock, Tag, Search } from "lucide-react";
 import { Button } from "~/components/ui/button";
-import { cn } from "~/lib/utils";
+import { cn, getProductDetailUrl } from "~/lib/utils";
 import { useBestDealsPage } from "../../hooks/useBestDealsPage";
 
 export function BestDealsMobile() {
@@ -108,18 +108,21 @@ export function BestDealsMobile() {
               </Button>
 
               {/* Product Image */}
-              <Link to={`/product/${product.id}`} className="block h-36 w-full relative mb-2 bg-zinc-50 rounded-lg p-1">
+              <Link to={getProductDetailUrl(product)} className="block h-36 w-full relative mb-2 bg-zinc-50 rounded-lg p-1">
                 <img
                   src={product.image}
                   alt={product.title}
                   className="h-full w-full object-contain mx-auto"
                   loading="lazy"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80";
+                  }}
                 />
               </Link>
 
               {/* Info */}
               <div className="space-y-1.5">
-                <Link to={`/product/${product.id}`}>
+                <Link to={getProductDetailUrl(product)}>
                   <h3 className="text-xs font-semibold text-zinc-800 line-clamp-2 leading-tight">
                     {product.title}
                   </h3>

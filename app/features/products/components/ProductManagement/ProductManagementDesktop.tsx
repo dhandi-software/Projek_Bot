@@ -36,6 +36,7 @@ export function ProductManagementDesktop() {
     handleOpenEditForm,
     handleSaveProduct,
     handleDelete,
+    recentlyUpdatedIds,
   } = useProductDesktop();
 
   const [activeTab, setActiveTab] = useState<"all" | "best-deals">("all");
@@ -123,14 +124,17 @@ export function ProductManagementDesktop() {
                 filteredProducts={filteredProducts}
                 handleOpenEditForm={handleOpenEditForm}
                 setDeleteConfirmId={setDeleteConfirmId}
+                recentlyUpdatedIds={recentlyUpdatedIds}
               />
             </>
+
           ) : (
             <BestDealsTableDesktop
               loading={loading}
               products={products}
               handleOpenEditForm={handleOpenEditForm}
               onRefresh={fetchProducts}
+              recentlyUpdatedIds={recentlyUpdatedIds}
             />
           )}
         </div>

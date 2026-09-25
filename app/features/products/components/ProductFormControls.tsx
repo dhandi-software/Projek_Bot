@@ -224,70 +224,85 @@ export function RichTextEditor({
 
   return (
     <div className="flex flex-col gap-1.5 w-full">
-      <label className="text-xs font-medium text-[#374151]">{label}</label>
-      <div className="w-full border border-[#E2E8F0] rounded-lg overflow-hidden bg-white focus-within:border-[#1D4ED8] focus-within:ring-2 focus-within:ring-[#1D4ED8]/15 transition-all">
-        <div className="bg-[#F8FAFC] border-b border-[#E2E8F0] px-2 py-1.5 flex items-center gap-1">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => insertFormat("bold")}
-            className={cn(
-              "!w-[2rem] !h-[2rem] !p-0 rounded text-[#475569] hover:bg-[#E2E8F0] hover:text-[#0F172A] cursor-pointer",
-              "[&_svg]:!w-3.5 [&_svg]:!h-3.5"
-            )}
-            aria-label="Teks Tebal (Bold)"
-          >
-            <Bold className="w-3.5 h-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => insertFormat("italic")}
-            className={cn(
-              "!w-[2rem] !h-[2rem] !p-0 rounded text-[#475569] hover:bg-[#E2E8F0] hover:text-[#0F172A] cursor-pointer",
-              "[&_svg]:!w-3.5 [&_svg]:!h-3.5"
-            )}
-            aria-label="Teks Miring (Italic)"
-          >
-            <Italic className="w-3.5 h-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => insertFormat("list")}
-            className={cn(
-              "!w-[2rem] !h-[2rem] !p-0 rounded text-[#475569] hover:bg-[#E2E8F0] hover:text-[#0F172A] cursor-pointer",
-              "[&_svg]:!w-3.5 [&_svg]:!h-3.5"
-            )}
-            aria-label="Daftar (List)"
-          >
-            <List className="w-3.5 h-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => insertFormat("link")}
-            className={cn(
-              "!w-[2rem] !h-[2rem] !p-0 rounded text-[#475569] hover:bg-[#E2E8F0] hover:text-[#0F172A] cursor-pointer",
-              "[&_svg]:!w-3.5 [&_svg]:!h-3.5"
-            )}
-            aria-label="Tautan (Link)"
-          >
-            <LinkIcon className="w-3.5 h-3.5" />
-          </Button>
+      <label className="text-xs font-medium text-[#374151] flex items-center justify-between">
+        <span>{label}</span>
+        <span className="text-[11px] text-[#64748B] font-normal">Ditampilkan di tab Description</span>
+      </label>
+      <div className="w-full border border-[#E2E8F0] rounded-xl overflow-hidden bg-white focus-within:border-[#1D4ED8] focus-within:ring-2 focus-within:ring-[#1D4ED8]/15 transition-all shadow-xs">
+        <div className="bg-[#F8FAFC] border-b border-[#E2E8F0] px-3 py-2 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => insertFormat("bold")}
+              className={cn(
+                "!w-[2.25rem] !h-[2.25rem] !p-0 rounded-lg text-[#475569] hover:bg-[#E2E8F0] hover:text-[#0F172A] cursor-pointer",
+                "[&_svg]:!w-4 [&_svg]:!h-4"
+              )}
+              aria-label="Teks Tebal (Bold)"
+            >
+              <Bold className="w-4 h-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => insertFormat("italic")}
+              className={cn(
+                "!w-[2.25rem] !h-[2.25rem] !p-0 rounded-lg text-[#475569] hover:bg-[#E2E8F0] hover:text-[#0F172A] cursor-pointer",
+                "[&_svg]:!w-4 [&_svg]:!h-4"
+              )}
+              aria-label="Teks Miring (Italic)"
+            >
+              <Italic className="w-4 h-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => insertFormat("list")}
+              className={cn(
+                "!w-[2.25rem] !h-[2.25rem] !p-0 rounded-lg text-[#475569] hover:bg-[#E2E8F0] hover:text-[#0F172A] cursor-pointer",
+                "[&_svg]:!w-4 [&_svg]:!h-4"
+              )}
+              aria-label="Daftar (List)"
+            >
+              <List className="w-4 h-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => insertFormat("link")}
+              className={cn(
+                "!w-[2.25rem] !h-[2.25rem] !p-0 rounded-lg text-[#475569] hover:bg-[#E2E8F0] hover:text-[#0F172A] cursor-pointer",
+                "[&_svg]:!w-4 [&_svg]:!h-4"
+              )}
+              aria-label="Tautan (Link)"
+            >
+              <LinkIcon className="w-4 h-4" />
+            </Button>
+          </div>
+          <span className="text-[11px] text-[#94A3B8] font-mono">Markdown Format</span>
         </div>
+
         <textarea
           ref={textareaRef}
-          rows={4}
+          rows={8}
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full p-3 bg-white text-xs text-[#0F172A] placeholder-[#94A3B8] focus:outline-none resize-y min-h-[90px]"
+          className="w-full p-4 bg-white text-xs md:text-sm text-[#0F172A] placeholder-[#94A3B8] focus:outline-none resize-y min-h-[220px] md:min-h-[280px] leading-relaxed font-sans"
         />
+
+        <div className="bg-[#F8FAFC] border-t border-[#E2E8F0] px-3 py-2 flex items-center justify-between text-[11px] text-[#64748B]">
+          <span className="flex items-center gap-1">
+            <span>💡</span>
+            <span>Teks deskripsi ini akan otomatis mengisi tab <strong>Description</strong> di halaman detail produk.</span>
+          </span>
+          <span className="font-mono text-[#94A3B8] font-medium shrink-0">{value?.length || 0} karakter</span>
+        </div>
       </div>
     </div>
   );

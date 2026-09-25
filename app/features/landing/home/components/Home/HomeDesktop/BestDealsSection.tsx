@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router";
 import { ArrowRight, Star, Heart, ShoppingCart, Eye, RefreshCw } from "lucide-react";
-import { cn } from "~/lib/utils";
+import { cn, getProductDetailUrl } from "~/lib/utils";
 import { useCart } from "~/context/CartContext";
 import { useBestDeals } from "~/hooks/useBestDeals";
 
@@ -78,11 +78,14 @@ export function BestDealsSection() {
 
               {/* Product Image */}
               <div className="relative h-56 sm:h-72 w-full my-4 flex items-center justify-center p-1">
-                <Link to={`/product/${featuredDeal.id}`} className="h-full w-full flex items-center justify-center">
+                <Link to={getProductDetailUrl(featuredDeal)} className="h-full w-full flex items-center justify-center">
                   <img
                     src={featuredDeal.image}
                     alt={featuredDeal.title}
                     className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105 drop-shadow-md"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1593508512255-86ab42a8e620?auto=format&fit=crop&w=600&q=80";
+                    }}
                   />
                 </Link>
               </div>
@@ -100,7 +103,7 @@ export function BestDealsSection() {
                 </div>
 
                 {/* Title */}
-                <Link to={`/product/${featuredDeal.id}`}>
+                <Link to={getProductDetailUrl(featuredDeal)}>
                   <h3 className="text-sm font-bold text-zinc-900 leading-snug line-clamp-2 hover:text-[#2DA5F3] transition-colors">
                     {featuredDeal.title}
                   </h3>
@@ -152,7 +155,7 @@ export function BestDealsSection() {
                   </button>
 
                   <Link
-                    to={`/product/${featuredDeal.id}`}
+                    to={getProductDetailUrl(featuredDeal)}
                     title="Quick View"
                     className="w-10 h-10 rounded-xs bg-[#FFE7D6] hover:bg-[#ffd2b3] text-[#FA8232] flex items-center justify-center transition-colors cursor-pointer shrink-0"
                   >
@@ -190,12 +193,15 @@ export function BestDealsSection() {
 
                 {/* Product Image & Hover Action Buttons */}
                 <div className="relative h-44 sm:h-48 w-full overflow-hidden rounded-md flex items-center justify-center p-1 mb-2 bg-zinc-50/40">
-                  <Link to={`/product/${product.id}`} className="h-full w-full flex items-center justify-center">
+                  <Link to={getProductDetailUrl(product)} className="h-full w-full flex items-center justify-center">
                     <img
                       src={product.image}
                       alt={product.title}
                       className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
                       loading="lazy"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80";
+                      }}
                     />
                   </Link>
 
@@ -224,7 +230,7 @@ export function BestDealsSection() {
                       <ShoppingCart className="size-4" />
                     </button>
                     <Link
-                      to={`/product/${product.id}`}
+                      to={getProductDetailUrl(product)}
                       title="Quick View"
                       className="flex size-9 items-center justify-center rounded-full bg-white text-zinc-800 shadow-md hover:bg-[#FA8232] hover:text-white transition-all transform translate-y-2 group-hover:translate-y-0 duration-300 delay-150 cursor-pointer"
                     >
@@ -235,7 +241,7 @@ export function BestDealsSection() {
 
                 {/* Product Details */}
                 <div className="space-y-1">
-                  <Link to={`/product/${product.id}`}>
+                  <Link to={getProductDetailUrl(product)}>
                     <h3 className="text-xs font-semibold text-zinc-800 line-clamp-2 leading-snug group-hover:text-orange-500 transition-colors">
                       {product.title}
                     </h3>

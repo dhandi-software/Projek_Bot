@@ -11,6 +11,7 @@ import {
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrumb";
 import { Button } from "~/components/ui/button";
+import { getProductDetailUrl } from "~/lib/utils";
 import { useCart } from "~/context/CartContext";
 import { useCategory } from "./UseCategory";
 
@@ -160,7 +161,7 @@ export function CategoryMobile() {
               return (
                 <Link
                   key={prod.id}
-                  to={`/product/${prod.id}`}
+                  to={getProductDetailUrl(prod)}
                   className="group rounded-xl border border-slate-200 p-2.5 bg-white hover:border-orange-500/50 hover:shadow-md transition-all duration-300 flex flex-col justify-between"
                 >
                   <div className="space-y-2">
@@ -207,7 +208,7 @@ export function CategoryMobile() {
                         </button>
 
                         <Link
-                          to={`/product/${prod.id}`}
+                          to={getProductDetailUrl(prod)}
                           title="Quick View"
                           onClick={(e) => e.stopPropagation()}
                           className="size-8 rounded-full bg-white text-slate-800 hover:bg-orange-500 hover:text-white shadow-md transition-all duration-300 flex items-center justify-center cursor-pointer"

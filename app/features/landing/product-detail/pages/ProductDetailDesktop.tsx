@@ -125,6 +125,9 @@ export function ProductDetailDesktop() {
                   src={selectedImage}
                   alt={product.title}
                   className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80";
+                  }}
                 />
               </div>
 
@@ -147,6 +150,9 @@ export function ProductDetailDesktop() {
                           src={imgUrl}
                           alt={`${product.title} thumb ${idx + 1}`}
                           className="max-h-full max-w-full object-contain"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80";
+                          }}
                         />
                       </button>
                     );
@@ -343,7 +349,7 @@ export function ProductDetailDesktop() {
         </div>
 
         {/* RELATED PRODUCTS 4-COLUMN WIDGET SECTION (Figma 21-8670) */}
-        <ProductRelatedWidgetSection currentProductId={product.id} />
+        <ProductRelatedWidgetSection currentProductId={product.id} currentCategory={product.category} />
       </div>
     </div>
   );

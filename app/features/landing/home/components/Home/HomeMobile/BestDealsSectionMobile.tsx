@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router";
 import { ArrowRight, Star, Heart, ShoppingCart, Eye, RefreshCw } from "lucide-react";
-import { cn } from "~/lib/utils";
+import { cn, getProductDetailUrl } from "~/lib/utils";
 import { useCart } from "~/context/CartContext";
 import { useBestDeals } from "~/hooks/useBestDeals";
 
@@ -76,11 +76,14 @@ export function BestDealsSectionMobile() {
 
               {/* Product Image */}
               <div className="relative h-48 w-full flex items-center justify-center pt-4">
-                <Link to={`/product/${featuredDeal.id}`} className="h-full w-full flex items-center justify-center">
+                <Link to={getProductDetailUrl(featuredDeal)} className="h-full w-full flex items-center justify-center">
                   <img
                     src={featuredDeal.image}
                     alt={featuredDeal.title}
                     className="h-full w-full object-contain drop-shadow-md"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1593508512255-86ab42a8e620?auto=format&fit=crop&w=600&q=80";
+                    }}
                   />
                 </Link>
               </div>
@@ -96,7 +99,7 @@ export function BestDealsSectionMobile() {
               </div>
 
               {/* Title & Description */}
-              <Link to={`/product/${featuredDeal.id}`}>
+              <Link to={getProductDetailUrl(featuredDeal)}>
                 <h3 className="text-xs sm:text-sm font-bold text-zinc-900 leading-snug line-clamp-2">
                   {featuredDeal.title}
                 </h3>
@@ -148,7 +151,7 @@ export function BestDealsSectionMobile() {
                 </button>
 
                 <Link
-                  to={`/product/${featuredDeal.id}`}
+                  to={getProductDetailUrl(featuredDeal)}
                   title="Quick View"
                   className="w-10 h-10 rounded-xs bg-[#FFE7D6] hover:bg-[#ffd2b3] text-[#FA8232] flex items-center justify-center shrink-0 cursor-pointer"
                 >
@@ -163,7 +166,7 @@ export function BestDealsSectionMobile() {
             {gridDeals.map((product) => (
               <Link
                 key={product.id}
-                to={`/product/${product.id}`}
+                to={getProductDetailUrl(product)}
                 className="bg-white border border-zinc-200 rounded-xl p-3 shadow-2xs flex flex-col justify-between relative space-y-2 group"
               >
                 {/* Badge */}
@@ -188,6 +191,9 @@ export function BestDealsSectionMobile() {
                     alt={product.title}
                     className="h-full w-full object-contain"
                     loading="lazy"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80";
+                    }}
                   />
                 </div>
 

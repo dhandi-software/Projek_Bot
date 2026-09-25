@@ -76,7 +76,7 @@ export function useUserProfile() {
             address: user?.address || "Jakarta, Indonesia",
             bio: isAdmin ? "Administrator Platform Dhandi Ecommerce." : "Pengguna aktif platform eCommerce & Bot Automation.",
             photo: savedRolePhoto || (isAdmin ? "/images/avatar.svg" : (user?.photo || "/images/avatar.svg")),
-            role: currentRole,
+            role: (currentRole === "admin" ? "admin" : "customer") as "admin" | "customer",
         };
 
         if (savedRoleProfileStr) {

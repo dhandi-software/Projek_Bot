@@ -34,6 +34,7 @@ export function ProductManagementMobile() {
     handleOpenEditForm,
     handleSaveProduct,
     handleDelete,
+    recentlyUpdatedIds,
   } = useProductMobile();
 
   const [activeTab, setActiveTab] = useState<"all" | "best-deals">("all");
@@ -100,6 +101,7 @@ export function ProductManagementMobile() {
                 filteredProducts={filteredProducts}
                 handleOpenEditForm={handleOpenEditForm}
                 setDeleteConfirmId={setDeleteConfirmId}
+                recentlyUpdatedIds={recentlyUpdatedIds}
               />
             </>
           ) : (
@@ -107,6 +109,7 @@ export function ProductManagementMobile() {
               loading={loading}
               products={products}
               handleOpenEditForm={handleOpenEditForm}
+              recentlyUpdatedIds={recentlyUpdatedIds}
             />
           )}
         </div>

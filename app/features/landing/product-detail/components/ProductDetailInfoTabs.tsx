@@ -18,19 +18,18 @@ export function ProductDetailInfoTabs({ activeTab, setActiveTab, product }: Prod
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`text-sm font-extrabold uppercase tracking-wider transition-colors pb-3 -mb-3 border-b-2 cursor-pointer ${
-              activeTab === tab
+            className={`text-sm font-extrabold uppercase tracking-wider transition-colors pb-3 -mb-3 border-b-2 cursor-pointer ${activeTab === tab
                 ? "border-orange-500 text-orange-600"
                 : "border-transparent text-slate-500 hover:text-slate-900"
-            }`}
+              }`}
           >
             {tab === "description"
               ? "Description"
               : tab === "additional"
-              ? "Additional Information"
-              : tab === "specification"
-              ? "Specifications"
-              : `Customer Reviews (${product.reviewsCount})`}
+                ? "Additional Information"
+                : tab === "specification"
+                  ? "Specifications"
+                  : `Customer Reviews (${product.reviewsCount})`}
           </button>
         ))}
       </div>
@@ -57,36 +56,32 @@ export function ProductDetailInfoTabs({ activeTab, setActiveTab, product }: Prod
               Feature
             </h3>
             <ul className="space-y-3">
-              <li className="flex items-center gap-3 text-xs text-slate-700 font-medium">
-                <div className="size-8 rounded-lg border border-orange-200 bg-orange-50/50 flex items-center justify-center shrink-0">
-                  <ShieldCheck className="size-4 text-orange-500" />
-                </div>
-                <span>Free 1 Year Warranty</span>
-              </li>
-              <li className="flex items-center gap-3 text-xs text-slate-700 font-medium">
-                <div className="size-8 rounded-lg border border-orange-200 bg-orange-50/50 flex items-center justify-center shrink-0">
-                  <Truck className="size-4 text-orange-500" />
-                </div>
-                <span>Free Shipping & Fasted Delivery</span>
-              </li>
-              <li className="flex items-center gap-3 text-xs text-slate-700 font-medium">
-                <div className="size-8 rounded-lg border border-orange-200 bg-orange-50/50 flex items-center justify-center shrink-0">
-                  <RotateCcw className="size-4 text-orange-500" />
-                </div>
-                <span>100% Money-back guarantee</span>
-              </li>
-              <li className="flex items-center gap-3 text-xs text-slate-700 font-medium">
-                <div className="size-8 rounded-lg border border-orange-200 bg-orange-50/50 flex items-center justify-center shrink-0">
-                  <Share2 className="size-4 text-orange-500" />
-                </div>
-                <span>24/7 Customer support</span>
-              </li>
-              <li className="flex items-center gap-3 text-xs text-slate-700 font-medium">
-                <div className="size-8 rounded-lg border border-orange-200 bg-orange-50/50 flex items-center justify-center shrink-0">
-                  <Check className="size-4 text-orange-500" />
-                </div>
-                <span>Secure payment method</span>
-              </li>
+              {(product.features && product.features.length > 0
+                ? product.features
+                : [
+                    "Free 1 Year Warranty",
+                    "Free Shipping & Fasted Delivery",
+                    "100% Money-back guarantee",
+                    "24/7 Customer support",
+                    "Secure payment method",
+                  ]
+              ).map((featItem, idx) => {
+                const lower = featItem.toLowerCase();
+                let IconComp = Check;
+                if (lower.includes("warranty") || lower.includes("garansi")) IconComp = ShieldCheck;
+                else if (lower.includes("shipping") || lower.includes("delivery") || lower.includes("pengiriman")) IconComp = Truck;
+                else if (lower.includes("money") || lower.includes("guarantee") || lower.includes("kembali")) IconComp = RotateCcw;
+                else if (lower.includes("support") || lower.includes("customer") || lower.includes("layanan")) IconComp = Share2;
+
+                return (
+                  <li key={idx} className="flex items-center gap-3 text-xs text-slate-700 font-medium">
+                    <div className="size-8 rounded-lg border border-orange-200 bg-orange-50/50 flex items-center justify-center shrink-0">
+                      <IconComp className="size-4 text-orange-500" />
+                    </div>
+                    <span>{featItem}</span>
+                  </li>
+                );
+              })}
             </ul>
           </div>
 
@@ -98,11 +93,11 @@ export function ProductDetailInfoTabs({ activeTab, setActiveTab, product }: Prod
             <div className="space-y-2.5 text-xs">
               <div>
                 <span className="font-bold text-slate-800">Courier: </span>
-                <span className="text-slate-500">2 - 4 days, free shipping</span>
+                <span className="text-slate-500">{product.shippingWarranty?.courier || "2 - 4 days, free shipping"}</span>
               </div>
               <div>
                 <span className="font-bold text-slate-800">Local Shipping: </span>
-                <span className="text-slate-500">up to one week, $19.00</span>
+                <span className="text-slate-500">{product.shippingWarranty?.deliveryTime || "up to one week, $19.00"}</span>
               </div>
               <div>
                 <span className="font-bold text-slate-800">UPS Ground Shipping: </span>

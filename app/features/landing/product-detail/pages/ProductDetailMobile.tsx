@@ -119,6 +119,9 @@ export function ProductDetailMobile() {
               src={selectedImage}
               alt={product.title}
               className="max-h-full max-w-full object-contain"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80";
+              }}
             />
           </div>
 
@@ -135,7 +138,14 @@ export function ProductDetailMobile() {
                       isSelected ? "border-orange-500 ring-2 ring-orange-500/20" : "border-slate-200"
                     }`}
                   >
-                    <img src={imgUrl} alt="thumb" className="max-h-full max-w-full object-contain" />
+                    <img
+                      src={imgUrl}
+                      alt="thumb"
+                      className="max-h-full max-w-full object-contain"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80";
+                      }}
+                    />
                   </button>
                 );
               })}
@@ -307,7 +317,7 @@ export function ProductDetailMobile() {
         </div>
 
         {/* RELATED PRODUCTS WIDGET SECTION (Figma 21-8670) */}
-        <ProductRelatedWidgetSection currentProductId={product.id} />
+        <ProductRelatedWidgetSection currentProductId={product.id} currentCategory={product.category} />
 
         {/* STICKY BOTTOM ACTION BAR FOR MOBILE */}
         <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 p-3 flex items-center gap-2 shadow-lg">
