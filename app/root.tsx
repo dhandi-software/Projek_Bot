@@ -99,7 +99,13 @@ export default function App() {
     );
 }
 
+import Error404Page from "~/components/Error404Page";
+
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
+    if (isRouteErrorResponse(error) && error.status === 404) {
+        return <Error404Page />;
+    }
+
     let message = "Mohon Maaf, Terjadi Kesalahan";
     let details = "Website sedang mengalami masalah. Tim kami sedang menanganinya.";
     let stack: string | undefined;

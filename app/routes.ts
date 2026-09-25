@@ -31,10 +31,13 @@ export default [
         route("customer-services", "routes/landing/CustomerSupport.tsx", { id: "customer-services-alias" }),
         route("need-help", "routes/landing/NeedHelp.tsx"),
         route("bantuan", "routes/landing/NeedHelp.tsx", { id: "need-help-bantuan-alias" }),
+        route("best-deals", "routes/landing/BestDeals.tsx"),
+        route("best-deal", "routes/landing/BestDeals.tsx", { id: "best-deals-alias" }),
+
+        // Catch-all & Explicit 404 Route inside landing layout
+        route("404", "routes/$.tsx", { id: "explicit-404" }),
+        route("*", "routes/$.tsx", { id: "catch-all-404" }),
     ]),
-
-
-
 
     // API Routes
     route("api/chat-ai", "routes/api/chat-ai.ts"),
@@ -49,6 +52,7 @@ export default [
         route("admin/koneksi", "routes/admin/koneksi.tsx"),
         route("admin/chat", "routes/admin/chat.tsx"),
         route("admin/produk", "routes/admin/produk.tsx"),
+        route("admin/kategori", "routes/admin/kategori.tsx"),
         route("admin/banner", "routes/admin/banner.tsx"),
         route("admin/profile", "routes/landing/About.tsx", { id: "admin-profile" }),
         // Backward compatibility alias for dashboard
@@ -56,9 +60,7 @@ export default [
         route("dashboard/koneksi", "routes/admin/koneksi.tsx", { id: "legacy-dashboard-koneksi" }),
         route("dashboard/chat", "routes/admin/chat.tsx", { id: "legacy-dashboard-chat" }),
         route("dashboard/produk", "routes/admin/produk.tsx", { id: "legacy-dashboard-produk" }),
+        route("dashboard/kategori", "routes/admin/kategori.tsx", { id: "legacy-dashboard-kategori" }),
         route("dashboard/banner", "routes/admin/banner.tsx", { id: "legacy-dashboard-banner" }),
     ]),
-
-    // Catch-all 404 Route
-    route("*", "routes/$.tsx"),
 ] satisfies RouteConfig;

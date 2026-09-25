@@ -7,6 +7,7 @@ import {
     LogOut,
     MessageSquare,
     Package,
+    FolderTree,
     Image as ImageIcon,
     ChevronLeft,
 } from "lucide-react";
@@ -27,10 +28,13 @@ export default function AdminLayout() {
     });
 
     useEffect(() => {
-        if (!isLoading && !isAuthenticated) {
-            navigate("/login");
+        if (!isLoading) {
+            const userRole = (user?.role || "").toLowerCase();
+            if (!isAuthenticated || userRole !== "admin") {
+                navigate("/404", { replace: true });
+            }
         }
-    }, [isAuthenticated, isLoading, navigate]);
+    }, [isAuthenticated, isLoading, user, navigate]);
 
     const toggleSidebar = () => {
         setIsCollapsed((prev) => {
@@ -42,7 +46,10 @@ export default function AdminLayout() {
         });
     };
 
-    if (isLoading || !isAuthenticated) return null;
+    if (isLoading) return null;
+
+    const isUserAdmin = isAuthenticated && (user?.role || "").toLowerCase() === "admin";
+    if (!isUserAdmin) return null;
 
     return (
         <div className="flex min-h-screen bg-zinc-50 font-geist">
@@ -119,6 +126,23 @@ export default function AdminLayout() {
                     >
                         <Package className="w-5 h-5 shrink-0" />
                         {!isCollapsed && <span className="text-sm">Produk & Stok</span>}
+                    </NavLink>
+
+                    <NavLink
+                        to="/admin/kategori"
+                        title={isCollapsed ? "Kategori Produk" : undefined}
+                        className={({ isActive }) =>
+                            `flex items-center gap-3.5 px-3.5 py-3 rounded-xl transition-all ${
+                                isCollapsed ? "justify-center px-0" : ""
+                            } ${
+                                isActive
+                                    ? "bg-[#00a884]/10 text-[#00a884] font-semibold"
+                                    : "text-zinc-600 hover:bg-zinc-100"
+                            }`
+                        }
+                    >
+                        <FolderTree className="w-5 h-5 shrink-0" />
+                        {!isCollapsed && <span className="text-sm">Kategori Produk</span>}
                     </NavLink>
 
                     <NavLink
