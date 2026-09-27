@@ -5,6 +5,7 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { useCheckout } from "~/hooks/useCheckout";
+import { useMidtransPayment } from "~/hooks/useMidtransPayment";
 import { BreadCheckoutDesktop } from "~/components/template/breadcrumb/BreadCheckoutDesktop";
 
 import { CashOnDeliveryView } from "./components/payment/CashOnDeliveryView";
@@ -15,28 +16,45 @@ import { CreditCardView } from "./components/payment/CreditCardView";
 export function CheckoutDesktop() {
     const navigate = useNavigate();
     const { items, totals, billingInfo, updateBillingField, formatRupiah } = useCheckout();
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const { processPayment, triggerExistingSnap, isLoading, errorMessage, snapRedirectUrl, snapToken, isOnline, activeIdempotencyKey } = useMidtransPayment();
 
-    const handleSubmitOrder = (e: React.FormEvent) => {
+    const handleSubmitOrder = async (e: React.FormEvent) => {
         e.preventDefault();
-        setIsSubmitting(true);
-        setTimeout(() => {
-            setIsSubmitting(false);
+        await processPayment(items, billingInfo, () => {
             navigate("/checkout/success");
-        }, 800);
+        });
     };
 
     return (
         <div className="w-full bg-white">
             <BreadCheckoutDesktop />
+
+            {/* Network Status & Idempotency Key Bar */}
+            <div className="w-full bg-zinc-900 text-white py-2.5 px-4">
+                <div className="max-w-7xl mx-auto flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2">
+                        <span className={`w-2.5 h-2.5 rounded-full ${isOnline ? "bg-emerald-500 animate-pulse" : "bg-rose-500"}`}></span>
+                        <span className="font-medium">
+                            {isOnline ? "Sinyal Terkoneksi (Online)" : "⚠️ Sinyal Terputus (Mode Proteksi Offline Active)"}
+                        </span>
+                    </div>
+                    <div className="flex items-center gap-2 font-mono text-[11px] text-zinc-400 bg-zinc-800/80 px-2.5 py-1 rounded border border-zinc-700">
+                        <ShieldCheck className="w-3.5 h-3.5 text-sky-400" />
+                        <span>Idempotency Key:</span>
+                        <span className="text-sky-300 font-bold">{activeIdempotencyKey || "Memuat..."}</span>
+                    </div>
+                </div>
+            </div>
+
             <section className="w-full py-10">
                 <div className="max-w-7xl mx-auto px-4 md:px-8">
                     <form onSubmit={handleSubmitOrder} className="grid grid-cols-12 gap-8 items-start">
                         {/* LEFT COLUMN: Billing Information Form & Payment (8 cols) */}
                         <div className="col-span-8 space-y-6">
                             <div className="border border-zinc-200 rounded-lg p-6 bg-white shadow-xs space-y-5">
-                                <h1 className="text-xl font-bold text-[#191C1F] pb-4 border-b border-zinc-200">
-                                    Informasi Tagihan & Pengiriman
+                                <h1 className="text-xl font-bold text-[#191C1F] pb-4 border-b border-zinc-200 flex items-center justify-between">
+                                    <span>Informasi Tagihan & Pengiriman</span>
+                                    <span className="text-xs font-normal text-zinc-500 bg-zinc-100 px-2.5 py-1 rounded-full">Data Pembeli</span>
                                 </h1>
 
                                 <div className="grid grid-cols-2 gap-4">
@@ -149,7 +167,7 @@ export function CheckoutDesktop() {
                             {/* Payment Option Selection & Dynamic Payment Details View */}
                             <div className="border border-zinc-200 rounded-lg p-6 bg-white shadow-xs space-y-5">
                                 <h2 className="text-lg font-bold text-[#191C1F] pb-3 border-b border-zinc-200">
-                                    Opsi Pembayaran
+                                    Opsi Pembayaran Midtrans Gateway
                                 </h2>
 
                                 <div className="grid grid-cols-4 gap-3">
@@ -166,11 +184,10 @@ export function CheckoutDesktop() {
                                                 key={method.id}
                                                 type="button"
                                                 onClick={() => updateBillingField("paymentMethod", method.id)}
-                                                className={`p-4 rounded-lg border text-center flex flex-col items-center gap-2 transition-all cursor-pointer ${
-                                                    isSelected
+                                                className={`p-4 rounded-lg border text-center flex flex-col items-center gap-2 transition-all cursor-pointer ${isSelected
                                                         ? "border-[#2DA5F3] bg-sky-50/50 text-[#1B6392] ring-2 ring-[#2DA5F3]/30 shadow-xs"
                                                         : "border-zinc-200 hover:border-zinc-300 text-zinc-600 bg-white"
-                                                }`}
+                                                    }`}
                                             >
                                                 <Icon className="w-6 h-6" />
                                                 <span className="text-xs font-bold">{method.label}</span>
@@ -224,42 +241,69 @@ export function CheckoutDesktop() {
 
                                 <div className="space-y-2.5 text-xs text-zinc-600 border-t border-zinc-200 pt-4">
                                     <div className="flex justify-between">
-                                        <span>Sub-total</span>
+                                        <span>Sub-total Produk</span>
                                         <span className="font-semibold text-zinc-900">{formatRupiah(totals.subTotal)}</span>
                                     </div>
                                     <div className="flex justify-between">
-                                        <span>Pengiriman</span>
+                                        <span>Ongkos Kirim</span>
                                         <span className="font-semibold text-emerald-600">Gratis Ongkir</span>
                                     </div>
-                                    <div className="flex justify-between">
-                                        <span>Diskon Kupon</span>
-                                        <span className="font-semibold text-zinc-900">-{formatRupiah(totals.discount)}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span>Pajak & Layanan</span>
-                                        <span className="font-semibold text-zinc-900">{formatRupiah(totals.tax)}</span>
-                                    </div>
+                                    {totals.discount > 0 && (
+                                        <div className="flex justify-between">
+                                            <span>Diskon Kupon</span>
+                                            <span className="font-semibold text-rose-600">-{formatRupiah(totals.discount)}</span>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="border-t border-zinc-200 pt-4 flex justify-between items-center">
-                                    <span className="text-sm font-bold text-[#191C1F]">Total Akhir</span>
-                                    <span className="text-base font-bold text-[#2DA5F3]">
+                                    <span className="text-sm font-bold text-[#191C1F]">Total Bayar (Pas)</span>
+                                    <span className="text-lg font-extrabold text-[#2DA5F3]">
                                         {formatRupiah(totals.total)}
                                     </span>
                                 </div>
 
+                                {errorMessage && (
+                                    <div className="p-3 bg-rose-50 border border-rose-200 rounded text-xs text-rose-700 space-y-1">
+                                        <p className="font-bold">Informasi Pembayaran</p>
+                                        <p>{errorMessage}</p>
+                                    </div>
+                                )}
+
+                                {(snapToken || snapRedirectUrl) && (
+                                    <div className="p-4 bg-sky-50/80 border border-sky-200 rounded-lg text-xs text-[#1B6392] space-y-3">
+                                        <div className="flex items-center gap-2">
+                                            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                                            <span className="font-bold text-zinc-900">Sesi Pembayaran Midtrans Aktif</span>
+                                        </div>
+                                        <p className="text-zinc-600 text-[11px]">
+                                            Pop-up pembayaran terdaftar dengan Idempotency Key unik Anda. Anda tidak akan ditagih dua kali.
+                                        </p>
+                                        <Button
+                                            type="button"
+                                            onClick={triggerExistingSnap}
+                                            className="w-full bg-[#2DA5F3] hover:bg-[#1B6392] text-white font-bold text-xs h-10 cursor-pointer"
+                                        >
+                                            Buka Kembali Pop-Up Midtrans
+                                        </Button>
+                                    </div>
+                                )}
+
                                 <Button
                                     type="submit"
-                                    disabled={isSubmitting}
+                                    disabled={isLoading}
                                     className="w-full bg-[#2DA5F3] hover:bg-[#1B6392] text-white font-bold text-xs h-13 uppercase tracking-wider shadow-xs flex items-center justify-center gap-2 cursor-pointer"
                                 >
-                                    <span>{isSubmitting ? "Memproses..." : "Buat Pesanan Sekarang"}</span>
+                                    <span>{isLoading ? "Memproses Midtrans..." : "Bayar Sekarang via Midtrans"}</span>
                                     <ArrowRight className="w-4 h-4" />
                                 </Button>
 
-                                <div className="flex items-center justify-center gap-1.5 text-[11px] text-zinc-500 pt-1">
-                                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                                    <span>Jaminan Pembayaran 100% Aman & Terenkripsi</span>
+                                <div className="flex flex-col items-center justify-center gap-1 text-[11px] text-zinc-500 pt-1 text-center">
+                                    <div className="flex items-center gap-1.5">
+                                        <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                                        <span className="font-semibold text-zinc-700">Perlindungan Anti-Double Payment</span>
+                                    </div>
+                                    <span className="text-[10px] text-zinc-400">Idempotency Key Aktif: {activeIdempotencyKey}</span>
                                 </div>
                             </div>
                         </div>

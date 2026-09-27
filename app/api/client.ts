@@ -4,14 +4,7 @@ const getEnvUrl = () => {
     if (typeof window === "undefined" && typeof process !== "undefined" && process?.env?.INTERNAL_API_URL) {
         return process.env.INTERNAL_API_URL;
     }
-    const envUrl = import.meta.env.VITE_API_BASE_URL;
-    if (envUrl && !envUrl.includes("141.11.190.106")) {
-        return envUrl;
-    }
-    if (typeof window !== "undefined") {
-        return `http://${window.location.hostname}:8080`;
-    }
-    return "http://localhost:8080";
+    return import.meta.env.VITE_API_BASE_URL || "";
 };
 
 const envUrl = getEnvUrl();

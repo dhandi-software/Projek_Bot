@@ -18,12 +18,14 @@ import {
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { useAuth } from "~/hooks/useAuth";
+import { useCart } from "~/context/CartContext";
 import { getAvatarInitials } from "~/lib/avatar";
 
 export default function HeaderMobile() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated, logout } = useAuth();
+  const { cartItems, totalCount, totalPrice, removeFromCart } = useCart();
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
 
   useEffect(() => {
@@ -245,19 +247,27 @@ export default function HeaderMobile() {
         {/* Action Icons */}
         <div className="flex items-center gap-3">
           <button
-            onClick={() => setIsSearchOpen(!isSearchOpen)}
+            onClick={() => {
+              setIsSearchOpen((prev) => !prev);
+              setIsCartOpen(false);
+              setIsMenuOpen(false);
+            }}
             className="text-white hover:opacity-80 p-1 cursor-pointer"
           >
             <Search className="w-5 h-5" />
           </button>
 
           <button
-            onClick={() => setIsCartOpen(!isCartOpen)}
+            onClick={() => {
+              setIsCartOpen((prev) => !prev);
+              setIsSearchOpen(false);
+              setIsMenuOpen(false);
+            }}
             className="relative text-white hover:opacity-80 p-1 cursor-pointer"
           >
             <ShoppingCart className="w-5 h-5" />
-            <span className="absolute -top-1 -right-1 bg-amber-400 text-zinc-950 font-extrabold text-[9px] w-3.5 h-3.5 rounded-full flex items-center justify-center">
-              2
+            <span className="absolute -top-1 -right-1 bg-amber-400 text-zinc-950 font-extrabold text-[9px] min-w-3.5 h-3.5 px-0.5 rounded-full flex items-center justify-center">
+              {totalCount}
             </span>
           </button>
 
@@ -278,7 +288,11 @@ export default function HeaderMobile() {
           </Link>
 
           <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            onClick={() => {
+              setIsMenuOpen((prev) => !prev);
+              setIsCartOpen(false);
+              setIsSearchOpen(false);
+            }}
             className="text-white hover:opacity-80 p-1 cursor-pointer"
           >
             {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -352,38 +366,47 @@ export default function HeaderMobile() {
           <div className="flex items-center justify-between border-b border-zinc-100 pb-2">
             <h4 className="font-bold text-xs text-zinc-900 flex items-center gap-2">
               <ShoppingCart className="w-3.5 h-3.5 text-[#1B6392]" />
-              Keranjang Belanja (2)
+              Keranjang Belanja ({totalCount})
             </h4>
             <button onClick={() => setIsCartOpen(false)} className="text-zinc-400 hover:text-zinc-700">
               <X className="w-4 h-4" />
             </button>
           </div>
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-xs text-zinc-700">
-              <span>⌚ Smart Watch Series 7 (x1)</span>
-              <span className="ml-auto font-semibold">Rp 450.000</span>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-zinc-700">
-              <span>🎧 Headphone Noise Cancelling (x1)</span>
-              <span className="ml-auto font-semibold">Rp 850.000</span>
-            </div>
+          <div className="space-y-2 max-h-48 overflow-y-auto">
+            {cartItems.length === 0 ? (
+              <p className="text-center py-4 text-xs text-zinc-400">Keranjang Anda masih kosong</p>
+            ) : (
+              cartItems.map((item) => (
+                <div key={item.id} className="flex items-center gap-2 text-xs text-zinc-700">
+                  <span className="truncate flex-1">{item.title} (x{item.quantity})</span>
+                  <span className="font-semibold shrink-0">{item.price}</span>
+                  <button onClick={() => removeFromCart(item.id)} className="text-zinc-400 hover:text-red-500">
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ))
+            )}
           </div>
-          <div className="pt-2 border-t border-zinc-100 flex items-center justify-between text-xs font-bold">
-            <span>Subtotal:</span>
-            <span className="text-[#1B6392]">Rp 1.300.000</span>
-          </div>
-          <div className="grid grid-cols-2 gap-2 pt-1">
-            <Button asChild variant="outline" size="sm" className="w-full text-xs">
-              <Link to="/keranjang" onClick={() => setIsCartOpen(false)}>
-                Lihat Keranjang
-              </Link>
-            </Button>
-            <Button asChild variant="default" size="sm" className="w-full text-xs bg-[#1B6392] hover:bg-[#134b70]">
-              <Link to="/checkout" onClick={() => setIsCartOpen(false)}>
-                Checkout
-              </Link>
-            </Button>
-          </div>
+          {cartItems.length > 0 && (
+            <>
+              <div className="pt-2 border-t border-zinc-100 flex items-center justify-between text-xs font-bold">
+                <span>Subtotal:</span>
+                <span className="text-[#1B6392]">Rp {totalPrice.toLocaleString("id-ID")}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2 pt-1">
+                <Button asChild variant="outline" size="sm" className="w-full text-xs">
+                  <Link to="/keranjang" onClick={() => setIsCartOpen(false)}>
+                    Lihat Keranjang
+                  </Link>
+                </Button>
+                <Button asChild variant="default" size="sm" className="w-full text-xs bg-[#1B6392] hover:bg-[#134b70]">
+                  <Link to="/checkout" onClick={() => setIsCartOpen(false)}>
+                    Checkout
+                  </Link>
+                </Button>
+              </div>
+            </>
+          )}
         </div>
       )}
 

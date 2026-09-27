@@ -72,6 +72,38 @@ export default function HeaderDesktop() {
   const [activeCategory, setActiveCategory] = useState<string>("smartphone");
   const [activeBrand, setActiveBrand] = useState<string>("iPhone");
 
+  const cartRef = React.useRef<HTMLDivElement>(null);
+  const userMenuRef = React.useRef<HTMLDivElement>(null);
+  const langRef = React.useRef<HTMLDivElement>(null);
+  const currencyRef = React.useRef<HTMLDivElement>(null);
+  const searchRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (cartRef.current && !cartRef.current.contains(target)) {
+        setIsCartOpen(false);
+      }
+      if (userMenuRef.current && !userMenuRef.current.contains(target)) {
+        setIsUserMenuOpen(false);
+      }
+      if (langRef.current && !langRef.current.contains(target)) {
+        setIsLangOpen(false);
+      }
+      if (currencyRef.current && !currencyRef.current.contains(target)) {
+        setIsCurrencyOpen(false);
+      }
+      if (searchRef.current && !searchRef.current.contains(target)) {
+        setIsSearchDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const CATEGORIES = [
     { id: "computer-laptop", name: "Computer & Laptop", hasSubmenu: true },
     { id: "computer-acc", name: "Computer Accessories", hasSubmenu: true },
@@ -496,9 +528,15 @@ export default function HeaderDesktop() {
             <div className="h-3.5 w-[1px] bg-white/25" />
 
             {/* Language Selector */}
-            <div className="relative">
+            <div className="relative" ref={langRef}>
               <button
-                onClick={() => setIsLangOpen(!isLangOpen)}
+                onClick={() => {
+                  setIsLangOpen((prev) => !prev);
+                  setIsCurrencyOpen(false);
+                  setIsCartOpen(false);
+                  setIsUserMenuOpen(false);
+                  setIsSearchDropdownOpen(false);
+                }}
                 className="flex items-center gap-1 text-white/90 hover:text-white transition-colors font-medium cursor-pointer"
               >
                 <span>{selectedLang}</span>
@@ -523,9 +561,15 @@ export default function HeaderDesktop() {
             </div>
 
             {/* Currency Selector */}
-            <div className="relative">
+            <div className="relative" ref={currencyRef}>
               <button
-                onClick={() => setIsCurrencyOpen(!isCurrencyOpen)}
+                onClick={() => {
+                  setIsCurrencyOpen((prev) => !prev);
+                  setIsLangOpen(false);
+                  setIsCartOpen(false);
+                  setIsUserMenuOpen(false);
+                  setIsSearchDropdownOpen(false);
+                }}
                 className="flex items-center gap-1 text-white/90 hover:text-white transition-colors font-medium cursor-pointer"
               >
                 <span>{selectedCurrency}</span>
@@ -573,7 +617,7 @@ export default function HeaderDesktop() {
           </Link>
 
           {/* Full Search Bar with Debounce & Live Backend Results Overlay */}
-          <div className="flex-1 min-w-[340px] max-w-2xl mx-4 relative">
+          <div className="flex-1 min-w-[340px] max-w-2xl mx-4 relative" ref={searchRef}>
             <form onSubmit={handleSearchSubmit} className="relative flex items-center w-full bg-white rounded-md p-1 shadow-sm border border-white/20">
               {/* Full Width Search Input Field */}
               <input
@@ -662,9 +706,15 @@ export default function HeaderDesktop() {
           {/* Action Icons */}
           <div className="flex items-center gap-5 shrink-0">
             {/* Cart Icon & Interactive Cart Header Preview */}
-            <div className="relative">
+            <div className="relative" ref={cartRef}>
               <button
-                onClick={() => setIsCartOpen(!isCartOpen)}
+                onClick={() => {
+                  setIsCartOpen((prev) => !prev);
+                  setIsUserMenuOpen(false);
+                  setIsLangOpen(false);
+                  setIsCurrencyOpen(false);
+                  setIsSearchDropdownOpen(false);
+                }}
                 className="relative text-white hover:opacity-85 transition-opacity p-2 rounded-full hover:bg-white/10 flex items-center justify-center cursor-pointer"
                 title="Keranjang Belanja"
               >
@@ -751,9 +801,15 @@ export default function HeaderDesktop() {
             </Link>
 
             {/* Profile User Icon & Dropdown Menu */}
-            <div className="relative">
+            <div className="relative" ref={userMenuRef}>
               <button
-                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                onClick={() => {
+                  setIsUserMenuOpen((prev) => !prev);
+                  setIsCartOpen(false);
+                  setIsLangOpen(false);
+                  setIsCurrencyOpen(false);
+                  setIsSearchDropdownOpen(false);
+                }}
                 className="text-white hover:opacity-85 transition-opacity p-1.5 rounded-full hover:bg-white/10 flex items-center justify-center cursor-pointer ring-2 ring-white/20"
                 title="Akun Pengguna"
               >

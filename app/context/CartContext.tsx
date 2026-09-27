@@ -19,24 +19,7 @@ interface CartContextType {
   lastAddedItem: string | null;
 }
 
-const initialCartItems: CartItem[] = [
-  {
-    id: "chk-1",
-    title: "4K UHD LED Smart TV with Chromecast Built-in",
-    price: "Rp 1.050.000",
-    numericPrice: 1050000,
-    image: "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=500&auto=format&fit=crop&q=80",
-    quantity: 1,
-  },
-  {
-    id: "chk-2",
-    title: "Wired Over-Ear Gaming Headphones with USB",
-    price: "Rp 3.750.000",
-    numericPrice: 3750000,
-    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop&q=80",
-    quantity: 3,
-  },
-];
+const initialCartItems: CartItem[] = [];
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
@@ -131,8 +114,8 @@ export function useCart() {
       addToCart: () => {},
       removeFromCart: () => {},
       updateQuantity: () => {},
-      totalCount: 4,
-      totalPrice: 12300000,
+      totalCount: 0,
+      totalPrice: 0,
       lastAddedItem: null,
     };
   }
