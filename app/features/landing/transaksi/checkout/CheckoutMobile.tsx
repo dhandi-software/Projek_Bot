@@ -261,7 +261,7 @@ export function CheckoutMobile() {
                                     disabled={isLoading}
                                     className="w-full bg-[#2DA5F3] text-white font-bold text-xs h-11 uppercase flex items-center justify-center gap-2"
                                 >
-                                    <span>{isLoading ? "Memproses..." : "Bayar Sekarang via Midtrans"}</span>
+                                    <span>{isLoading ? "Memproses..." : "Bayar Sekarang"}</span>
                                     <ArrowRight className="w-4 h-4" />
                                 </Button>
                             ) : (

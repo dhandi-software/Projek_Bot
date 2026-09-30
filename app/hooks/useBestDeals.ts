@@ -47,11 +47,20 @@ export function useBestDeals() {
       const list: ProductItem[] = Array.isArray(res?.data) ? res.data : (Array.isArray(res) ? res : []);
       
       const currentTime = Date.now();
+      const defaultPromoExpiry = new Date(currentTime + 6 * 3600 * 1000).toISOString();
+
       const activeDeals = list.filter((p) => {
-        if (!p.is_best_deal || !p.best_deal_expires_at) return false;
-        const expiry = new Date(p.best_deal_expires_at).getTime();
-        return expiry > currentTime && p.is_active !== false;
-      });
+        if (p.is_active === false) return false;
+        if (!p.is_best_deal) return false;
+        if (p.best_deal_expires_at) {
+          const expTime = new Date(p.best_deal_expires_at).getTime();
+          if (expTime <= currentTime) return false;
+        }
+        return true;
+      }).map((p) => ({
+        ...p,
+        best_deal_expires_at: p.best_deal_expires_at || defaultPromoExpiry,
+      }));
 
       setProducts(activeDeals);
     } catch (e) {
@@ -90,16 +99,17 @@ export function useBestDeals() {
 
   // Filter out any deals that expire during runtime tick
   const activeProducts = products.filter((p) => {
-    if (!p.best_deal_expires_at) return false;
+    if (!p.best_deal_expires_at) return true;
     return new Date(p.best_deal_expires_at).getTime() > now;
   });
 
-  // Calculate target expiration for timer (use earliest or longest active expiration)
-  const targetExpiry = activeProducts.reduce<number | null>((latest, p) => {
+  // Calculate target expiration for timer (use earliest active expiration or fallback)
+  const fallbackExpiry = now + 6 * 3600 * 1000;
+  const targetExpiry = activeProducts.reduce<number>((latest, p) => {
     if (!p.best_deal_expires_at) return latest;
     const exp = new Date(p.best_deal_expires_at).getTime();
-    return latest === null || exp > latest ? exp : latest;
-  }, null);
+    return exp > now && exp < latest ? exp : latest;
+  }, fallbackExpiry);
 
   const timeRemainingString = formatTimeRemaining(targetExpiry);
 

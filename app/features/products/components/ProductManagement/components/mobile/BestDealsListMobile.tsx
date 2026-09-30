@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Flame, Clock, Edit3, Image as ImageIcon } from "lucide-react";
 import type { ProductItem } from "~/types/product";
 import { Button } from "~/components/ui/button";
@@ -18,7 +18,20 @@ export function BestDealsListMobile({
   handleOpenEditForm,
   recentlyUpdatedIds,
 }: BestDealsListMobileProps) {
-  const bestDealProducts = products.filter((p) => p.is_best_deal);
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const bestDealProducts = products.filter((p) => {
+    if (!p.is_best_deal) return false;
+    if (p.best_deal_expires_at) {
+      return new Date(p.best_deal_expires_at).getTime() > now;
+    }
+    return true;
+  });
 
   if (loading) {
     return (
@@ -52,11 +65,10 @@ export function BestDealsListMobile({
   return (
     <div className="flex flex-col gap-2.5 w-full">
       {paginatedProducts.map((product) => {
-        const expiresAt = product.best_deal_expires_at
-          ? new Date(product.best_deal_expires_at).getTime()
-          : null;
-        const isExpired = expiresAt ? expiresAt <= Date.now() : false;
-        const timeRemaining = formatTimeRemaining(product.best_deal_expires_at);
+        const targetExpiryStr = product.best_deal_expires_at || new Date(now + 6 * 3600 * 1000).toISOString();
+        const expiresAt = new Date(targetExpiryStr).getTime();
+        const isExpired = expiresAt <= now;
+        const timeRemaining = formatTimeRemaining(targetExpiryStr);
         const isUpdated = Boolean(
           recentlyUpdatedIds?.has(product.id) || recentlyUpdatedIds?.has(String(product.id))
         );

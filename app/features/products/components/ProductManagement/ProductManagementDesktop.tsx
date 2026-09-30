@@ -1,11 +1,13 @@
 import React, { useState } from "react";
-import { Check, Flame, Package } from "lucide-react";
+import { Check, Flame, Package, PackageCheck } from "lucide-react";
 import { useProductDesktop } from "~/features/products/hooks";
 import { useProductImport } from "~/features/products/hooks/useProductImport";
+import { useDashboardStats } from "~/features/dashboard/hooks/useDashboardStats";
 import { ProductHeaderDesktop } from "./components/desktop/ProductHeaderDesktop";
 import { ProductFilterDesktop } from "./components/desktop/ProductFilterDesktop";
 import { ProductTableDesktop } from "./components/desktop/ProductTableDesktop";
 import { BestDealsTableDesktop } from "./components/desktop/BestDealsTableDesktop";
+import { ProdukKeluarTableDesktop } from "./components/desktop/ProdukKeluarTableDesktop";
 import { ProductFormDesktop } from "./components/desktop/ProductFormDesktop";
 import { ProductDeleteModalDesktop } from "./components/desktop/ProductDeleteModalDesktop";
 import { cn } from "~/lib/utils";
@@ -39,7 +41,10 @@ export function ProductManagementDesktop() {
     recentlyUpdatedIds,
   } = useProductDesktop();
 
-  const [activeTab, setActiveTab] = useState<"all" | "best-deals">("all");
+  const { stats } = useDashboardStats();
+  const produkKeluarList = stats.produkKeluar || [];
+
+  const [activeTab, setActiveTab] = useState<"all" | "best-deals" | "produk-keluar">("all");
 
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const { downloadSampleCsv, handleFileSelect, importLoading } =
@@ -66,7 +71,7 @@ export function ProductManagementDesktop() {
             handleOpenAddForm={handleOpenAddForm}
           />
 
-          {/* Tab Navigation: All Products vs Best Deals */}
+          {/* Tab Navigation: All Products vs Best Deals vs Produk Keluar */}
           <div className="flex items-center gap-2 border-b border-zinc-200 pb-1">
             <button
               type="button"
@@ -107,6 +112,26 @@ export function ProductManagementDesktop() {
                 {bestDealsCount}
               </span>
             </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("produk-keluar")}
+              className={cn(
+                "flex items-center gap-2 px-4 py-2.5 text-xs font-bold rounded-lg transition-all cursor-pointer",
+                activeTab === "produk-keluar"
+                  ? "bg-emerald-600 text-white shadow-xs"
+                  : "bg-white text-zinc-600 hover:bg-emerald-50 hover:text-emerald-700 border border-zinc-200"
+              )}
+            >
+              <PackageCheck className="w-4 h-4" />
+              <span>Produk Keluar (Unit Terjual)</span>
+              <span className={cn(
+                "ml-1 text-[10px] px-2 py-0.5 rounded-full font-mono",
+                activeTab === "produk-keluar" ? "bg-white/20 text-white" : "bg-emerald-100 text-emerald-700"
+              )}>
+                {produkKeluarList.length}
+              </span>
+            </button>
           </div>
 
           {activeTab === "all" ? (
@@ -127,14 +152,19 @@ export function ProductManagementDesktop() {
                 recentlyUpdatedIds={recentlyUpdatedIds}
               />
             </>
-
-          ) : (
+          ) : activeTab === "best-deals" ? (
             <BestDealsTableDesktop
               loading={loading}
               products={products}
               handleOpenEditForm={handleOpenEditForm}
               onRefresh={fetchProducts}
               recentlyUpdatedIds={recentlyUpdatedIds}
+            />
+          ) : (
+            <ProdukKeluarTableDesktop
+              loading={loading}
+              produkKeluarList={produkKeluarList}
+              onRefresh={fetchProducts}
             />
           )}
         </div>

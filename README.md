@@ -187,10 +187,18 @@ Ditujukan untuk pembeli dan pengguna umum dengan antarmuka yang responsif, cepat
 
 ### 1.4. Keranjang & Checkout (`/cart`, `/checkout`, `/track-order`)
 - **Manajemen Keranjang Belanja**: Ubah kuantitas, centang pilihan belanja.
-- **Form Pembayaran**: Pengisian alamat pengiriman, kurir, dan metode pembayaran.
+- **Form Pembayaran (Snap / QRIS / VA)**: Pengisian alamat pengiriman, kurir, dan pilihan pembayaran.
+- **Simulasi Pembayaran QRIS**: URL QR Code disesuaikan dengan format `https://api.sandbox.midtrans.com/v2/qris/{TRANSACTION_ID}/qr-code` lengkap dengan tombol *Salin URL* dan tombol *Uji di Simulator*.
 - **Pelacakan Pesanan Real-Time**: Status pesanan dari diproses hingga dikirim.
 
-### 1.5. Live Chat WhatsApp Bot (`/chat`)
+### 1.5. Halaman Invoice Resmi Web & PDF (`/invoice/:orderId`)
+- **Desktop View (`InvoiceDesktop.tsx`)**: Layout full-width (`w-full`) tanpa pembatasan `max-w-4xl`, dilengkapi header tagihan, status badge, data pembeli, rincian tabel produk dengan thumbnail gambar WebP, dan rincian subtotal/PPN/total.
+- **Mobile View (`InvoiceMobile.tsx`)**: Layout kartu seluler ringkas dengan tombol aksi melayang (*Sticky Action Bar*) di bagian bawah layar.
+- **Cetak & Unduh PDF**:
+  - Tombol **Cetak**: Membuka dialog `window.print()` browser dengan CSS `@media print` teroptimasi (elemen non-cetak disembunyikan otomatis).
+  - Tombol **Unduh PDF**: Mengunduh berkas PDF resmi dari backend `GET /api/orders/:id/invoice`.
+
+### 1.6. Live Chat WhatsApp Bot (`/chat`)
 - **Pesan Real-Time**: Terhubung langsung dengan WhatsApp Bot melalui WebSockets.
 - **Lampiran Gambar & Bukti Transfer**: Mengunggah foto produk langsung dari ruang percakapan.
 

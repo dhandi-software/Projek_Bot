@@ -30,7 +30,10 @@ export default function HeaderMobile() {
 
   useEffect(() => {
     const updatePhoto = () => {
-      const savedPhoto = localStorage.getItem("userPhoto");
+      const role = (user?.role || "customer").toLowerCase();
+      const email = user?.email || "";
+      const rolePhotoKey = `userPhoto_${role}_${email}`;
+      const savedPhoto = localStorage.getItem("userPhoto") || (email ? localStorage.getItem(rolePhotoKey) : null);
       setUserPhoto(savedPhoto || user?.photo || null);
     };
     updatePhoto();
@@ -271,7 +274,7 @@ export default function HeaderMobile() {
             </span>
           </button>
 
-          <Link to={isAuthenticated ? "/profile" : "/login"} className="text-white hover:opacity-80 p-0.5 flex items-center justify-center">
+          <Link to={isAuthenticated ? "/customer/dashboard" : "/login"} className="text-white hover:opacity-80 p-0.5 flex items-center justify-center">
             {userPhoto && userPhoto !== "/images/avatar.svg" ? (
               <img
                 src={userPhoto}
@@ -548,6 +551,15 @@ export default function HeaderMobile() {
           <div className="space-y-2">
             <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Quick Navigation</p>
             <Link to="/" onClick={() => setIsMenuOpen(false)} className="block py-1.5 text-sm font-medium text-zinc-800 hover:text-[#1B6392]">Home</Link>
+            {isAuthenticated && (
+              <Link
+                to={user?.role?.toLowerCase() === "admin" ? "/admin/dashboard" : "/customer/dashboard"}
+                onClick={() => setIsMenuOpen(false)}
+                className="block py-1.5 text-sm font-semibold text-[#2DA5F3] hover:text-[#1B6392]"
+              >
+                📊 Dashboard Saya
+              </Link>
+            )}
             <Link to="/guide" onClick={() => setIsMenuOpen(false)} className="block py-1.5 text-sm font-medium text-zinc-800 hover:text-[#1B6392]">Panduan</Link>
             <Link to="/requirements" onClick={() => setIsMenuOpen(false)} className="block py-1.5 text-sm font-medium text-zinc-800 hover:text-[#1B6392]">Persyaratan</Link>
             <Link to="/format" onClick={() => setIsMenuOpen(false)} className="block py-1.5 text-sm font-medium text-zinc-800 hover:text-[#1B6392]">Format</Link>

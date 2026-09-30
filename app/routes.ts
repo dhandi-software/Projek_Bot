@@ -27,12 +27,17 @@ export default [
         route("keranjang", "routes/landing/Cart.tsx", { id: "keranjang-alias" }),
         route("checkout", "routes/landing/Checkout.tsx"),
         route("checkout/success", "routes/landing/CheckoutSuccess.tsx"),
+        route("invoice/:orderId", "routes/invoice.tsx"),
         route("customer-support", "routes/landing/CustomerSupport.tsx"),
         route("customer-services", "routes/landing/CustomerSupport.tsx", { id: "customer-services-alias" }),
         route("need-help", "routes/landing/NeedHelp.tsx"),
         route("bantuan", "routes/landing/NeedHelp.tsx", { id: "need-help-bantuan-alias" }),
         route("best-deals", "routes/landing/BestDeals.tsx"),
         route("best-deal", "routes/landing/BestDeals.tsx", { id: "best-deals-alias" }),
+        route("customer/dashboard", "routes/customer/dashboard.tsx"),
+        route("user/dashboard", "routes/customer/dashboard.tsx", { id: "user-dashboard-alias" }),
+        route("customer/orders", "routes/customer/orders.tsx"),
+        route("orders", "routes/customer/orders.tsx", { id: "orders-alias" }),
 
         // Catch-all & Explicit 404 Route inside landing layout
         route("404", "routes/$.tsx", { id: "explicit-404" }),
@@ -54,6 +59,7 @@ export default [
         route("admin/produk", "routes/admin/produk.tsx"),
         route("admin/kategori", "routes/admin/kategori.tsx"),
         route("admin/banner", "routes/admin/banner.tsx"),
+        route("admin/pesanan", "routes/admin/pesanan.tsx"),
         route("admin/profile", "routes/landing/About.tsx", { id: "admin-profile" }),
         // Backward compatibility alias for dashboard
         route("dashboard", "routes/admin/index.tsx", { id: "legacy-dashboard" }),
@@ -62,5 +68,6 @@ export default [
         route("dashboard/produk", "routes/admin/produk.tsx", { id: "legacy-dashboard-produk" }),
         route("dashboard/kategori", "routes/admin/kategori.tsx", { id: "legacy-dashboard-kategori" }),
         route("dashboard/banner", "routes/admin/banner.tsx", { id: "legacy-dashboard-banner" }),
+        route("dashboard/pesanan", "routes/admin/pesanan.tsx", { id: "legacy-dashboard-pesanan" }),
     ]),
 ] satisfies RouteConfig;

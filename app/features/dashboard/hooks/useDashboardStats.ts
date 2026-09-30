@@ -151,6 +151,44 @@ export const defaultStats: DashboardStats = {
             time: "14:15",
         },
     ],
+    produkKeluar: [
+        {
+            id: "PK-001",
+            title: "Sony PlayStation VR2 Headset",
+            soldQty: 42,
+            totalAmount: "Rp 356.958.000",
+            lastOrderDate: "Hari ini, 23:37",
+            status: "Terjual & Stok Berkurang",
+            image: "https://images.unsplash.com/photo-1593508512255-86ab42a8e620?w=100&q=80",
+        },
+        {
+            id: "PK-002",
+            title: "Razer DeathAdder V3 Pro",
+            soldQty: 28,
+            totalAmount: "Rp 53.172.000",
+            lastOrderDate: "Hari ini, 12:47",
+            status: "Terjual & Stok Berkurang",
+            image: "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=100&q=80",
+        },
+        {
+            id: "PK-003",
+            title: "Valve Steam Deck OLED 512GB",
+            soldQty: 19,
+            totalAmount: "Rp 167.181.000",
+            lastOrderDate: "Kemarin, 22:26",
+            status: "Terjual & Stok Berkurang",
+            image: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=100&q=80",
+        },
+        {
+            id: "PK-004",
+            title: "Anker 737 Power Bank 24000mAh",
+            soldQty: 35,
+            totalAmount: "Rp 62.965.000",
+            lastOrderDate: "Kemarin, 22:19",
+            status: "Terjual & Stok Berkurang",
+            image: "https://images.unsplash.com/photo-1609592424109-dd9892f1b177?w=100&q=80",
+        },
+    ],
 };
 
 export const heatmapDays: HeatmapDay[] = [

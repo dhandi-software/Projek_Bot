@@ -22,7 +22,10 @@ export function useHeaderState() {
     // Live update for photo when profile changes
     useEffect(() => {
         const updatePhoto = () => {
-            const savedPhoto = localStorage.getItem("userPhoto");
+            const role = (user?.role || "customer").toLowerCase();
+            const email = user?.email || "";
+            const rolePhotoKey = `userPhoto_${role}_${email}`;
+            const savedPhoto = localStorage.getItem("userPhoto") || (email ? localStorage.getItem(rolePhotoKey) : null);
             setUserPhoto(savedPhoto || user?.photo || null);
         };
         updatePhoto();

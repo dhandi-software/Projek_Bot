@@ -31,12 +31,12 @@ export function BankTransferView({
         { id: "bri", name: "BRI" },
     ];
 
-    const vaNumber = paymentData?.va_number || "Nomor VA dibuat saat checkout";
+    const activeVaNumber = paymentData?.va_number || "";
     const status = paymentData?.status || "pending";
 
     const handleCopy = () => {
-        if (paymentData?.va_number) {
-            navigator.clipboard.writeText(paymentData.va_number);
+        if (activeVaNumber) {
+            navigator.clipboard.writeText(activeVaNumber);
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
         }
@@ -66,15 +66,15 @@ export function BankTransferView({
                 ))}
             </div>
 
-            {paymentData?.va_number ? (
+            {activeVaNumber ? (
                 <div className="bg-white rounded-lg p-4 border border-zinc-200 space-y-4">
                     <div className="flex items-center justify-between">
                         <div>
                             <span className="text-[11px] text-zinc-500 font-medium block">
-                                Virtual Account {paymentData.va_bank?.toUpperCase() || selectedBank.toUpperCase()}
+                                Virtual Account {paymentData?.va_bank?.toUpperCase() || selectedBank.toUpperCase()}
                             </span>
                             <span className="font-mono text-lg font-extrabold text-zinc-900 tracking-wider">
-                                {vaNumber}
+                                {activeVaNumber}
                             </span>
                         </div>
                         <button
@@ -100,7 +100,7 @@ export function BankTransferView({
                         <div>
                             <span className="text-[10px] text-zinc-400 block">Total Pembayaran</span>
                             <span className="text-base font-bold text-[#2DA5F3]">
-                                {formatRupiah(paymentData.total_amount || totalAmount)}
+                                {formatRupiah(paymentData?.total_amount || totalAmount)}
                             </span>
                         </div>
                         <div className="flex items-center gap-1.5 text-xs font-semibold">
@@ -138,7 +138,7 @@ export function BankTransferView({
                 </div>
             ) : (
                 <div className="bg-white rounded-lg p-3.5 border border-zinc-200 text-xs text-zinc-600">
-                    <p>Pilih bank di atas, lalu tekan <strong>Bayar Sekarang via Midtrans</strong> untuk mendapatkan nomor Virtual Account transaksi Anda.</p>
+                    <p>Pilih bank di atas, lalu tekan <strong>Bayar Sekarang</strong> untuk mendapatkan nomor Virtual Account transaksi Anda.</p>
                 </div>
             )}
         </div>

@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-import { Check, Flame, Package } from "lucide-react";
+import { Check, Flame, Package, PackageCheck } from "lucide-react";
 import { useProductMobile } from "~/features/products/hooks";
+import { useDashboardStats } from "~/features/dashboard/hooks/useDashboardStats";
 import { ProductHeaderMobile } from "./components/mobile/ProductHeaderMobile";
 import { ProductFilterMobile } from "./components/mobile/ProductFilterMobile";
 import { ProductListMobile } from "./components/mobile/ProductListMobile";
 import { BestDealsListMobile } from "./components/mobile/BestDealsListMobile";
+import { ProdukKeluarListMobile } from "./components/mobile/ProdukKeluarListMobile";
 import { ProductFormMobile } from "./components/mobile/ProductFormMobile";
 import { ProductDeleteModalMobile } from "./components/mobile/ProductDeleteModalMobile";
 import { cn } from "~/lib/utils";
@@ -37,7 +39,10 @@ export function ProductManagementMobile() {
     recentlyUpdatedIds,
   } = useProductMobile();
 
-  const [activeTab, setActiveTab] = useState<"all" | "best-deals">("all");
+  const { stats } = useDashboardStats();
+  const produkKeluarList = stats.produkKeluar || [];
+
+  const [activeTab, setActiveTab] = useState<"all" | "best-deals" | "produk-keluar">("all");
   const bestDealsCount = (products || []).filter((p) => p.is_best_deal).length;
 
   return (
@@ -54,12 +59,12 @@ export function ProductManagementMobile() {
           <ProductHeaderMobile handleOpenAddForm={handleOpenAddForm} />
 
           {/* Mobile Tab Navigator */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
             <button
               type="button"
               onClick={() => setActiveTab("all")}
               className={cn(
-                "flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-bold rounded-lg transition-all",
+                "flex-1 min-w-[90px] flex items-center justify-center gap-1 py-2 px-2 text-xs font-bold rounded-lg transition-all shrink-0",
                 activeTab === "all"
                   ? "bg-[#1D4ED8] text-white"
                   : "bg-white text-zinc-600 border border-zinc-200"
@@ -74,7 +79,7 @@ export function ProductManagementMobile() {
               type="button"
               onClick={() => setActiveTab("best-deals")}
               className={cn(
-                "flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-bold rounded-lg transition-all",
+                "flex-1 min-w-[100px] flex items-center justify-center gap-1 py-2 px-2 text-xs font-bold rounded-lg transition-all shrink-0",
                 activeTab === "best-deals"
                   ? "bg-[#FA8232] text-white"
                   : "bg-white text-zinc-600 border border-zinc-200"
@@ -83,6 +88,21 @@ export function ProductManagementMobile() {
               <Flame className="w-3.5 h-3.5" />
               <span>Best Deals</span>
               <span className="text-[10px] opacity-80">({bestDealsCount})</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("produk-keluar")}
+              className={cn(
+                "flex-1 min-w-[110px] flex items-center justify-center gap-1 py-2 px-2 text-xs font-bold rounded-lg transition-all shrink-0",
+                activeTab === "produk-keluar"
+                  ? "bg-emerald-600 text-white"
+                  : "bg-white text-zinc-600 border border-zinc-200"
+              )}
+            >
+              <PackageCheck className="w-3.5 h-3.5" />
+              <span>Terjual</span>
+              <span className="text-[10px] opacity-80">({produkKeluarList.length})</span>
             </button>
           </div>
 
@@ -104,12 +124,17 @@ export function ProductManagementMobile() {
                 recentlyUpdatedIds={recentlyUpdatedIds}
               />
             </>
-          ) : (
+          ) : activeTab === "best-deals" ? (
             <BestDealsListMobile
               loading={loading}
               products={products}
               handleOpenEditForm={handleOpenEditForm}
               recentlyUpdatedIds={recentlyUpdatedIds}
+            />
+          ) : (
+            <ProdukKeluarListMobile
+              loading={loading}
+              produkKeluarList={produkKeluarList}
             />
           )}
         </div>

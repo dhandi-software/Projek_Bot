@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { ArrowRight, RefreshCw, CheckCircle2, AlertCircle, Clock, QrCode } from "lucide-react";
+import { ArrowRight, RefreshCw, CheckCircle2, AlertCircle, Clock, QrCode, Copy, Check, ExternalLink } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import type { PaymentData } from "~/hooks/useMidtransPayment";
 
@@ -18,6 +19,7 @@ export function EWalletView({
     onCheckStatus,
     isLoading,
 }: EWalletViewProps) {
+    const [isCopied, setIsCopied] = useState(false);
     const hasActiveQR = Boolean(paymentData?.qris_string || paymentData?.qris_url);
     const status = paymentData?.status || "pending";
 
@@ -29,7 +31,7 @@ export function EWalletView({
                     <span className="text-sm">Pembayaran QRIS / E-Wallet Instant</span>
                 </div>
                 <p className="text-zinc-600 text-xs leading-relaxed">
-                    Setiap transaksi akan membuat <strong>QR Code QRIS resmi Midtrans</strong> yang dapat di-scan langsung menggunakan GoPay, OVO, DANA, ShopeePay, BCA Mobile, atau aplikasi M-Banking pendukung QRIS lainnya.
+                    Setiap transaksi akan membuat <strong>QR Code QRIS resmi</strong> yang dapat di-scan langsung menggunakan GoPay, OVO, DANA, ShopeePay, BCA Mobile, atau aplikasi M-Banking pendukung QRIS lainnya.
                 </p>
                 <div className="flex items-center gap-3 bg-white p-3.5 rounded-md border border-zinc-200 text-zinc-500">
                     <div className="w-9 h-9 bg-sky-100/70 rounded-full flex items-center justify-center shrink-0">
@@ -37,7 +39,7 @@ export function EWalletView({
                     </div>
                     <div className="text-[11px] leading-tight">
                         <span className="font-semibold text-zinc-800 block">QR Code Otomatis Tergenerasi</span>
-                        Tekan tombol <strong>Bayar Sekarang via Midtrans</strong> di bawah untuk mendapatkan QR Code transaksi aktual Anda.
+                        Tekan tombol <strong>Bayar Sekarang</strong> di bawah untuk mendapatkan QR Code transaksi aktual Anda.
                     </div>
                 </div>
             </div>
@@ -76,7 +78,7 @@ export function EWalletView({
                         ) : paymentData?.qris_url ? (
                             <img
                                 src={paymentData.qris_url}
-                                alt="QRIS Code Pembayaran Midtrans"
+                                alt="QRIS Code Pembayaran"
                                 className="w-44 h-44 object-contain"
                             />
                         ) : (
@@ -117,6 +119,44 @@ export function EWalletView({
                             </>
                         )}
                     </div>
+
+                    {/* QRIS URL / Payment Simulator Testing Link */}
+                    {paymentData?.qris_url && (
+                        <div className="w-full bg-[#181a38] border border-[#2e3366] rounded-lg p-3 space-y-2 text-left">
+                            <span className="text-[11px] text-sky-300 font-semibold block">
+                                URL QRIS (Untuk Simulasi Pembayaran / Payment Simulator):
+                            </span>
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="text"
+                                    readOnly
+                                    value={paymentData.qris_url}
+                                    className="flex-1 bg-[#0f1024] text-xs text-sky-200 px-2.5 py-1.5 rounded border border-[#2d3261] font-mono select-all focus:outline-none"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(paymentData.qris_url || "");
+                                        setIsCopied(true);
+                                        setTimeout(() => setIsCopied(false), 2000);
+                                    }}
+                                    className="bg-[#2DA5F3] hover:bg-[#1B6392] text-white px-3 py-1.5 rounded text-xs font-bold flex items-center gap-1.5 shrink-0 cursor-pointer transition-colors"
+                                >
+                                    {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
+                                    <span>{isCopied ? "Tersalin!" : "Salin URL"}</span>
+                                </button>
+                                <a
+                                    href={paymentData.qris_url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1.5 rounded text-xs font-bold flex items-center gap-1 shrink-0 transition-colors"
+                                    title="Buka QRIS URL"
+                                >
+                                    <ExternalLink className="w-3.5 h-3.5" />
+                                </a>
+                            </div>
+                        </div>
+                    )}
 
                     <Button
                         type="button"

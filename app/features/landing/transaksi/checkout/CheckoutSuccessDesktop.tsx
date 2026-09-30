@@ -11,6 +11,7 @@ export function CheckoutSuccessDesktop() {
     const [orderId, setOrderId] = useState<string>("");
     const [fetchedOrder, setFetchedOrder] = useState<any>(null);
     const [isDownloading, setIsDownloading] = useState<boolean>(false);
+    const [showNotificationToast, setShowNotificationToast] = useState<boolean>(true);
 
     useEffect(() => {
         let activeOrderId = localStorage.getItem("last_active_order_id");
@@ -65,23 +66,48 @@ export function CheckoutSuccessDesktop() {
     };
 
     const displayItems = fetchedOrder?.items && fetchedOrder.items.length > 0
-        ? fetchedOrder.items.map((it: any) => ({
-            id: it.id || it.product_id,
-            title: it.title,
-            quantity: it.quantity,
-            numericPrice: it.price,
-            image: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=200&auto=format&fit=crop",
-        }))
+        ? fetchedOrder.items.map((it: any) => {
+            const matchedCartItem = items.find((ci: any) => ci.title === it.title || String(ci.id) === String(it.product_id || it.id));
+            return {
+                id: it.id || it.product_id,
+                title: it.title,
+                quantity: it.quantity,
+                numericPrice: it.price,
+                image: it.image || it.image_url || (matchedCartItem ? matchedCartItem.image : "") || "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=200&auto=format&fit=crop",
+            };
+        })
         : items;
 
     const displayTotal = fetchedOrder?.total_amount || totals.total || 0;
     const displayCustomerName = fetchedOrder?.customer_name || `${billingInfo.firstName} ${billingInfo.lastName}`.trim() || "Customer Dhandi";
     const displayCustomerEmail = fetchedOrder?.customer_email || billingInfo.email || "customer@example.com";
-    const displayPaymentType = fetchedOrder?.payment_type ? fetchedOrder.payment_type.toUpperCase() : "MIDTRANS GATEWAY";
+    const displayPaymentType = fetchedOrder?.payment_type ? fetchedOrder.payment_type.toUpperCase() : "QRIS / TRANSFER BANK";
     const displayStatus = fetchedOrder?.status ? fetchedOrder.status.toUpperCase() : "PAID";
 
     return (
-        <div className="w-full bg-zinc-50/60 py-8 px-4 md:px-8 min-h-screen">
+        <div className="w-full bg-zinc-50/60 py-8 px-4 md:px-8 min-h-screen relative">
+            {/* Top Floating Notification Toast */}
+            {showNotificationToast && (
+                <div className="fixed top-6 right-6 z-[9999] bg-[#0F172A]/95 text-white px-5 py-4 rounded-xl shadow-2xl flex items-center justify-between gap-4 border border-emerald-500/50 backdrop-blur-md max-w-md animate-in fade-in slide-in-from-top-4 duration-300">
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30">
+                            <CheckCircle2 className="w-5 h-5" />
+                        </div>
+                        <div className="text-xs">
+                            <p className="font-bold text-emerald-400">Notifikasi Pembayaran Diterima!</p>
+                            <p className="text-zinc-300 text-[11px] mt-0.5">
+                                Pembayaran untuk pesanan <span className="font-mono text-white font-bold">{targetOrderId}</span> telah diverifikasi secara otomatis.
+                            </p>
+                        </div>
+                    </div>
+                    <button
+                        onClick={() => setShowNotificationToast(false)}
+                        className="text-zinc-400 hover:text-white text-xs font-bold p-1 shrink-0"
+                    >
+                        ✕
+                    </button>
+                </div>
+            )}
             <div className="w-full max-w-7xl mx-auto space-y-6">
                 {/* Full-width Banner Hero Card */}
                 <div className="w-full bg-white border border-zinc-200 rounded-2xl p-8 shadow-xs text-center space-y-4">
@@ -94,7 +120,7 @@ export function CheckoutSuccessDesktop() {
                             Pembayaran Berhasil & Pesanan Dikonfirmasi!
                         </h1>
                         <p className="text-xs text-zinc-500 leading-relaxed w-full">
-                            Terima kasih telah berbelanja di Dhandi Ecommerce. Transaksi Anda telah terverifikasi oleh Midtrans secara real-time.
+                            Terima kasih telah berbelanja di Dhandi Ecommerce. Transaksi Anda telah terverifikasi secara real-time.
                         </p>
                     </div>
 
@@ -215,17 +241,13 @@ export function CheckoutSuccessDesktop() {
                             {/* Action Buttons */}
                             <div className="space-y-3 pt-2 w-full">
                                 <Button
-                                    type="button"
-                                    onClick={handleDownloadInvoiceBackend}
-                                    disabled={isDownloading}
+                                    asChild
                                     className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs h-12 flex items-center justify-center gap-2 shadow-xs cursor-pointer"
                                 >
-                                    {isDownloading ? (
-                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                    ) : (
-                                        <Download className="w-4 h-4" />
-                                    )}
-                                    <span>{isDownloading ? "Mengunduh PDF..." : "Download Invoice PDF (Backend)"}</span>
+                                    <Link to={`/invoice/${targetOrderId}`} target="_blank">
+                                        <FileText className="w-4 h-4" />
+                                        <span>Lihat & Cetak Invoice Resmi</span>
+                                    </Link>
                                 </Button>
 
                                 <Button

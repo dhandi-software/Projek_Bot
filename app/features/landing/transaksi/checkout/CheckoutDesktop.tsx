@@ -300,7 +300,7 @@ export function CheckoutDesktop() {
                                             disabled={isLoading}
                                             className="w-full bg-[#2DA5F3] hover:bg-[#1B6392] text-white font-bold text-xs h-12 uppercase tracking-wider shadow-sm flex items-center justify-center gap-2 cursor-pointer transition-colors"
                                         >
-                                            <span>{isLoading ? "Memproses Transaksi..." : "Bayar Sekarang via Midtrans"}</span>
+                                            <span>{isLoading ? "Memproses Transaksi..." : "Bayar Sekarang"}</span>
                                             <ArrowRight className="w-4 h-4" />
                                         </Button>
                                     ) : (

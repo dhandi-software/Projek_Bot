@@ -5,6 +5,7 @@ import { MetricCardsMobile } from "../components/DashboardMobile/MetricCardsMobi
 import { ChartsSectionMobile } from "../components/DashboardMobile/ChartsSectionMobile";
 import { SecondaryAnalyticsMobile } from "../components/DashboardMobile/SecondaryAnalyticsMobile";
 import { LatestOrdersMobile } from "../components/DashboardMobile/LatestOrdersMobile";
+import { ProdukKeluarMobile } from "../components/DashboardMobile/ProdukKeluarMobile";
 
 export function DashboardMobile() {
     const { stats, isLoading, refreshData, heatmapDays, getHeatmapColor } = useDashboardStats();
@@ -19,6 +20,9 @@ export function DashboardMobile() {
 
             {/* Charts & Target Donut */}
             <ChartsSectionMobile stats={stats} />
+
+            {/* Produk Keluar */}
+            <ProdukKeluarMobile stats={stats} />
 
             {/* Heatmap, Bar Chart & Traffic */}
             <SecondaryAnalyticsMobile

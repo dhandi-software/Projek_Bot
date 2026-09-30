@@ -105,8 +105,22 @@ export function useMidtransPayment() {
         };
     }, [paymentData?.order_id]);
 
+    // Auto-polling interval every 3 seconds while payment is pending
+    useEffect(() => {
+        if (typeof window === "undefined" || !paymentData?.order_id) return;
+
+        const currentStatus = paymentData?.status?.toLowerCase();
+        if (currentStatus === "paid" || currentStatus === "settlement") return;
+
+        const interval = setInterval(() => {
+            checkPaymentStatus(paymentData.order_id);
+        }, 3000);
+
+        return () => clearInterval(interval);
+    }, [paymentData?.order_id, paymentData?.status]);
+
     const checkPaymentStatus = async (overrideOrderId?: string) => {
-        const targetId = overrideOrderId || paymentData?.order_id;
+        const targetId = overrideOrderId || paymentData?.order_id || localStorage.getItem("last_active_order_id");
         if (!targetId || !API_BASE_URL) return;
 
         setIsLoading(true);
@@ -114,10 +128,14 @@ export function useMidtransPayment() {
             const res = await fetch(`${API_BASE_URL}/api/orders/${targetId}`);
             const data = await res.json();
             if (res.ok && data.data) {
+                const newStatus = data.data.status;
+                if (newStatus === "paid" || newStatus === "settlement") {
+                    localStorage.setItem("last_active_order_id", data.data.order_id);
+                }
                 setPaymentData((prev) => ({
                     ...(prev || {}),
                     order_id: data.data.order_id,
-                    status: data.data.status,
+                    status: newStatus,
                     total_amount: data.data.total_amount,
                     qris_url: data.data.qris_url || prev?.qris_url,
                     qris_string: data.data.qris_string || prev?.qris_string,
@@ -155,19 +173,29 @@ export function useMidtransPayment() {
                 throw new Error("Konfigurasi variabel environment API / Midtrans belum diatur.");
             }
 
+            const cartSig = items.map(i => `${i.id}:${i.quantity}:${i.numericPrice}`).join("|");
+            const storedSig = sessionStorage.getItem("active_checkout_cart_sig");
             let idempotencyKey = sessionStorage.getItem("active_checkout_idempotency_key");
-            if (!idempotencyKey) {
+
+            if (!idempotencyKey || storedSig !== cartSig) {
                 idempotencyKey = `IDEM-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
                 sessionStorage.setItem("active_checkout_idempotency_key", idempotencyKey);
+                sessionStorage.setItem("active_checkout_cart_sig", cartSig);
             }
             setActiveIdempotencyKey(idempotencyKey);
 
-            const payloadItems = items.map((item) => ({
-                product_id: typeof item.id === "number" ? item.id : parseInt(String(item.id), 10) || 1,
-                quantity: item.quantity,
-                title: item.title,
-                price: item.numericPrice,
-            }));
+            const payloadItems = items.map((item) => {
+                const rawId = item.id;
+                const parsedId = parseInt(String(rawId), 10);
+                const prodId = typeof rawId === "number" ? rawId : (!isNaN(parsedId) ? parsedId : 0);
+                return {
+                    product_id: prodId,
+                    quantity: item.quantity || 1,
+                    title: item.title || "Produk",
+                    price: item.numericPrice || 100000,
+                    image: item.image || (item as any).image_url || "",
+                };
+            });
 
             const fullName = `${billingInfo.firstName} ${billingInfo.lastName}`.trim() || "Customer Bot";
             const chosenMethod = methodOverride || billingInfo.paymentMethod || "wallet";
@@ -195,10 +223,13 @@ export function useMidtransPayment() {
             const result = await response.json();
 
             if (!response.ok || !result.data) {
-                throw new Error(result.error || "Gagal membuat transaksi di Midtrans");
+                throw new Error(result.error || "Gagal membuat transaksi pembayaran");
             }
 
             const data: PaymentData = result.data;
+            if (data.order_id) {
+                localStorage.setItem("last_active_order_id", data.order_id);
+            }
             setPaymentData(data);
             setIsLoading(false);
 

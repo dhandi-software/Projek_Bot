@@ -11,6 +11,7 @@ export function CheckoutSuccessMobile() {
     const [orderId, setOrderId] = useState<string>("");
     const [fetchedOrder, setFetchedOrder] = useState<any>(null);
     const [isDownloading, setIsDownloading] = useState<boolean>(false);
+    const [showNotificationToast, setShowNotificationToast] = useState<boolean>(true);
 
     useEffect(() => {
         let activeOrderId = localStorage.getItem("last_active_order_id");
@@ -63,20 +64,43 @@ export function CheckoutSuccessMobile() {
     };
 
     const displayItems = fetchedOrder?.items && fetchedOrder.items.length > 0
-        ? fetchedOrder.items.map((it: any) => ({
-            id: it.id || it.product_id,
-            title: it.title,
-            quantity: it.quantity,
-            numericPrice: it.price,
-            image: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=200&auto=format&fit=crop",
-        }))
+        ? fetchedOrder.items.map((it: any) => {
+            const matchedCartItem = items.find((ci: any) => ci.title === it.title || String(ci.id) === String(it.product_id || it.id));
+            return {
+                id: it.id || it.product_id,
+                title: it.title,
+                quantity: it.quantity,
+                numericPrice: it.price,
+                image: it.image || it.image_url || (matchedCartItem ? matchedCartItem.image : "") || "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=200&auto=format&fit=crop",
+            };
+        })
         : items;
 
     const displayTotal = fetchedOrder?.total_amount || totals.total || 0;
     const displayStatus = fetchedOrder?.status ? fetchedOrder.status.toUpperCase() : "PAID";
 
     return (
-        <div className="w-full bg-zinc-50/60 py-6 px-4 pb-12">
+        <div className="w-full bg-zinc-50/60 py-6 px-4 pb-12 relative">
+            {/* Top Floating Notification Toast */}
+            {showNotificationToast && (
+                <div className="fixed top-4 left-4 right-4 z-[9999] bg-[#0F172A]/95 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center justify-between gap-3 border border-emerald-500/50 backdrop-blur-md animate-in fade-in slide-in-from-top-3 duration-300">
+                    <div className="flex items-center gap-2.5">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                        <div className="text-[11px]">
+                            <p className="font-bold text-emerald-400">Pembayaran Diterima!</p>
+                            <p className="text-zinc-300 text-[10px]">
+                                Pesanan <span className="font-mono text-white font-bold">{targetOrderId}</span> terverifikasi.
+                            </p>
+                        </div>
+                    </div>
+                    <button
+                        onClick={() => setShowNotificationToast(false)}
+                        className="text-zinc-400 hover:text-white text-xs font-bold p-1 shrink-0"
+                    >
+                        ✕
+                    </button>
+                </div>
+            )}
             <div className="space-y-4 w-full">
                 {/* Hero Status Card */}
                 <div className="bg-white border border-zinc-200 rounded-xl p-5 text-center space-y-3 shadow-xs w-full">
@@ -89,7 +113,7 @@ export function CheckoutSuccessMobile() {
                             Pembayaran Berhasil!
                         </h1>
                         <p className="text-xs text-zinc-500 w-full">
-                            Pesanan Anda telah dikonfirmasi dan diverifikasi oleh Midtrans.
+                            Pesanan Anda telah dikonfirmasi dan berhasil diproses.
                         </p>
                     </div>
 
@@ -118,7 +142,7 @@ export function CheckoutSuccessMobile() {
                         </div>
                         <div className="flex justify-between w-full">
                             <span className="text-zinc-500">Metode:</span>
-                            <span className="font-semibold text-zinc-800">Midtrans Gateway</span>
+                            <span className="font-semibold text-zinc-800">Pembayaran Online</span>
                         </div>
                     </div>
                 </div>
@@ -159,17 +183,13 @@ export function CheckoutSuccessMobile() {
                 {/* Actions */}
                 <div className="space-y-2 pt-1 w-full">
                     <Button
-                        type="button"
-                        onClick={handleDownloadInvoiceBackend}
-                        disabled={isDownloading}
+                        asChild
                         className="w-full bg-emerald-600 text-white font-bold text-xs h-11 flex items-center justify-center gap-2"
                     >
-                        {isDownloading ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                            <Download className="w-4 h-4" />
-                        )}
-                        <span>{isDownloading ? "Mengunduh..." : "Download Invoice PDF"}</span>
+                        <Link to={`/invoice/${targetOrderId}`} target="_blank">
+                            <FileText className="w-4 h-4" />
+                            <span>Lihat & Cetak Invoice Resmi</span>
+                        </Link>
                     </Button>
 
                     <Button

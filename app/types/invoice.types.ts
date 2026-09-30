@@ -1,0 +1,44 @@
+export interface InvoiceItem {
+    id: number;
+    order_id: string;
+    product_id: number;
+    title: string;
+    quantity: number;
+    price: number;
+    image_url?: string;
+}
+
+export interface InvoiceData {
+    id: number;
+    order_id: string;
+    order_number?: string;
+    idempotency_key: string;
+    customer_id: number;
+    user_id: number;
+    customer_name: string;
+    customer_email: string;
+    customer_phone: string;
+    shipping_address: string;
+    total_amount: number;
+    total_price: number;
+    status: "pending" | "paid" | "settlement" | "cancel" | "deny" | "expire" | "expired" | string;
+    qris_url?: string;
+    qris_string?: string;
+    va_number?: string;
+    va_bank?: string;
+    payment_type?: string;
+    created_at: string;
+    paid_at?: string;
+    items: InvoiceItem[];
+}
+
+export interface InvoiceHookResult {
+    invoice: InvoiceData | null;
+    isLoading: boolean;
+    error: string | null;
+    formatRupiah: (val: number) => string;
+    formatDate: (dateStr?: string) => string;
+    handlePrint: () => void;
+    handleDownloadPDF: () => void;
+    isDownloadingPDF: boolean;
+}

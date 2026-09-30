@@ -189,6 +189,16 @@ export interface LatestOrder {
     status: string;
 }
 
+export interface ProdukKeluar {
+    id: string;
+    title: string;
+    soldQty: number;
+    totalAmount: string;
+    lastOrderDate: string;
+    status: string;
+    image?: string;
+}
+
 export interface DashboardStats {
     omset: OmsetStat;
     totalOrder: TotalOrderStat;
@@ -201,6 +211,7 @@ export interface DashboardStats {
     trafficSources: TrafficSource[];
     weeklyOrders: WeeklyOrder[];
     latestOrders: LatestOrder[];
+    produkKeluar?: ProdukKeluar[];
 }
 
 export interface HeatmapDay {
