@@ -49,7 +49,10 @@ export default function HeaderDesktop() {
 
   useEffect(() => {
     const updatePhoto = () => {
-      const savedPhoto = localStorage.getItem("userPhoto");
+      const role = (user?.role || "customer").toLowerCase();
+      const email = user?.email || "";
+      const rolePhotoKey = `userPhoto_${role}_${email}`;
+      const savedPhoto = localStorage.getItem("userPhoto") || (email ? localStorage.getItem(rolePhotoKey) : null);
       setUserPhoto(savedPhoto || user?.photo || null);
     };
     updatePhoto();
@@ -846,30 +849,58 @@ export default function HeaderDesktop() {
                         </div>
                       </div>
 
-                      <Link
-                        to="/profile"
-                        onClick={() => setIsUserMenuOpen(false)}
-                        className="flex items-center gap-2 p-2 rounded-lg hover:bg-zinc-100 text-xs font-semibold text-zinc-700"
-                      >
-                        👤 Edit Profil Saya
-                      </Link>
+                      {user.role?.toLowerCase() === "admin" ? (
+                        <>
+                          <Link
+                            to="/admin/dashboard"
+                            onClick={() => setIsUserMenuOpen(false)}
+                            className="flex items-center gap-2 p-2 rounded-lg hover:bg-zinc-100 text-xs font-semibold text-zinc-700"
+                          >
+                            📊 Dashboard Admin
+                          </Link>
 
-                      <Link
-                        to="/track-order"
-                        onClick={() => setIsUserMenuOpen(false)}
-                        className="flex items-center gap-2 p-2 rounded-lg hover:bg-zinc-100 text-xs font-semibold text-zinc-700"
-                      >
-                        🚚 Lacak Pesanan
-                      </Link>
+                          <Link
+                            to="/profile"
+                            onClick={() => setIsUserMenuOpen(false)}
+                            className="flex items-center gap-2 p-2 rounded-lg hover:bg-zinc-100 text-xs font-semibold text-zinc-700"
+                          >
+                            👤 Edit Profil Saya
+                          </Link>
 
-                      {user.role === 'admin' && (
-                        <Link
-                          to="/admin/dashboard"
-                          onClick={() => setIsUserMenuOpen(false)}
-                          className="flex items-center gap-2 p-2 rounded-lg hover:bg-zinc-100 text-xs font-semibold text-zinc-700"
-                        >
-                          ⚡ Dashboard Admin
-                        </Link>
+                          <Link
+                            to="/admin/pesanan"
+                            onClick={() => setIsUserMenuOpen(false)}
+                            className="flex items-center gap-2 p-2 rounded-lg hover:bg-zinc-100 text-xs font-semibold text-zinc-700"
+                          >
+                            📦 Kelola Pesanan
+                          </Link>
+                        </>
+                      ) : (
+                        <>
+                          <Link
+                            to="/customer/dashboard"
+                            onClick={() => setIsUserMenuOpen(false)}
+                            className="flex items-center gap-2 p-2 rounded-lg hover:bg-zinc-100 text-xs font-semibold text-zinc-700"
+                          >
+                            📊 Dashboard Saya
+                          </Link>
+
+                          <Link
+                            to="/profile"
+                            onClick={() => setIsUserMenuOpen(false)}
+                            className="flex items-center gap-2 p-2 rounded-lg hover:bg-zinc-100 text-xs font-semibold text-zinc-700"
+                          >
+                            👤 Edit Profil Saya
+                          </Link>
+
+                          <Link
+                            to="/track-order"
+                            onClick={() => setIsUserMenuOpen(false)}
+                            className="flex items-center gap-2 p-2 rounded-lg hover:bg-zinc-100 text-xs font-semibold text-zinc-700"
+                          >
+                            🚚 Lacak Pesanan
+                          </Link>
+                        </>
                       )}
                       <button
                         onClick={() => {

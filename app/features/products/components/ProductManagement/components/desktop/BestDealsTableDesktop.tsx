@@ -27,10 +27,24 @@ export function BestDealsTableDesktop({
   handleOpenEditForm,
   recentlyUpdatedIds,
 }: BestDealsTableDesktopProps) {
-  const bestDealProducts = products.filter((p) => p.is_best_deal);
+  const bestDealProducts = products.filter((p) => {
+    if (!p.is_best_deal) return false;
+    if (p.best_deal_expires_at) {
+      return new Date(p.best_deal_expires_at).getTime() > now;
+    }
+    return true;
+  });
 
   const ITEMS_PER_PAGE = 10;
   const [currentPage, setCurrentPage] = useState(1);
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNow(Date.now());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -89,11 +103,10 @@ export function BestDealsTableDesktop({
               </thead>
               <tbody className="divide-y divide-[#E2E8F0]">
                 {paginatedProducts.map((product) => {
-                  const expiresAt = product.best_deal_expires_at
-                    ? new Date(product.best_deal_expires_at).getTime()
-                    : null;
-                  const isExpired = expiresAt ? expiresAt <= Date.now() : false;
-                  const timeRemaining = formatTimeRemaining(product.best_deal_expires_at);
+                  const targetExpiryStr = product.best_deal_expires_at || new Date(now + 6 * 3600 * 1000).toISOString();
+                  const expiresAt = new Date(targetExpiryStr).getTime();
+                  const isExpired = expiresAt <= now;
+                  const timeRemaining = formatTimeRemaining(targetExpiryStr);
                   const isUpdated = Boolean(
                     recentlyUpdatedIds?.has(product.id) || recentlyUpdatedIds?.has(String(product.id))
                   );

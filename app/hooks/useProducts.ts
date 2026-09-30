@@ -157,6 +157,12 @@ export function useProducts() {
 
   const handleOpenEditForm = (product: ProductItem) => {
     setEditingProduct(product);
+    const now = new Date();
+    const duration = 6;
+    const expiresAt = product.is_best_deal
+      ? new Date(now.getTime() + duration * 3600 * 1000).toISOString()
+      : (product.best_deal_expires_at || null);
+
     setFormData({
       title: product.title || "",
       sku: product.sku || "",
@@ -174,9 +180,9 @@ export function useProducts() {
       is_featured: product.is_featured || false,
       is_active: product.is_active ?? true,
       is_best_deal: product.is_best_deal || false,
-      best_deal_started_at: product.best_deal_started_at || null,
-      best_deal_expires_at: product.best_deal_expires_at || null,
-      best_deal_duration: 6,
+      best_deal_started_at: product.is_best_deal ? now.toISOString() : (product.best_deal_started_at || null),
+      best_deal_expires_at: expiresAt,
+      best_deal_duration: duration,
       features: safeParseJson<string[]>(product.features, [
         "Free 1 Year Warranty",
         "Free Shipping & Fasted Delivery",
@@ -236,8 +242,24 @@ export function useProducts() {
 
     setActionLoading(true);
     try {
+      let startedAt = formData.best_deal_started_at;
+      let expiresAt = formData.best_deal_expires_at;
+
+      if (formData.is_best_deal) {
+        const durationHours = formData.best_deal_duration || 6;
+        const nowObj = new Date();
+        startedAt = nowObj.toISOString();
+        expiresAt = new Date(nowObj.getTime() + durationHours * 3600 * 1000).toISOString();
+      } else {
+        startedAt = null;
+        expiresAt = null;
+      }
+
       const payload: ProductPayload = {
         ...formData,
+        is_best_deal: formData.is_best_deal || false,
+        best_deal_started_at: startedAt,
+        best_deal_expires_at: expiresAt,
         status: targetStatus || formData.status || "active",
         is_active: targetStatus ? targetStatus === "active" : (formData.status === "active"),
       };

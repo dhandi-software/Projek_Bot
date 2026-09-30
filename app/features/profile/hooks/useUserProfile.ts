@@ -145,6 +145,7 @@ export function useUserProfile() {
                 const currentRole = (profile.role || "customer").toLowerCase();
                 const rolePhotoKey = `userPhoto_${currentRole}_${profile.email}`;
                 localStorage.setItem(rolePhotoKey, base64Photo);
+                localStorage.setItem("userPhoto", base64Photo);
 
                 showToast("Foto profil berhasil diupload & disimpan!", "success");
                 window.dispatchEvent(new Event("user-profile-updated"));

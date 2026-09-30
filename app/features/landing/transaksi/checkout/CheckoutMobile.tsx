@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { ArrowRight, CreditCard, ShieldCheck, Truck, Banknote, Wallet } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ArrowRight, Building2, QrCode, BookOpen, ShieldCheck, Printer } from "lucide-react";
 import { useNavigate } from "react-router";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -8,49 +8,72 @@ import { useCheckout } from "~/hooks/useCheckout";
 import { useMidtransPayment } from "~/hooks/useMidtransPayment";
 import { BreadCheckoutMobile } from "~/components/template/breadcrumb/BreadCheckoutMobile";
 
-import { CashOnDeliveryView } from "./components/payment/CashOnDeliveryView";
 import { BankTransferView } from "./components/payment/BankTransferView";
 import { EWalletView } from "./components/payment/EWalletView";
-import { CreditCardView } from "./components/payment/CreditCardView";
+import { PanduanPembayaranView } from "./components/payment/PanduanPembayaranView";
 
 export function CheckoutMobile() {
     const navigate = useNavigate();
     const { items, totals, billingInfo, updateBillingField, formatRupiah } = useCheckout();
-    const { processPayment, triggerExistingSnap, isLoading, errorMessage, snapRedirectUrl, snapToken, isOnline, activeIdempotencyKey } = useMidtransPayment();
+    const {
+        processPayment,
+        checkPaymentStatus,
+        paymentData,
+        isLoading,
+        errorMessage,
+        isOnline,
+        activeIdempotencyKey,
+    } = useMidtransPayment();
+
+    const [selectedTab, setSelectedTab] = useState<"wallet" | "bank" | "guide">("wallet");
+    const [selectedBank, setSelectedBank] = useState<string>("bca");
+
+    useEffect(() => {
+        const st = (paymentData?.status || "").toLowerCase();
+        if (st === "paid" || st === "settlement" || st === "completed") {
+            navigate("/checkout/success");
+        }
+    }, [paymentData?.status, navigate]);
+
+    useEffect(() => {
+        if (items.length > 0) {
+            localStorage.removeItem("last_active_order_id");
+        } else {
+            const lastOrderId = localStorage.getItem("last_active_order_id");
+            if (lastOrderId) {
+                checkPaymentStatus(lastOrderId);
+            }
+        }
+    }, [items.length]);
 
     const handleSubmitOrder = async (e: React.FormEvent) => {
         e.preventDefault();
-        await processPayment(items, billingInfo, () => {
-            navigate("/checkout/success");
-        });
+        await processPayment(
+            items,
+            billingInfo,
+            () => {
+                navigate("/checkout/success");
+            },
+            selectedTab === "guide" ? "wallet" : selectedTab,
+            selectedBank
+        );
+    };
+
+    const handlePrintReceipt = () => {
+        window.print();
     };
 
     return (
-        <div className="w-full bg-white">
+        <div className="w-full bg-white pb-12">
             <BreadCheckoutMobile />
 
-            {/* Network Status & Idempotency Key Bar */}
-            <div className="w-full bg-zinc-900 text-white py-2 px-3">
-                <div className="flex flex-col gap-1 text-[11px]">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1.5">
-                            <span className={`w-2 h-2 rounded-full ${isOnline ? "bg-emerald-500 animate-pulse" : "bg-rose-500"}`}></span>
-                            <span className="font-medium">
-                                {isOnline ? "Online (Sinyal Stabil)" : "⚠️ Sinyal Terputus (Proteksi Active)"}
-                            </span>
-                        </div>
-                        <ShieldCheck className="w-3.5 h-3.5 text-sky-400" />
-                    </div>
-                    <div className="font-mono text-[10px] text-zinc-400 bg-zinc-800/80 px-2 py-0.5 rounded truncate">
-                        Key: <span className="text-sky-300 font-bold">{activeIdempotencyKey || "Memuat..."}</span>
-                    </div>
-                </div>
-            </div>
+            {/* Mobile Checkout Spacing */}
 
-            <section className="w-full py-6 px-4">
+            <section className="w-full py-5 px-4">
                 <form onSubmit={handleSubmitOrder} className="space-y-5">
-                    <div className="border border-zinc-200 rounded-lg p-4 bg-white shadow-xs space-y-4">
-                        <h1 className="text-base font-bold text-[#191C1F] pb-3 border-b border-zinc-200">
+                    {/* Billing Form */}
+                    <div className="border border-zinc-200 rounded-xl p-4 bg-white shadow-xs space-y-3.5">
+                        <h1 className="text-base font-bold text-[#191C1F] pb-2 border-b border-zinc-200">
                             Informasi Tagihan & Pengiriman
                         </h1>
 
@@ -62,7 +85,7 @@ export function CheckoutMobile() {
                                     value={billingInfo.firstName}
                                     onChange={(e) => updateBillingField("firstName", e.target.value)}
                                     placeholder="Nama depan"
-                                    className="h-11 text-xs border-zinc-300"
+                                    className="h-10 text-xs border-zinc-300"
                                 />
                             </div>
                             <div className="space-y-1">
@@ -72,7 +95,7 @@ export function CheckoutMobile() {
                                     value={billingInfo.lastName}
                                     onChange={(e) => updateBillingField("lastName", e.target.value)}
                                     placeholder="Nama belakang"
-                                    className="h-11 text-xs border-zinc-300"
+                                    className="h-10 text-xs border-zinc-300"
                                 />
                             </div>
                         </div>
@@ -84,7 +107,7 @@ export function CheckoutMobile() {
                                 value={billingInfo.address}
                                 onChange={(e) => updateBillingField("address", e.target.value)}
                                 placeholder="Alamat rumah / kantor"
-                                className="h-11 text-xs border-zinc-300"
+                                className="h-10 text-xs border-zinc-300"
                             />
                         </div>
 
@@ -97,7 +120,7 @@ export function CheckoutMobile() {
                                     value={billingInfo.email}
                                     onChange={(e) => updateBillingField("email", e.target.value)}
                                     placeholder="Email"
-                                    className="h-11 text-xs border-zinc-300"
+                                    className="h-10 text-xs border-zinc-300"
                                 />
                             </div>
                             <div className="space-y-1">
@@ -107,115 +130,157 @@ export function CheckoutMobile() {
                                     required
                                     value={billingInfo.phone}
                                     onChange={(e) => updateBillingField("phone", e.target.value)}
-                                    placeholder="No. HP"
-                                    className="h-11 text-xs border-zinc-300"
+                                    placeholder="No. HP WhatsApp"
+                                    className="h-10 text-xs border-zinc-300"
                                 />
                             </div>
                         </div>
                     </div>
 
-                    {/* Payment Options */}
-                    <div className="border border-zinc-200 rounded-lg p-4 bg-white shadow-xs space-y-3">
-                        <h2 className="text-sm font-bold text-[#191C1F] pb-2 border-b border-zinc-200">
-                            Opsi Pembayaran Midtrans Gateway
-                        </h2>
-                        <div className="grid grid-cols-2 gap-2.5">
-                            {[
-                                { id: "cod", label: "COD", icon: Banknote },
-                                { id: "bank", label: "Transfer Bank", icon: Truck },
-                                { id: "wallet", label: "E-Wallet", icon: Wallet },
-                                { id: "card", label: "Kartu Kredit", icon: CreditCard },
-                            ].map((method) => {
-                                const Icon = method.icon;
-                                const isSelected = billingInfo.paymentMethod === method.id;
-                                return (
-                                    <button
-                                        key={method.id}
-                                        type="button"
-                                        onClick={() => updateBillingField("paymentMethod", method.id)}
-                                        className={`p-3 rounded-lg border text-center flex flex-col items-center gap-1.5 transition-all ${isSelected
-                                                ? "border-[#2DA5F3] bg-sky-50/50 text-[#1B6392] ring-1 ring-[#2DA5F3]"
-                                                : "border-zinc-200 text-zinc-600"
-                                            }`}
-                                    >
-                                        <Icon className="w-5 h-5" />
-                                        <span className="text-xs font-semibold">{method.label}</span>
-                                    </button>
-                                );
-                            })}
+                    {/* Payment Method Tabs */}
+                    <div className="border border-zinc-200 rounded-xl p-4 bg-white shadow-xs space-y-4">
+                        <div>
+                            <h2 className="text-base font-bold text-[#191C1F]">
+                                Pilih Metode Pembayaran Mandiri
+                            </h2>
+                            <p className="text-xs text-zinc-500 mt-0.5">
+                                Scan QRIS atau gunakan Virtual Account
+                            </p>
                         </div>
 
-                        {/* Separate Dynamic Payment View */}
-                        <div className="pt-2">
-                            {billingInfo.paymentMethod === "cod" && <CashOnDeliveryView />}
-                            {billingInfo.paymentMethod === "bank" && <BankTransferView />}
-                            {billingInfo.paymentMethod === "wallet" && <EWalletView />}
-                            {billingInfo.paymentMethod === "card" && <CreditCardView />}
+                        <div className="grid grid-cols-3 gap-2">
+                            <button
+                                type="button"
+                                onClick={() => setSelectedTab("wallet")}
+                                className={`p-3 rounded-lg border text-center flex flex-col items-center gap-1.5 transition-all ${
+                                    selectedTab === "wallet"
+                                        ? "border-[#2DA5F3] bg-sky-50/50 text-[#1B6392] ring-1 ring-[#2DA5F3]"
+                                        : "border-zinc-200 text-zinc-600 bg-white"
+                                }`}
+                            >
+                                <QrCode className="w-5 h-5 text-[#2DA5F3]" />
+                                <span className="text-[11px] font-bold">QRIS</span>
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => setSelectedTab("bank")}
+                                className={`p-3 rounded-lg border text-center flex flex-col items-center gap-1.5 transition-all ${
+                                    selectedTab === "bank"
+                                        ? "border-[#2DA5F3] bg-sky-50/50 text-[#1B6392] ring-1 ring-[#2DA5F3]"
+                                        : "border-zinc-200 text-zinc-600 bg-white"
+                                }`}
+                            >
+                                <Building2 className="w-5 h-5 text-[#2DA5F3]" />
+                                <span className="text-[11px] font-bold">VA</span>
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => setSelectedTab("guide")}
+                                className={`p-3 rounded-lg border text-center flex flex-col items-center gap-1.5 transition-all ${
+                                    selectedTab === "guide"
+                                        ? "border-[#2DA5F3] bg-sky-50/50 text-[#1B6392] ring-1 ring-[#2DA5F3]"
+                                        : "border-zinc-200 text-zinc-600 bg-white"
+                                }`}
+                            >
+                                <BookOpen className="w-5 h-5 text-[#2DA5F3]" />
+                                <span className="text-[11px] font-bold">Panduan</span>
+                            </button>
+                        </div>
+
+                        <div className="pt-1">
+                            {selectedTab === "wallet" && (
+                                <EWalletView
+                                    paymentData={paymentData}
+                                    totalAmount={totals.total}
+                                    formatRupiah={formatRupiah}
+                                    onCheckStatus={() => checkPaymentStatus()}
+                                    isLoading={isLoading}
+                                />
+                            )}
+
+                            {selectedTab === "bank" && (
+                                <BankTransferView
+                                    paymentData={paymentData}
+                                    selectedBank={selectedBank}
+                                    onSelectBank={setSelectedBank}
+                                    totalAmount={totals.total}
+                                    formatRupiah={formatRupiah}
+                                    onCheckStatus={() => checkPaymentStatus()}
+                                    isLoading={isLoading}
+                                />
+                            )}
+
+                            {selectedTab === "guide" && <PanduanPembayaranView />}
                         </div>
                     </div>
 
                     {/* Order Summary */}
-                    <div className="border border-zinc-200 rounded-lg p-4 bg-white shadow-xs space-y-4">
-                        <h2 className="text-sm font-bold text-[#191C1F] pb-2 border-b border-zinc-200">
-                            Ringkasan Pesanan
+                    <div className="border border-zinc-200 rounded-xl p-4 bg-white shadow-xs space-y-4">
+                        <h2 className="text-base font-bold text-[#191C1F] pb-2 border-b border-zinc-200">
+                            Ringkasan Tagihan & Barang
                         </h2>
 
-                        <div className="space-y-2.5 text-xs text-zinc-600">
-                            <div className="flex justify-between">
-                                <span>Sub-total Produk</span>
-                                <span className="font-semibold text-zinc-900">{formatRupiah(totals.subTotal)}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Ongkos Kirim</span>
-                                <span className="font-semibold text-emerald-600">Gratis Ongkir</span>
-                            </div>
-                            {totals.discount > 0 && (
-                                <div className="flex justify-between">
-                                    <span>Diskon</span>
-                                    <span className="font-semibold text-rose-600">-{formatRupiah(totals.discount)}</span>
+                        <div className="space-y-3">
+                            {items.map((item) => (
+                                <div key={item.id} className="flex items-center gap-2.5">
+                                    <img
+                                        src={item.image}
+                                        alt={item.title}
+                                        className="w-10 h-10 object-contain rounded border border-zinc-200 p-0.5 shrink-0"
+                                    />
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-xs font-bold text-zinc-800 truncate">{item.title}</p>
+                                        <p className="text-[11px] text-zinc-500">{item.quantity} x {formatRupiah(item.numericPrice)}</p>
+                                    </div>
+                                    <p className="text-xs font-extrabold text-zinc-900">{formatRupiah(item.numericPrice * item.quantity)}</p>
                                 </div>
-                            )}
+                            ))}
                         </div>
 
                         <div className="border-t border-zinc-200 pt-3 flex justify-between items-center">
-                            <span className="text-xs font-bold text-[#191C1F]">Total Bayar (Pas)</span>
-                            <span className="text-base font-extrabold text-[#2DA5F3]">{formatRupiah(totals.total)}</span>
+                            <span className="text-xs font-bold text-[#191C1F]">Total Pembayaran Pas</span>
+                            <span className="text-lg font-extrabold text-[#2DA5F3]">{formatRupiah(totals.total)}</span>
                         </div>
 
                         {errorMessage && (
-                            <div className="p-3 bg-rose-50 border border-rose-200 rounded text-xs text-rose-700 space-y-1">
-                                <p className="font-bold">Informasi Pembayaran</p>
-                                <p>{errorMessage}</p>
+                            <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-xs text-rose-700">
+                                {errorMessage}
                             </div>
                         )}
 
-                        {(snapToken || snapRedirectUrl) && (
-                            <div className="p-3 bg-sky-50 border border-sky-200 rounded text-xs text-[#1B6392] space-y-2">
-                                <p className="font-semibold text-zinc-900">Sesi Midtrans Aktif</p>
+                        <div className="space-y-2.5 pt-1">
+                            {!paymentData ? (
+                                <Button
+                                    type="submit"
+                                    disabled={isLoading}
+                                    className="w-full bg-[#2DA5F3] text-white font-bold text-xs h-11 uppercase flex items-center justify-center gap-2"
+                                >
+                                    <span>{isLoading ? "Memproses..." : "Bayar Sekarang"}</span>
+                                    <ArrowRight className="w-4 h-4" />
+                                </Button>
+                            ) : (
                                 <Button
                                     type="button"
-                                    onClick={triggerExistingSnap}
-                                    className="w-full bg-[#2DA5F3] text-white text-xs h-9"
+                                    onClick={() => checkPaymentStatus()}
+                                    disabled={isLoading}
+                                    className="w-full bg-[#2DA5F3] text-white font-bold text-xs h-11 uppercase flex items-center justify-center gap-2"
                                 >
-                                    Buka Pembayaran Midtrans
+                                    <span>CEK STATUS PEMBAYARAN (REAL-TIME)</span>
+                                    <ArrowRight className="w-4 h-4" />
                                 </Button>
-                            </div>
-                        )}
+                            )}
 
-                        <Button
-                            type="submit"
-                            disabled={isLoading}
-                            className="w-full bg-[#2DA5F3] hover:bg-[#1B6392] text-white font-bold text-xs min-h-[48px] uppercase tracking-wider shadow-xs flex items-center justify-center gap-2"
-                        >
-                            <span>{isLoading ? "Memproses Midtrans..." : "Bayar Sekarang via Midtrans"}</span>
-                            <ArrowRight className="w-4 h-4" />
-                        </Button>
-
-                        <div className="flex flex-col items-center justify-center gap-0.5 text-[10px] text-zinc-500 pt-1 text-center">
-                            <div className="flex items-center gap-1">
-                                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                                <span>Pembayaran Terproteksi Idempotency</span>
-                            </div>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={handlePrintReceipt}
+                                className="w-full border-zinc-300 text-zinc-700 font-semibold text-xs h-10 flex items-center justify-center gap-2"
+                            >
+                                <Printer className="w-4 h-4 text-zinc-500" />
+                                <span>Cetak Resi Pembayaran</span>
+                            </Button>
                         </div>
                     </div>
                 </form>

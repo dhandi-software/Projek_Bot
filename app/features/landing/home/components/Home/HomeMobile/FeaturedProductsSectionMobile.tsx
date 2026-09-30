@@ -1,105 +1,57 @@
 import React, { useState } from "react";
 import { Link } from "react-router";
-import { ArrowRight, Star, Heart, ShoppingCart, Check } from "lucide-react";
+import { ArrowRight, Star, Heart, ShoppingCart, Check, PackageX } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { useCart } from "~/context/CartContext";
-import type { FeaturedProduct } from "../HomeDesktop/FeaturedProductsSection";
-
-const FEATURED_PRODUCTS_MOBILE: FeaturedProduct[] = [
-  {
-    id: "fp-tozo-t6-mob",
-    title: "TOZO T6 True Wireless Earbuds Bluetooth Headphones",
-    price: "$70",
-    rating: 5,
-    reviewsCount: 738,
-    category: "headphone",
-    badge: { text: "HOT", variant: "hot" },
-    image: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    id: "fp-samsung-s21-mob",
-    title: "Samsung Electronics Samsung Galaxy S21 5G",
-    price: "$2,300",
-    rating: 5,
-    reviewsCount: 536,
-    category: "phone",
-    image: "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    id: "fp-amazon-hdmi-mob",
-    title: "Amazon Basics High-Speed HDMI Cable (18 Gbps, 4K/60Hz)...",
-    price: "$360",
-    rating: 5,
-    reviewsCount: 423,
-    category: "accessories",
-    badge: { text: "BEST DEALS", variant: "best-deals" },
-    image: "https://images.unsplash.com/photo-1631541909061-71e349d1f203?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    id: "fp-washing-machine-mob",
-    title: "Portable Washing Machine, 11lbs capacity Model 18NMF...",
-    price: "$80",
-    rating: 4,
-    reviewsCount: 816,
-    category: "accessories",
-    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    id: "fp-gaming-headphones-mob",
-    title: "Wired Over-Ear Gaming Headphones with USB",
-    price: "$1,500",
-    rating: 5,
-    reviewsCount: 647,
-    category: "headphone",
-    image: "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    id: "fp-polaroid-tripod-mob",
-    title: "Polaroid 57-Inch Photo/Video Tripod with Deluxe Tripod Case...",
-    price: "$1,200",
-    originalPrice: "$1600",
-    rating: 4,
-    reviewsCount: 877,
-    category: "accessories",
-    badge: { text: "25% OFF", variant: "discount" },
-    image: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    id: "fp-dell-optiplex-mob",
-    title: "Dell Optiplex 7000x7480 All-in-One Computer Monitor",
-    price: "$250",
-    rating: 5,
-    reviewsCount: 426,
-    category: "laptop",
-    image: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    id: "fp-4k-uhd-tv-mob",
-    title: "4K UHD LED Smart TV with Chromecast Built-in",
-    price: "$220",
-    rating: 5,
-    reviewsCount: 583,
-    category: "tv",
-    badge: { text: "SALE", variant: "sale" },
-    image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=400&q=80",
-  },
-];
-
-const TABS = [
-  { id: "all", label: "All Product" },
-  { id: "phone", label: "Smart Phone" },
-  { id: "laptop", label: "Laptop" },
-  { id: "headphone", label: "Headphone" },
-  { id: "tv", label: "TV" },
-];
+import { useProducts } from "~/hooks/useProducts";
 
 export function FeaturedProductsSectionMobile() {
   const { addToCart } = useCart();
+  const { products, loading } = useProducts();
   const [activeTab, setActiveTab] = useState("all");
   const [addedIds, setAddedIds] = useState<Record<string, boolean>>({});
   const [wishlistIds, setWishlistIds] = useState<Record<string, boolean>>({});
 
-  const handleAddToCart = (e: React.MouseEvent, product: FeaturedProduct) => {
+  const realFeaturedProducts = products.map((p) => {
+    const isDiscount = Boolean(p.discount_price && p.discount_price > 0 && p.discount_price < p.price);
+    const formattedPrice = isDiscount && p.discount_price
+      ? `Rp ${p.discount_price.toLocaleString("id-ID")}`
+      : `Rp ${p.price.toLocaleString("id-ID")}`;
+    const originalPrice = isDiscount
+      ? `Rp ${p.price.toLocaleString("id-ID")}`
+      : undefined;
+
+    let badgeVariant: "hot" | "best-deals" | "discount" | "sale" = "hot";
+    let badgeText = "";
+    if (p.is_best_deal) {
+      badgeVariant = "best-deals";
+      badgeText = "BEST DEALS";
+    } else if (isDiscount && p.discount_price) {
+      badgeVariant = "discount";
+      const percent = Math.round(((p.price - p.discount_price) / p.price) * 100);
+      badgeText = `${percent}% OFF`;
+    }
+
+    return {
+      id: String(p.id),
+      title: p.title,
+      price: formattedPrice,
+      originalPrice,
+      rating: 5,
+      reviewsCount: 15,
+      image: p.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=400&q=80",
+      categorySlug: (p.category || "").toLowerCase(),
+      badge: badgeText ? ({ text: badgeText, variant: badgeVariant } as { text: string; variant: "hot" | "best-deals" | "discount" | "sale" }) : undefined,
+    };
+  });
+
+  const categoriesSet = Array.from(new Set(products.map((p) => p.category).filter(Boolean)));
+  const tabs = [
+    { id: "all", label: "Semua Produk" },
+    ...categoriesSet.map((cat) => ({ id: cat.toLowerCase(), label: cat })),
+  ];
+
+  const handleAddToCart = (e: React.MouseEvent, product: any) => {
     e.preventDefault();
     e.stopPropagation();
     addToCart({
@@ -122,8 +74,8 @@ export function FeaturedProductsSectionMobile() {
   };
 
   const filteredProducts = activeTab === "all"
-    ? FEATURED_PRODUCTS_MOBILE
-    : FEATURED_PRODUCTS_MOBILE.filter((p) => p.category === activeTab);
+    ? realFeaturedProducts
+    : realFeaturedProducts.filter((p) => p.categorySlug.includes(activeTab.toLowerCase()));
 
   return (
     <section className="w-full py-[72px] space-y-4">
@@ -141,12 +93,12 @@ export function FeaturedProductsSectionMobile() {
 
       {/* Filter Tabs Scrollable */}
       <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-        {TABS.map((tab) => (
+        {tabs.map((tab: { id: string; label: string }) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={cn(
-              "px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap border",
+              "px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap border cursor-pointer",
               activeTab === tab.id
                 ? "bg-[#FA8232] text-white border-[#FA8232] shadow-sm font-semibold"
                 : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"

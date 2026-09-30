@@ -18,6 +18,27 @@ declare global {
     }
 }
 
+export interface PaymentDataItem {
+    id?: string | number;
+    title: string;
+    quantity: number;
+    numericPrice: number;
+    image?: string;
+}
+
+export interface PaymentData {
+    order_id?: string;
+    snap_token?: string;
+    snap_redirect_url?: string;
+    qris_url?: string;
+    qris_string?: string;
+    va_number?: string;
+    va_bank?: string;
+    total_amount?: number;
+    status?: string;
+    items?: PaymentDataItem[];
+}
+
 const MIDTRANS_CLIENT_KEY = import.meta.env.VITE_MIDTRANS_CLIENT_KEY;
 const MIDTRANS_SNAP_URL = import.meta.env.VITE_MIDTRANS_SNAP_URL;
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -25,8 +46,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 export function useMidtransPayment() {
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const [snapRedirectUrl, setSnapRedirectUrl] = useState<string | null>(null);
-    const [snapToken, setSnapToken] = useState<string | null>(null);
+    const [paymentData, setPaymentData] = useState<PaymentData | null>(null);
     const [isOnline, setIsOnline] = useState<boolean>(typeof navigator !== "undefined" ? navigator.onLine : true);
     const [activeIdempotencyKey, setActiveIdempotencyKey] = useState<string>("");
 
@@ -36,13 +56,6 @@ export function useMidtransPayment() {
 
         window.addEventListener("online", handleOnline);
         window.addEventListener("offline", handleOffline);
-
-        let savedKey = sessionStorage.getItem("active_checkout_idempotency_key");
-        if (!savedKey) {
-            savedKey = `IDEM-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-            sessionStorage.setItem("active_checkout_idempotency_key", savedKey);
-        }
-        setActiveIdempotencyKey(savedKey);
 
         return () => {
             window.removeEventListener("online", handleOnline);
@@ -64,40 +77,141 @@ export function useMidtransPayment() {
         }
     }, []);
 
+    useEffect(() => {
+        if (typeof window === "undefined" || !paymentData?.order_id) return;
+
+        const isHttps = typeof window !== "undefined" && window.location.protocol === "https:";
+        const defaultWsScheme = isHttps ? "wss" : "ws";
+        const wsUrl = API_BASE_URL
+            ? API_BASE_URL.replace(/^http/, defaultWsScheme) + "/ws"
+            : `${defaultWsScheme}://localhost:8080/ws`;
+        let socket: WebSocket | null = null;
+
+        try {
+            socket = new WebSocket(wsUrl);
+            socket.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.event === "payment_status_updated" && data.order_id === paymentData.order_id) {
+                        setPaymentData((prev) => (prev ? { ...prev, status: data.status } : prev));
+                    }
+                } catch {
+                }
+            };
+        } catch {
+        }
+
+        return () => {
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                socket.close();
+            }
+        };
+    }, [paymentData?.order_id]);
+
+    useEffect(() => {
+        if (typeof window === "undefined" || !paymentData?.order_id) return;
+
+        const currentStatus = paymentData?.status?.toLowerCase();
+        if (currentStatus === "paid" || currentStatus === "settlement") return;
+
+        const interval = setInterval(() => {
+            checkPaymentStatus(paymentData.order_id);
+        }, 3000);
+
+        return () => clearInterval(interval);
+    }, [paymentData?.order_id, paymentData?.status]);
+
+    const checkPaymentStatus = async (overrideOrderId?: string) => {
+        const targetId = overrideOrderId || paymentData?.order_id || localStorage.getItem("last_active_order_id");
+        if (!targetId || !API_BASE_URL) return;
+
+        setIsLoading(true);
+        try {
+            const cleanId = encodeURIComponent(targetId.replace(/^#/, ""));
+            const res = await fetch(`${API_BASE_URL}/api/orders/${cleanId}`);
+            const data = await res.json();
+            if (res.ok && data.data) {
+                const ord = data.data;
+                const newStatus = ord.status;
+                const isOrderPaid = ["paid", "settlement", "completed", "success", "capture"].includes((newStatus || "").toLowerCase());
+                if (isOrderPaid) {
+                    localStorage.removeItem("last_active_order_id");
+                } else if (ord.order_id) {
+                    localStorage.setItem("last_active_order_id", ord.order_id);
+                }
+
+                const rawItems = ord.OrderItems || ord.order_items || ord.items || [];
+                const formattedItems: PaymentDataItem[] = rawItems.map((it: any) => ({
+                    id: String(it.id || it.product_id),
+                    title: it.title || "Produk",
+                    quantity: it.quantity || 1,
+                    numericPrice: it.price || 0,
+                    image: it.image || it.image_url || "",
+                }));
+
+                setPaymentData((prev) => ({
+                    ...(prev || {}),
+                    order_id: ord.order_id,
+                    status: newStatus,
+                    total_amount: ord.total_amount || ord.total_price,
+                    qris_url: ord.qris_url || prev?.qris_url,
+                    qris_string: ord.qris_string || prev?.qris_string,
+                    va_number: ord.va_number || prev?.va_number,
+                    va_bank: ord.va_bank || prev?.va_bank,
+                    snap_token: ord.snap_token || prev?.snap_token,
+                    snap_redirect_url: ord.snap_redirect_url || prev?.snap_redirect_url,
+                    items: formattedItems.length > 0 ? formattedItems : prev?.items,
+                }));
+            }
+        } catch (err) {
+            console.error("Gagal mengecek status pembayaran:", err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const processPayment = async (
         items: CartItem[],
         billingInfo: BillingInfo,
-        onSuccessCallback?: () => void
+        onSuccessCallback?: () => void,
+        methodOverride?: string,
+        bankOverride?: string
     ) => {
         setIsLoading(true);
         setErrorMessage(null);
 
         if (!navigator.onLine) {
             setIsLoading(false);
-            setErrorMessage(`Koneksi terputus (Mati Sinyal). Kunci Transaksi (${activeIdempotencyKey}) telah tersimpan dengan aman. Pembayaran dapat dilanjutkan begitu koneksi kembali tanpa risiko pembayaran ganda.`);
+            setErrorMessage(`Koneksi terputus. Idempotency Key (${activeIdempotencyKey}) tersimpan aman.`);
             return;
         }
 
         try {
-            if (!API_BASE_URL || !MIDTRANS_CLIENT_KEY || !MIDTRANS_SNAP_URL) {
-                throw new Error("Konfigurasi variabel environment (VITE_API_BASE_URL, VITE_MIDTRANS_CLIENT_KEY, VITE_MIDTRANS_SNAP_URL) belum diatur di file .env");
+            if (!API_BASE_URL || !MIDTRANS_CLIENT_KEY) {
+                throw new Error("Konfigurasi variabel environment API / Midtrans belum diatur.");
             }
 
-            let idempotencyKey = sessionStorage.getItem("active_checkout_idempotency_key");
-            if (!idempotencyKey) {
-                idempotencyKey = `IDEM-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-                sessionStorage.setItem("active_checkout_idempotency_key", idempotencyKey);
-            }
+            const secureUuid = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+                ? crypto.randomUUID().replace(/-/g, "")
+                : Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+            const idempotencyKey = `IDEM-${Date.now()}-${secureUuid}`;
             setActiveIdempotencyKey(idempotencyKey);
 
-            const payloadItems = items.map((item) => ({
-                product_id: typeof item.id === "number" ? item.id : parseInt(String(item.id), 10) || 1,
-                quantity: item.quantity,
-                title: item.title,
-                price: item.numericPrice,
-            }));
+            const payloadItems = items.map((item) => {
+                const rawId = item.id;
+                const parsedId = parseInt(String(rawId), 10);
+                const prodId = typeof rawId === "number" ? rawId : (!isNaN(parsedId) ? parsedId : 0);
+                return {
+                    product_id: prodId,
+                    quantity: item.quantity || 1,
+                    title: item.title || "Produk",
+                    price: item.numericPrice || 100000,
+                    image: item.image || (item as any).image_url || "",
+                };
+            });
 
             const fullName = `${billingInfo.firstName} ${billingInfo.lastName}`.trim() || "Customer Bot";
+            const chosenMethod = methodOverride || billingInfo.paymentMethod || "wallet";
 
             const response = await fetch(`${API_BASE_URL}/api/payment/checkout`, {
                 method: "POST",
@@ -107,6 +221,8 @@ export function useMidtransPayment() {
                 },
                 body: JSON.stringify({
                     idempotency_key: idempotencyKey,
+                    payment_method: chosenMethod,
+                    bank: bankOverride || "bca",
                     items: payloadItems,
                     customer: {
                         name: fullName,
@@ -120,37 +236,28 @@ export function useMidtransPayment() {
             const result = await response.json();
 
             if (!response.ok || !result.data) {
-                throw new Error(result.error || "Gagal membuat sesi pembayaran Midtrans");
+                throw new Error(result.error || "Gagal membuat transaksi pembayaran");
             }
 
-            const { snap_token, snap_redirect_url } = result.data;
+            const data: PaymentData = result.data;
+            const isOrderPaid = ["paid", "settlement", "completed", "success", "capture"].includes((data.status || "").toLowerCase());
 
-            setSnapToken(snap_token);
-            setSnapRedirectUrl(snap_redirect_url);
+            if (data.order_id) {
+                if (isOrderPaid) {
+                    localStorage.removeItem("last_active_order_id");
+                } else {
+                    localStorage.setItem("last_active_order_id", data.order_id);
+                }
+            }
+            setPaymentData(data);
+            setIsLoading(false);
 
-            if (window.snap && typeof window.snap.pay === "function") {
-                window.snap.pay(snap_token, {
-                    onSuccess: function () {
-                        sessionStorage.removeItem("active_checkout_idempotency_key");
-                        setIsLoading(false);
-                        if (onSuccessCallback) onSuccessCallback();
-                    },
-                    onPending: function () {
-                        setIsLoading(false);
-                        if (onSuccessCallback) onSuccessCallback();
-                    },
-                    onError: function (err: unknown) {
-                        setIsLoading(false);
-                        setErrorMessage("Pembayaran gagal atau dibatalkan. Silakan coba lagi.");
-                        console.error("Midtrans Error:", err);
-                    },
-                    onClose: function () {
-                        setIsLoading(false);
-                    },
-                });
-            } else {
-                window.open(snap_redirect_url, "_blank");
-                setIsLoading(false);
+            if (isOrderPaid) {
+                sessionStorage.removeItem("active_checkout_idempotency_key");
+                if (onSuccessCallback) onSuccessCallback();
+                if (typeof window !== "undefined") {
+                    window.location.href = "/checkout/success";
+                }
             }
         } catch (err: unknown) {
             setIsLoading(false);
@@ -160,24 +267,39 @@ export function useMidtransPayment() {
     };
 
     const triggerExistingSnap = () => {
-        if (snapToken && window.snap && typeof window.snap.pay === "function") {
-            window.snap.pay(snapToken, {
-                onSuccess: function () {
+        if (paymentData?.snap_token && window.snap && typeof window.snap.pay === "function") {
+            window.snap.pay(paymentData.snap_token, {
+                onSuccess: function (result: any) {
+                    const paidId = paymentData?.order_id || (result && (result as any).order_id);
+                    if (paidId) {
+                        localStorage.setItem("last_active_order_id", paidId);
+                    }
                     sessionStorage.removeItem("active_checkout_idempotency_key");
+                    setPaymentData((prev) => (prev ? { ...prev, status: "paid" } : { status: "paid" }));
+                    if (typeof window !== "undefined") {
+                        window.location.href = "/checkout/success";
+                    }
+                },
+                onPending: function () {
+                    checkPaymentStatus();
+                },
+                onError: function () {
+                    setErrorMessage("Pembayaran gagal atau dibatalkan.");
+                },
+                onClose: function () {
+                    checkPaymentStatus();
                 },
             });
-        } else if (snapRedirectUrl) {
-            window.open(snapRedirectUrl, "_blank");
         }
     };
 
     return {
         processPayment,
         triggerExistingSnap,
+        checkPaymentStatus,
+        paymentData,
         isLoading,
         errorMessage,
-        snapRedirectUrl,
-        snapToken,
         isOnline,
         activeIdempotencyKey,
     };

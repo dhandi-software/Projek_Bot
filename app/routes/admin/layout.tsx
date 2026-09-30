@@ -10,6 +10,7 @@ import {
     FolderTree,
     Image as ImageIcon,
     ChevronLeft,
+    ShoppingBag,
 } from "lucide-react";
 import type { ContextType } from "~/root";
 import { DashboardTopbar } from "~/features/dashboard/components/DashboardTopbar";
@@ -109,6 +110,23 @@ export default function AdminLayout() {
                     >
                         <LayoutDashboard className="w-5 h-5 shrink-0" />
                         {!isCollapsed && <span className="text-sm">Dashboard</span>}
+                    </NavLink>
+
+                    <NavLink
+                        to="/admin/pesanan"
+                        title={isCollapsed ? "Pesanan Customer" : undefined}
+                        className={({ isActive }) =>
+                            `flex items-center gap-3.5 px-3.5 py-3 rounded-xl transition-all ${
+                                isCollapsed ? "justify-center px-0" : ""
+                            } ${
+                                isActive
+                                    ? "bg-[#00a884]/10 text-[#00a884] font-semibold"
+                                    : "text-zinc-600 hover:bg-zinc-100"
+                            }`
+                        }
+                    >
+                        <ShoppingBag className="w-5 h-5 shrink-0" />
+                        {!isCollapsed && <span className="text-sm">Pesanan Customer</span>}
                     </NavLink>
 
                     <NavLink

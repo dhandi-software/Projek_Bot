@@ -1,103 +1,62 @@
 import React, { useState } from "react";
 import { Link } from "react-router";
-import { ArrowRight, Star, Heart, ShoppingCart, Check } from "lucide-react";
-import { cn } from "~/lib/utils";
+import { ArrowRight, Star, Heart, ShoppingCart, Check, PackageX, ChevronLeft, ChevronRight } from "lucide-react";
+import { cn, getProductDetailUrl } from "~/lib/utils";
 import { useCart } from "~/context/CartContext";
-import type { AccessoryProduct } from "../HomeDesktop/ComputerAccessoriesSection";
-
-const COMPUTER_ACCESSORIES_MOBILE: AccessoryProduct[] = [
-  {
-    id: "ca-amazon-hdmi-mob",
-    title: "Amazon Basics High-Speed HDMI Cable (18 Gbps, 4K/60Hz)...",
-    price: "$360",
-    rating: 4,
-    reviewsCount: 994,
-    category: "headphone",
-    badge: { text: "BEST DEALS", variant: "best-deals" },
-    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    id: "ca-washing-machine-mob",
-    title: "Portable Washing Machine, 11lbs capacity Model 18NMF...",
-    price: "$80",
-    rating: 5,
-    reviewsCount: 798,
-    category: "headphone",
-    image: "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    id: "ca-tozo-keyboard-mob",
-    title: "TOZO T6 True Wireless Earbuds Bluetooth Headphones...",
-    price: "$70",
-    rating: 5,
-    reviewsCount: 600,
-    category: "keyboard",
-    badge: { text: "HOT", variant: "hot" },
-    image: "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    id: "ca-dell-optiplex-mob",
-    title: "Dell Optiplex 7000x7480 All-in-One Computer Monitor",
-    price: "$250",
-    rating: 4,
-    reviewsCount: 492,
-    category: "printer",
-    image: "https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    id: "ca-samsung-webcam-mob",
-    title: "Samsung Electronics Samsung Galaxy S21 5G",
-    price: "$2,300",
-    rating: 4,
-    reviewsCount: 740,
-    category: "webcam",
-    image: "https://images.unsplash.com/photo-1557324232-b8917d3c3dcb?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    id: "ca-4k-uhd-tv-mob",
-    title: "4K UHD LED Smart TV with Chromecast Built-in",
-    price: "$220",
-    rating: 4,
-    reviewsCount: 556,
-    category: "webcam",
-    badge: { text: "SALE", variant: "sale" },
-    image: "https://images.unsplash.com/photo-1585060544812-6b45742d762f?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    id: "ca-wired-headphones-mob",
-    title: "Wired Over-Ear Gaming Headphones with USB",
-    price: "$1,500",
-    rating: 4,
-    reviewsCount: 536,
-    category: "printer",
-    image: "https://images.unsplash.com/photo-1616440342955-4fa8ef0c36cb?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    id: "ca-polaroid-tripod-mob",
-    title: "Polaroid 57-Inch Photo/Video Tripod with Deluxe Tripod Case...",
-    price: "$1,200",
-    originalPrice: "$1600",
-    rating: 4,
-    reviewsCount: 423,
-    category: "printer",
-    badge: { text: "25% OFF", variant: "discount" },
-    image: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=400&q=80",
-  },
-];
-
-const TABS = [
-  { id: "all", label: "All Product" },
-  { id: "keyboard", label: "Keyboard & Mouse" },
-  { id: "headphone", label: "Headphone" },
-  { id: "webcam", label: "Webcam" },
-  { id: "printer", label: "Printer" },
-];
+import { useProducts } from "~/hooks/useProducts";
 
 export function ComputerAccessoriesSectionMobile() {
   const { addToCart } = useCart();
+  const { products, loading } = useProducts();
   const [activeTab, setActiveTab] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 12;
   const [addedIds, setAddedIds] = useState<Record<string, boolean>>({});
   const [wishlistIds, setWishlistIds] = useState<Record<string, boolean>>({});
+
+  const realAccessoryProducts = products.map((p) => {
+    const isDiscount = Boolean(p.discount_price && p.discount_price > 0 && p.discount_price < p.price);
+    const formattedPrice = isDiscount && p.discount_price
+      ? `Rp ${p.discount_price.toLocaleString("id-ID")}`
+      : `Rp ${p.price.toLocaleString("id-ID")}`;
+    const originalPrice = isDiscount
+      ? `Rp ${p.price.toLocaleString("id-ID")}`
+      : undefined;
+
+    let badgeVariant: "hot" | "best-deals" | "discount" | "sale" = "hot";
+    let badgeText = "";
+    if (p.is_best_deal) {
+      badgeVariant = "best-deals";
+      badgeText = "BEST DEALS";
+    } else if (isDiscount && p.discount_price) {
+      badgeVariant = "discount";
+      const percent = Math.round(((p.price - p.discount_price) / p.price) * 100);
+      badgeText = `${percent}% OFF`;
+    }
+
+    return {
+      id: String(p.id),
+      title: p.title,
+      price: formattedPrice,
+      originalPrice,
+      rating: 5,
+      reviewsCount: 12,
+      image: p.image || "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=400&q=80",
+      categorySlug: (p.category || "").toLowerCase(),
+      badge: badgeText ? ({ text: badgeText, variant: badgeVariant } as { text: string; variant: "hot" | "best-deals" | "discount" | "sale" }) : undefined,
+    };
+  });
+
+  const categoriesSet = Array.from(new Set(products.map((p) => p.category).filter(Boolean)));
+  const tabs = [
+    { id: "all", label: "Semua Produk" },
+    ...categoriesSet.map((cat) => ({ id: cat.toLowerCase(), label: cat })),
+  ];
+
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+    setCurrentPage(1);
+  };
 
   const handleAddToCart = (e: React.MouseEvent, product: { id: string; title: string; price: string; image: string }) => {
     e.preventDefault();
@@ -122,8 +81,12 @@ export function ComputerAccessoriesSectionMobile() {
   };
 
   const filteredProducts = activeTab === "all"
-    ? COMPUTER_ACCESSORIES_MOBILE
-    : COMPUTER_ACCESSORIES_MOBILE.filter((p) => p.category === activeTab);
+    ? realAccessoryProducts
+    : realAccessoryProducts.filter((p) => p.categorySlug.includes(activeTab.toLowerCase()));
+
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE) || 1;
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedProducts = filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   return (
     <section className="w-full my-6 space-y-4">
@@ -141,12 +104,12 @@ export function ComputerAccessoriesSectionMobile() {
 
       {/* Filter Tabs */}
       <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-        {TABS.map((tab) => (
+        {tabs.map((tab: { id: string; label: string }) => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => handleTabChange(tab.id)}
             className={cn(
-              "px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap border",
+              "px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap border cursor-pointer",
               activeTab === tab.id
                 ? "bg-[#FA8232] text-white border-[#FA8232] shadow-sm font-semibold"
                 : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
@@ -158,114 +121,153 @@ export function ComputerAccessoriesSectionMobile() {
       </div>
 
       {/* 2-Column Mobile Product Grid */}
-      <div className="grid grid-cols-2 gap-3">
-        {filteredProducts.map((product) => {
-          const isAdded = addedIds[product.id];
-          const isWished = wishlistIds[product.id];
+      {loading ? (
+        <div className="py-8 text-center text-gray-400 text-xs">Memuat produk...</div>
+      ) : filteredProducts.length === 0 ? (
+        <div className="py-8 text-center bg-white rounded-lg border border-gray-200 p-4 space-y-1">
+          <PackageX className="w-6 h-6 text-gray-300 mx-auto" />
+          <p className="font-bold text-xs text-gray-800">Belum Ada Produk</p>
+          <p className="text-[10px] text-gray-400">Produk buatan admin akan tampil di sini.</p>
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-2 gap-3">
+            {paginatedProducts.map((product) => {
+              const isAdded = addedIds[product.id];
+              const isWished = wishlistIds[product.id];
 
-          return (
-            <div
-              key={product.id}
-              className="bg-white rounded-lg border border-gray-200 p-3 flex flex-col justify-between relative group hover:border-[#FA8232]/50 shadow-sm"
-            >
-              {/* Top Badge & Wishlist Button */}
-              <div className="flex items-center justify-between min-h-[20px] mb-1">
-                {product.badge ? (
-                  <span
-                    className={cn(
-                      "text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider",
-                      product.badge.variant === "hot" && "bg-[#EE5858] text-white",
-                      product.badge.variant === "best-deals" && "bg-[#2DA5F3] text-white",
-                      product.badge.variant === "discount" && "bg-[#EFD33D] text-gray-900",
-                      product.badge.variant === "sale" && "bg-[#2DB224] text-white"
-                    )}
-                  >
-                    {product.badge.text}
-                  </span>
-                ) : (
-                  <div />
-                )}
-
-                <button
-                  onClick={(e) => toggleWishlist(e, product.id)}
-                  className={cn(
-                    "p-1 rounded-full text-gray-400 hover:text-rose-500 transition-colors",
-                    isWished && "text-rose-500"
-                  )}
+              return (
+                <div
+                  key={product.id}
+                  className="bg-white rounded-lg border border-gray-200 p-3 flex flex-col justify-between relative group hover:border-[#FA8232]/50 shadow-sm"
                 >
-                  <Heart className="w-3.5 h-3.5 fill-current" />
+                  {/* Top Badge & Wishlist Button */}
+                  <div className="flex items-center justify-between min-h-[20px] mb-1">
+                    {product.badge ? (
+                      <span
+                        className={cn(
+                          "text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider",
+                          product.badge.variant === "hot" && "bg-[#EE5858] text-white",
+                          product.badge.variant === "best-deals" && "bg-[#2DA5F3] text-white",
+                          product.badge.variant === "discount" && "bg-[#EFD33D] text-gray-900",
+                          product.badge.variant === "sale" && "bg-[#2DB224] text-white"
+                        )}
+                      >
+                        {product.badge.text}
+                      </span>
+                    ) : (
+                      <div />
+                    )}
+
+                    <button
+                      onClick={(e) => toggleWishlist(e, product.id)}
+                      className={cn(
+                        "p-1 rounded-full text-gray-400 hover:text-rose-500 transition-colors cursor-pointer",
+                        isWished && "text-rose-500"
+                      )}
+                    >
+                      <Heart className="w-3.5 h-3.5 fill-current" />
+                    </button>
+                  </div>
+
+                  {/* Product Image */}
+                  <div className="w-full h-36 my-2 flex items-center justify-center p-1 overflow-hidden">
+                    <img
+                      src={product.image}
+                      alt={product.title}
+                      className="w-full h-full object-contain max-h-32"
+                    />
+                  </div>
+
+                  {/* Content Details */}
+                  <div className="space-y-1 mt-1">
+                    {/* Rating */}
+                    <div className="flex items-center gap-1">
+                      <div className="flex items-center text-amber-400">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star
+                            key={i}
+                            className={cn(
+                              "w-3 h-3",
+                              i < product.rating
+                                ? "fill-amber-400 text-amber-400"
+                                : "text-gray-300 fill-gray-200"
+                            )}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-[10px] text-gray-400 font-medium">
+                        ({product.reviewsCount})
+                      </span>
+                    </div>
+
+                    {/* Title */}
+                    <h4 className="text-xs text-gray-800 font-medium line-clamp-2 min-h-[32px]">
+                      {product.title}
+                    </h4>
+
+                    {/* Price & Add to Cart Button */}
+                    <div className="flex items-center justify-between pt-1">
+                      <div className="flex flex-col">
+                        {product.originalPrice && (
+                          <span className="text-[10px] text-gray-400 line-through">
+                            {product.originalPrice}
+                          </span>
+                        )}
+                        <span className="text-xs font-bold text-[#2DA5F3]">
+                          {product.price}
+                        </span>
+                      </div>
+
+                      <button
+                        onClick={(e) => handleAddToCart(e, product)}
+                        className={cn(
+                          "p-2 rounded bg-[#FA8232] text-white hover:bg-[#e07228] transition-colors shadow-sm active:scale-95 cursor-pointer",
+                          isAdded && "bg-emerald-500 hover:bg-emerald-600"
+                        )}
+                        title="Add to Cart"
+                      >
+                        {isAdded ? (
+                          <Check className="w-3.5 h-3.5" />
+                        ) : (
+                          <ShoppingCart className="w-3.5 h-3.5" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between pt-3 border-t border-gray-200 text-xs text-gray-500">
+              <span>
+                Hal {currentPage} dari {totalPages}
+              </span>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="p-1 rounded border border-gray-200 disabled:opacity-40 hover:bg-gray-50 cursor-pointer"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="p-1 rounded border border-gray-200 disabled:opacity-40 hover:bg-gray-50 cursor-pointer"
+                >
+                  <ChevronRight className="w-3.5 h-3.5" />
                 </button>
               </div>
-
-              {/* Product Image */}
-              <div className="w-full h-36 my-2 flex items-center justify-center p-1 overflow-hidden">
-                <img
-                  src={product.image}
-                  alt={product.title}
-                  className="w-full h-full object-contain max-h-32"
-                />
-              </div>
-
-              {/* Content Details */}
-              <div className="space-y-1 mt-1">
-                {/* Rating */}
-                <div className="flex items-center gap-1">
-                  <div className="flex items-center text-amber-400">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star
-                        key={i}
-                        className={cn(
-                          "w-3 h-3",
-                          i < product.rating
-                            ? "fill-amber-400 text-amber-400"
-                            : "text-gray-300 fill-gray-200"
-                        )}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-[10px] text-gray-400 font-medium">
-                    ({product.reviewsCount})
-                  </span>
-                </div>
-
-                {/* Title */}
-                <h4 className="text-xs text-gray-800 font-medium line-clamp-2 min-h-[32px]">
-                  {product.title}
-                </h4>
-
-                {/* Price & Add to Cart Button */}
-                <div className="flex items-center justify-between pt-1">
-                  <div className="flex flex-col">
-                    {product.originalPrice && (
-                      <span className="text-[10px] text-gray-400 line-through">
-                        {product.originalPrice}
-                      </span>
-                    )}
-                    <span className="text-xs font-bold text-[#2DA5F3]">
-                      {product.price}
-                    </span>
-                  </div>
-
-                  <button
-                    onClick={(e) => handleAddToCart(e, product)}
-                    className={cn(
-                      "p-2 rounded bg-[#FA8232] text-white hover:bg-[#e07228] transition-colors shadow-sm active:scale-95",
-                      isAdded && "bg-emerald-500 hover:bg-emerald-600"
-                    )}
-                    title="Add to Cart"
-                  >
-                    {isAdded ? (
-                      <Check className="w-3.5 h-3.5" />
-                    ) : (
-                      <ShoppingCart className="w-3.5 h-3.5" />
-                    )}
-                  </button>
-                </div>
-              </div>
             </div>
-          );
-        })}
-      </div>
+          )}
+        </>
+      )}
 
       {/* Mobile Stacked Promo Banners */}
       <div className="space-y-3 pt-2">

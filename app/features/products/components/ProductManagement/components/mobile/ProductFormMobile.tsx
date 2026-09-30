@@ -470,13 +470,19 @@ export function ProductFormMobile({
                 <input
                   type="checkbox"
                   checked={formData.is_best_deal || false}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    const isChecked = e.target.checked;
+                    const duration = formData.best_deal_duration || 6;
+                    const now = new Date();
+                    const expires = new Date(now.getTime() + duration * 3600 * 1000);
                     setFormData({
                       ...formData,
-                      is_best_deal: e.target.checked,
-                      best_deal_duration: e.target.checked ? (formData.best_deal_duration || 6) : undefined,
-                    })
-                  }
+                      is_best_deal: isChecked,
+                      best_deal_duration: isChecked ? duration : undefined,
+                      best_deal_started_at: isChecked ? now.toISOString() : null,
+                      best_deal_expires_at: isChecked ? expires.toISOString() : null,
+                    });
+                  }}
                   className="w-4 h-4 text-[#1D4ED8] rounded focus:ring-[#1D4ED8]"
                 />
                 <span className="text-xs font-semibold text-[#0F172A]">Aktifkan Best Deals</span>
@@ -487,9 +493,17 @@ export function ProductFormMobile({
                   <label className="text-xs font-medium text-[#374151]">Durasi Best Deals</label>
                   <select
                     value={formData.best_deal_duration || 6}
-                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                      setFormData({ ...formData, best_deal_duration: Number(e.target.value) })
-                    }
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                      const duration = Number(e.target.value);
+                      const now = new Date();
+                      const expires = new Date(now.getTime() + duration * 3600 * 1000);
+                      setFormData({
+                        ...formData,
+                        best_deal_duration: duration,
+                        best_deal_started_at: now.toISOString(),
+                        best_deal_expires_at: expires.toISOString(),
+                      });
+                    }}
                     className="w-full h-11 px-3 bg-white border border-[#E2E8F0] rounded-md text-xs text-[#0F172A] focus:outline-none focus:border-[#1D4ED8]"
                   >
                     <option value={2}>2 Jam (2 Hours)</option>

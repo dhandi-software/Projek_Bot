@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Check, ShoppingCart } from "lucide-react";
+import { Check, ShoppingCart, PackageX } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { useCart } from "~/context/CartContext";
+import { useProducts } from "~/hooks/useProducts";
 
 export interface MiniProductItem {
   id: string;
@@ -15,104 +16,43 @@ export interface ProductColumn {
   products: MiniProductItem[];
 }
 
-const CATEGORIZED_COLUMNS: ProductColumn[] = [
-  {
-    title: "FLASH SALE TODAY",
-    products: [
-      {
-        id: "fs-bose-earbuds",
-        title: "Bose Sport Earbuds - Wireless Earphones - Bluetooth In Ear...",
-        price: "$1,500",
-        image: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=300&q=80",
-      },
-      {
-        id: "fs-simple-4g-phone",
-        title: "Simple Mobile 4G LTE Prepaid Smartphone",
-        price: "$1,500",
-        image: "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?auto=format&fit=crop&w=300&q=80",
-      },
-      {
-        id: "fs-4k-uhd-tv",
-        title: "4K UHD LED Smart TV with Chromecast Built-in",
-        price: "$1,500",
-        image: "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=300&q=80",
-      },
-    ],
-  },
-  {
-    title: "BEST SELLERS",
-    products: [
-      {
-        id: "bs-samsung-s21",
-        title: "Samsung Electronics Samsung Galaxy S21 5G",
-        price: "$1,500",
-        image: "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&w=300&q=80",
-      },
-      {
-        id: "bs-simple-5g-phone",
-        title: "Simple Mobile 5G LTE Galaxy 12 Mini 512GB Gaming Phone",
-        price: "$1,500",
-        image: "https://images.unsplash.com/photo-1557324232-b8917d3c3dcb?auto=format&fit=crop&w=300&q=80",
-      },
-      {
-        id: "bs-sony-dschx8",
-        title: "Sony DSCHX8 High Zoom Point & Shoot Camera",
-        price: "$1,500",
-        image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=300&q=80",
-      },
-    ],
-  },
-  {
-    title: "TOP RATED",
-    products: [
-      {
-        id: "tr-washing-machine",
-        title: "Portable Washing Machine, 11lbs capacity Model 18NMF...",
-        price: "$1,500",
-        image: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=300&q=80",
-      },
-      {
-        id: "tr-sony-camera",
-        title: "Sony DSCHX8 High Zoom Point & Shoot Camera",
-        price: "$1,500",
-        image: "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=300&q=80",
-      },
-      {
-        id: "tr-dell-optiplex",
-        title: "Dell Optiplex 7000x7480 All-in-One Computer Monitor",
-        price: "$1,500",
-        image: "https://images.unsplash.com/photo-1543512214-318c7553f230?auto=format&fit=crop&w=300&q=80",
-      },
-    ],
-  },
-  {
-    title: "NEW ARRIVAL",
-    products: [
-      {
-        id: "na-tozo-t6",
-        title: "TOZO T6 True Wireless Earbuds Bluetooth Headphones...",
-        price: "$1,500",
-        image: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=300&q=80",
-      },
-      {
-        id: "na-jbl-flip4",
-        title: "JBL FLIP 4 - Waterproof Portable Bluetooth Speaker...",
-        price: "$1,500",
-        image: "https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?auto=format&fit=crop&w=300&q=80",
-      },
-      {
-        id: "na-wyze-cam",
-        title: "Wyze Cam Pan v2 1080p Pan/Tilt/Zoom Wi-Fi Indoor Smart...",
-        price: "$1,500",
-        image: "https://images.unsplash.com/photo-1621259182978-fbf93132d53d?auto=format&fit=crop&w=300&q=80",
-      },
-    ],
-  },
-];
-
 export function CategorizedProductListsSection() {
   const { addToCart } = useCart();
+  const { products, loading } = useProducts();
   const [addedIds, setAddedIds] = useState<Record<string, boolean>>({});
+
+  const realMiniProducts: MiniProductItem[] = products.map((p) => {
+    const isDiscount = Boolean(p.discount_price && p.discount_price > 0 && p.discount_price < p.price);
+    const formattedPrice = isDiscount && p.discount_price
+      ? `Rp ${p.discount_price.toLocaleString("id-ID")}`
+      : `Rp ${p.price.toLocaleString("id-ID")}`;
+
+    return {
+      id: String(p.id),
+      title: p.title,
+      price: formattedPrice,
+      image: p.image || "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=300&q=80",
+    };
+  });
+
+  const columns: ProductColumn[] = [
+    {
+      title: "FLASH SALE TODAY",
+      products: realMiniProducts.slice(0, 3),
+    },
+    {
+      title: "BEST SELLERS",
+      products: realMiniProducts.slice(3, 6).length > 0 ? realMiniProducts.slice(3, 6) : realMiniProducts.slice(0, 3),
+    },
+    {
+      title: "TOP RATED",
+      products: realMiniProducts.slice(6, 9).length > 0 ? realMiniProducts.slice(6, 9) : realMiniProducts.slice(0, 3),
+    },
+    {
+      title: "NEW ARRIVAL",
+      products: realMiniProducts.slice(0, 3),
+    },
+  ];
 
   const handleAddToCart = (e: React.MouseEvent, product: MiniProductItem) => {
     e.preventDefault();
@@ -129,10 +69,28 @@ export function CategorizedProductListsSection() {
     }, 1500);
   };
 
+  if (loading) {
+    return (
+      <div className="w-full my-8 text-center text-gray-400 text-xs py-8">
+        Memuat daftar kategori produk...
+      </div>
+    );
+  }
+
+  if (realMiniProducts.length === 0) {
+    return (
+      <section className="w-full my-8 bg-white rounded-xl border border-gray-200 p-8 text-center">
+        <PackageX className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+        <p className="font-bold text-sm text-gray-800">Belum Ada Kategori Produk</p>
+        <p className="text-xs text-gray-400">Produk yang diinput admin akan muncul di sini.</p>
+      </section>
+    );
+  }
+
   return (
     <section className="w-full my-8">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {CATEGORIZED_COLUMNS.map((column, colIdx) => (
+        {columns.map((column, colIdx) => (
           <div key={colIdx} className="space-y-4">
             {/* Column Title */}
             <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider border-b border-gray-200 pb-2">
@@ -171,7 +129,7 @@ export function CategorizedProductListsSection() {
                         <button
                           onClick={(e) => handleAddToCart(e, product)}
                           className={cn(
-                            "p-1.5 rounded-full text-gray-400 hover:bg-[#FA8232] hover:text-white transition-all",
+                            "p-1.5 rounded-full text-gray-400 hover:bg-[#FA8232] hover:text-white transition-all cursor-pointer",
                             isAdded && "bg-emerald-500 text-white hover:bg-emerald-600"
                           )}
                           title="Add to Cart"
