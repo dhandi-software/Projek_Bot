@@ -29,10 +29,22 @@ export function CheckoutMobile() {
     const [selectedBank, setSelectedBank] = useState<string>("bca");
 
     useEffect(() => {
-        if (paymentData?.status === "paid" || paymentData?.status === "settlement") {
+        const st = (paymentData?.status || "").toLowerCase();
+        if (st === "paid" || st === "settlement" || st === "completed") {
             navigate("/checkout/success");
         }
     }, [paymentData?.status, navigate]);
+
+    useEffect(() => {
+        if (items.length > 0) {
+            localStorage.removeItem("last_active_order_id");
+        } else {
+            const lastOrderId = localStorage.getItem("last_active_order_id");
+            if (lastOrderId) {
+                checkPaymentStatus(lastOrderId);
+            }
+        }
+    }, [items.length]);
 
     const handleSubmitOrder = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -55,23 +67,7 @@ export function CheckoutMobile() {
         <div className="w-full bg-white pb-12">
             <BreadCheckoutMobile />
 
-            {/* Network Status & Protection Bar */}
-            <div className="w-full bg-zinc-900 text-white py-2 px-3">
-                <div className="flex flex-col gap-1 text-[11px]">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1.5">
-                            <span className={`w-2 h-2 rounded-full ${isOnline ? "bg-emerald-500 animate-pulse" : "bg-rose-500"}`}></span>
-                            <span className="font-medium">
-                                {isOnline ? "Online (Sinyal Stabil)" : "⚠️ Sinyal Terputus"}
-                            </span>
-                        </div>
-                        <ShieldCheck className="w-3.5 h-3.5 text-[#2DA5F3]" />
-                    </div>
-                    <div className="font-mono text-[10px] text-zinc-400 bg-zinc-800/80 px-2 py-0.5 rounded truncate">
-                        Key: <span className="text-sky-300 font-bold">{activeIdempotencyKey || "Memuat..."}</span>
-                    </div>
-                </div>
-            </div>
+            {/* Mobile Checkout Spacing */}
 
             <section className="w-full py-5 px-4">
                 <form onSubmit={handleSubmitOrder} className="space-y-5">

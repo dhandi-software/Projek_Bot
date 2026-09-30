@@ -212,36 +212,45 @@ export const getHeatmapColor = (level: number) => {
 export function useDashboardStats() {
     const [stats, setStats] = useState<DashboardStats>(defaultStats);
     const [isLoading, setIsLoading] = useState(false);
+    const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+    const [selectedMonth, setSelectedMonth] = useState<number>(0);
 
-    const fetchStats = useCallback(async () => {
+    const fetchStats = useCallback(async (yr = selectedYear, mo = selectedMonth) => {
         setIsLoading(true);
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || ""}/api/admin/dashboard/stats`);
+            const queryParams = new URLSearchParams();
+            if (yr) queryParams.set("year", String(yr));
+            if (mo !== undefined && mo !== null) queryParams.set("month", String(mo));
+
+            const res = await fetch(
+                `${import.meta.env.VITE_API_BASE_URL || ""}/api/admin/dashboard/stats?${queryParams.toString()}`
+            );
             const data = await res.json();
             if (data.data) {
                 setStats(data.data);
             }
         } catch (err) {
-            console.log("Menggunakan data default statistik:", err);
+            console.log("Gagal mengambil data statistik:", err);
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [selectedYear, selectedMonth]);
 
     useEffect(() => {
-        fetchStats();
-    }, [fetchStats]);
+        fetchStats(selectedYear, selectedMonth);
+    }, [fetchStats, selectedYear, selectedMonth]);
 
     const refreshData = () => {
-        setIsLoading(true);
-        setTimeout(() => {
-            setIsLoading(false);
-        }, 500);
+        fetchStats(selectedYear, selectedMonth);
     };
 
     return {
         stats,
         isLoading,
+        selectedYear,
+        setSelectedYear,
+        selectedMonth,
+        setSelectedMonth,
         refreshData,
         heatmapDays,
         getHeatmapColor,

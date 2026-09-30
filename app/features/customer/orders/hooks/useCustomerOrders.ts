@@ -130,16 +130,22 @@ export function useCustomerOrders() {
                     const statusStr = (ord.status || "").toLowerCase();
                     let mappedStatus: OrderStatus = "IN PROGRESS";
 
-                    if (statusStr === "paid" || statusStr === "settlement") {
+                    if (statusStr === "pending" || statusStr === "unpaid") {
+                        mappedStatus = "PENDING";
+                    } else if (statusStr === "shipped") {
+                        mappedStatus = "SHIPPED";
+                    } else if (statusStr === "paid" || statusStr === "settlement" || statusStr === "completed") {
                         mappedStatus = "COMPLETED";
                     } else if (
                         statusStr === "failed" ||
                         statusStr === "expire" ||
                         statusStr === "cancel" ||
+                        statusStr === "canceled" ||
+                        statusStr === "cancelled" ||
                         statusStr === "deny"
                     ) {
                         mappedStatus = "CANCELED";
-                    } else if (statusStr === "pending") {
+                    } else if (statusStr === "processing" || statusStr === "in_progress") {
                         mappedStatus = "IN PROGRESS";
                     }
 
@@ -168,6 +174,11 @@ export function useCustomerOrders() {
                         itemCount: itemCount,
                         productTitle: productTitle,
                         productImage: productImage,
+                        snapToken: ord.snap_token,
+                        snapRedirectUrl: ord.snap_redirect_url,
+                        qrisUrl: ord.qris_url,
+                        vaNumber: ord.va_number,
+                        vaBank: ord.va_bank,
                     };
                 });
 
@@ -180,6 +191,16 @@ export function useCustomerOrders() {
         }
     }, []);
 
+    const cancelOrder = useCallback(async (orderId: string) => {
+        try {
+            await paymentApi.cancelOrder(orderId);
+            await fetchCustomerOrders();
+            return { success: true };
+        } catch (err: any) {
+            const msg = err?.response?.data?.error || err?.message || "Gagal membatalkan order";
+            return { success: false, error: msg };
+        }
+    }, [fetchCustomerOrders]);
 
     useEffect(() => {
         fetchCustomerOrders();
@@ -221,5 +242,6 @@ export function useCustomerOrders() {
         handlePageChange,
         logout,
         refreshOrders: fetchCustomerOrders,
+        cancelOrder,
     };
 }

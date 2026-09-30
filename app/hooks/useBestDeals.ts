@@ -103,13 +103,19 @@ export function useBestDeals() {
     return new Date(p.best_deal_expires_at).getTime() > now;
   });
 
-  // Calculate target expiration for timer (use earliest active expiration or fallback)
-  const fallbackExpiry = now + 6 * 3600 * 1000;
-  const targetExpiry = activeProducts.reduce<number>((latest, p) => {
-    if (!p.best_deal_expires_at) return latest;
-    const exp = new Date(p.best_deal_expires_at).getTime();
-    return exp > now && exp < latest ? exp : latest;
-  }, fallbackExpiry);
+  // Calculate target expiration for timer (use earliest active expiration if deals exist, otherwise 0)
+  let targetExpiry = 0;
+  if (activeProducts.length > 0) {
+    const validExpiries = activeProducts
+      .map((p) => (p.best_deal_expires_at ? new Date(p.best_deal_expires_at).getTime() : null))
+      .filter((exp): exp is number => exp !== null && exp > now);
+
+    if (validExpiries.length > 0) {
+      targetExpiry = Math.min(...validExpiries);
+    } else {
+      targetExpiry = now + 6 * 3600 * 1000;
+    }
+  }
 
   const timeRemainingString = formatTimeRemaining(targetExpiry);
 

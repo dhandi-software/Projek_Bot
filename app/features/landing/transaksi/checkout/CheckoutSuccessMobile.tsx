@@ -22,18 +22,38 @@ export function CheckoutSuccessMobile() {
             }
         }
 
-        fetch(`${API_BASE_URL}/api/orders`)
-            .then((res) => res.json())
-            .then((data) => {
-                if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+        const fetchOrderData = async () => {
+            if (activeOrderId) {
+                try {
+                    const cleanId = activeOrderId.replace(/^#/, "");
+                    const res = await fetch(`${API_BASE_URL}/api/orders/${cleanId}`);
+                    const data = await res.json();
+                    if (res.ok && data.data) {
+                        setFetchedOrder(data.data);
+                        setOrderId(data.data.order_id);
+                        localStorage.removeItem("last_active_order_id");
+                        sessionStorage.removeItem("active_checkout_idempotency_key");
+                        return;
+                    }
+                } catch (err) {
+                    console.error("Gagal mengambil detail order spesifik:", err);
+                }
+            }
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/orders`);
+                const data = await res.json();
+                if (res.ok && data.data && Array.isArray(data.data) && data.data.length > 0) {
                     const latest = data.data[0];
                     setFetchedOrder(latest);
                     setOrderId(latest.order_id);
                 }
-            })
-            .catch((err) => {
+            } catch (err) {
                 console.error("Gagal mengambil data order terbaru:", err);
-            });
+            }
+        };
+
+        fetchOrderData();
     }, []);
 
     const targetOrderId = orderId || fetchedOrder?.order_id || "ORDER-ID";
@@ -63,15 +83,16 @@ export function CheckoutSuccessMobile() {
         }
     };
 
-    const displayItems = fetchedOrder?.items && fetchedOrder.items.length > 0
-        ? fetchedOrder.items.map((it: any) => {
+    const rawItems = fetchedOrder?.items || fetchedOrder?.OrderItems || fetchedOrder?.order_items || [];
+    const displayItems = rawItems.length > 0
+        ? rawItems.map((it: any) => {
             const matchedCartItem = items.find((ci: any) => ci.title === it.title || String(ci.id) === String(it.product_id || it.id));
             return {
                 id: it.id || it.product_id,
                 title: it.title,
                 quantity: it.quantity,
                 numericPrice: it.price,
-                image: it.image || it.image_url || (matchedCartItem ? matchedCartItem.image : "") || "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=200&auto=format&fit=crop",
+                image: it.image || it.image_url || (matchedCartItem ? matchedCartItem.image : "") || "",
             };
         })
         : items;
@@ -81,7 +102,6 @@ export function CheckoutSuccessMobile() {
 
     return (
         <div className="w-full bg-zinc-50/60 py-6 px-4 pb-12 relative">
-            {/* Top Floating Notification Toast */}
             {showNotificationToast && (
                 <div className="fixed top-4 left-4 right-4 z-[9999] bg-[#0F172A]/95 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center justify-between gap-3 border border-emerald-500/50 backdrop-blur-md animate-in fade-in slide-in-from-top-3 duration-300">
                     <div className="flex items-center gap-2.5">
@@ -102,7 +122,6 @@ export function CheckoutSuccessMobile() {
                 </div>
             )}
             <div className="space-y-4 w-full">
-                {/* Hero Status Card */}
                 <div className="bg-white border border-zinc-200 rounded-xl p-5 text-center space-y-3 shadow-xs w-full">
                     <div className="w-14 h-14 bg-emerald-50 rounded-full flex items-center justify-center mx-auto text-emerald-600 ring-6 ring-emerald-50/50">
                         <CheckCircle2 className="w-7 h-7" />
@@ -124,7 +143,6 @@ export function CheckoutSuccessMobile() {
                     </div>
                 </div>
 
-                {/* Transaction Details */}
                 <div className="bg-white border border-zinc-200 rounded-xl p-4 space-y-3 shadow-xs text-xs w-full">
                     <h2 className="font-bold text-[#191C1F] pb-2 border-b border-zinc-100 flex items-center gap-1.5">
                         <FileText className="w-4 h-4 text-[#2DA5F3]" />
@@ -147,7 +165,6 @@ export function CheckoutSuccessMobile() {
                     </div>
                 </div>
 
-                {/* Purchased Items */}
                 <div className="bg-white border border-zinc-200 rounded-xl p-4 space-y-3 shadow-xs text-xs w-full">
                     <h2 className="font-bold text-[#191C1F] pb-2 border-b border-zinc-100">
                         Produk Dibeli ({displayItems.length})
@@ -158,7 +175,7 @@ export function CheckoutSuccessMobile() {
                             <div key={idx} className="py-2.5 flex items-center justify-between gap-3 w-full">
                                 <div className="flex items-center gap-2.5 min-w-0">
                                     <img
-                                        src={item.image || "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=200&auto=format&fit=crop"}
+                                        src={item.image || "/placeholder.png"}
                                         alt={item.title}
                                         className="w-10 h-10 object-contain rounded border border-zinc-200 p-0.5 shrink-0"
                                     />
@@ -180,7 +197,6 @@ export function CheckoutSuccessMobile() {
                     </div>
                 </div>
 
-                {/* Actions */}
                 <div className="space-y-2 pt-1 w-full">
                     <Button
                         asChild

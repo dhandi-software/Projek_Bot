@@ -1,4 +1,4 @@
-export type OrderStatus = "IN PROGRESS" | "COMPLETED" | "CANCELED" | "PENDING";
+export type OrderStatus = "PENDING" | "IN PROGRESS" | "SHIPPED" | "COMPLETED" | "CANCELED";
 
 export interface CustomerOrderItem {
     id: string;
@@ -20,6 +20,11 @@ export interface CustomerOrder {
     items?: CustomerOrderItem[];
     paymentMethod?: string;
     shippingAddress?: string;
+    snapToken?: string;
+    snapRedirectUrl?: string;
+    qrisUrl?: string;
+    vaNumber?: string;
+    vaBank?: string;
 }
 
 export interface CustomerOrdersFilter {

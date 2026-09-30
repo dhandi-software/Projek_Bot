@@ -212,6 +212,9 @@ export interface DashboardStats {
     weeklyOrders: WeeklyOrder[];
     latestOrders: LatestOrder[];
     produkKeluar?: ProdukKeluar[];
+    availableYears?: number[];
+    selectedYear?: number;
+    selectedMonth?: number;
 }
 
 export interface HeatmapDay {

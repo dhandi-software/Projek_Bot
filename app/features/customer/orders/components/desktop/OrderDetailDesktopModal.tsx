@@ -1,10 +1,11 @@
-import React from "react";
-import { X, Download, Printer, ShieldCheck, CreditCard, Building2, User } from "lucide-react";
+import React, { useState } from "react";
+import { X, Download, Printer, ShieldCheck, CreditCard, Building2, User, Copy, Check } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { useOrderDetail } from "../../hooks/useOrderDetail";
 import type { OrderDetailModalProps } from "../../types/orderDetail.types";
 
 export function OrderDetailDesktopModal({ orderId, isOpen, onClose }: OrderDetailModalProps) {
+    const [isCopied, setIsCopied] = useState(false);
     const {
         orderDetail,
         isLoading,
@@ -16,6 +17,12 @@ export function OrderDetailDesktopModal({ orderId, isOpen, onClose }: OrderDetai
         isDownloadingPDF,
     } = useOrderDetail(orderId);
 
+    const handleCopyVA = (vaNum: string) => {
+        navigator.clipboard.writeText(vaNum);
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+    };
+
     if (!isOpen || !orderId) return null;
 
     const statusUpper = (orderDetail?.status || "").toUpperCase();
@@ -24,11 +31,11 @@ export function OrderDetailDesktopModal({ orderId, isOpen, onClose }: OrderDetai
 
     return (
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200 cursor-pointer"
+            className="fixed inset-0 top-0 left-0 w-screen h-screen z-[9999] flex items-center justify-center p-4 md:p-6 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200 cursor-pointer"
             onClick={onClose}
         >
             <div
-                className="bg-white w-full max-w-[960px] max-h-[90vh] rounded-2xl shadow-2xl border border-zinc-200 flex flex-col overflow-hidden cursor-default"
+                className="bg-white w-[92vw] max-w-[960px] max-h-[90vh] rounded-2xl shadow-2xl border border-zinc-200 flex flex-col overflow-hidden cursor-default shrink-0"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Modal Header */}
@@ -135,6 +142,48 @@ export function OrderDetailDesktopModal({ orderId, isOpen, onClose }: OrderDetai
                                 </div>
                             </div>
 
+                            {/* Virtual Account Box if present & unpaid */}
+                            {!isPaid && !isCanceled && orderDetail.va_number && (
+                                <div className="bg-amber-50/90 border border-amber-200 rounded-xl p-4 flex items-center justify-between text-xs shadow-xs gap-4">
+                                    <div className="flex-1 min-w-0 space-y-1">
+                                        <p className="text-amber-800 font-bold uppercase tracking-wider text-[11px]">
+                                            Nomor Virtual Account ({orderDetail.va_bank?.toUpperCase() || "BANK"})
+                                        </p>
+                                        <p className="text-xl font-mono font-extrabold text-amber-950 tracking-widest truncate">
+                                            {orderDetail.va_number}
+                                        </p>
+                                        <p className="text-[11px] text-amber-700 leading-normal">
+                                            Silakan lakukan transfer ke nomor Virtual Account di atas untuk menyelesaikan transaksi.
+                                        </p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleCopyVA(orderDetail.va_number!)}
+                                        className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg text-xs shadow-xs cursor-pointer flex items-center gap-1.5 transition-colors shrink-0"
+                                    >
+                                        {isCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                                        <span>{isCopied ? "Tersalin!" : "Salin Nomor VA"}</span>
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* QRIS Box if present & unpaid */}
+                            {!isPaid && !isCanceled && orderDetail.qris_url && (
+                                <div className="bg-sky-50/90 border border-sky-200 rounded-xl p-4 flex items-center gap-5 text-xs shadow-xs">
+                                    <div className="w-24 h-24 bg-white p-2 border border-sky-200 rounded-lg shrink-0 flex items-center justify-center">
+                                        <img src={orderDetail.qris_url} alt="QRIS Code" className="w-full h-full object-contain" />
+                                    </div>
+                                    <div className="flex-1 min-w-0 space-y-1.5">
+                                        <p className="text-sky-900 font-bold uppercase tracking-wider text-[11px]">
+                                            Scan QRIS Pembayaran Instant
+                                        </p>
+                                        <p className="text-xs text-sky-800 leading-relaxed font-medium">
+                                            Buka aplikasi GoPay, OVO, DANA, ShopeePay, LinkAja, atau Mobile Banking Anda lalu scan kode QRIS di samping untuk membayar secara instan.
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
 
                             {/* Section 3: Product Items Table with Thumbnail & Title */}
                             <div className="space-y-3">
@@ -223,6 +272,25 @@ export function OrderDetailDesktopModal({ orderId, isOpen, onClose }: OrderDetai
                     </div>
 
                     <div className="flex items-center gap-3">
+                        {!isPaid && !isCanceled && (
+                            <>
+                                <Button
+                                    type="button"
+                                    size="sm"
+                                    onClick={() => {
+                                        if (orderDetail?.snap_token && window.snap) {
+                                            window.snap.pay(orderDetail.snap_token);
+                                        } else {
+                                            window.location.href = "/checkout";
+                                        }
+                                    }}
+                                    className="bg-[#2DA5F3] hover:bg-[#1B6392] text-white text-xs font-bold"
+                                >
+                                    <span>Lanjutkan Pembayaran</span>
+                                </Button>
+                            </>
+                        )}
+
                         <Button
                             type="button"
                             variant="outline"

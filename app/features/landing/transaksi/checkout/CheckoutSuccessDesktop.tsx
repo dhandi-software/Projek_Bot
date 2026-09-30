@@ -22,19 +22,38 @@ export function CheckoutSuccessDesktop() {
             }
         }
 
-        // Fetch latest order from backend
-        fetch(`${API_BASE_URL}/api/orders`)
-            .then((res) => res.json())
-            .then((data) => {
-                if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+        const fetchOrderData = async () => {
+            if (activeOrderId) {
+                try {
+                    const cleanId = activeOrderId.replace(/^#/, "");
+                    const res = await fetch(`${API_BASE_URL}/api/orders/${cleanId}`);
+                    const data = await res.json();
+                    if (res.ok && data.data) {
+                        setFetchedOrder(data.data);
+                        setOrderId(data.data.order_id);
+                        localStorage.removeItem("last_active_order_id");
+                        sessionStorage.removeItem("active_checkout_idempotency_key");
+                        return;
+                    }
+                } catch (err) {
+                    console.error("Gagal mengambil detail order spesifik:", err);
+                }
+            }
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/orders`);
+                const data = await res.json();
+                if (res.ok && data.data && Array.isArray(data.data) && data.data.length > 0) {
                     const latest = data.data[0];
                     setFetchedOrder(latest);
                     setOrderId(latest.order_id);
                 }
-            })
-            .catch((err) => {
+            } catch (err) {
                 console.error("Gagal mengambil data order terbaru:", err);
-            });
+            }
+        };
+
+        fetchOrderData();
     }, []);
 
     const targetOrderId = orderId || fetchedOrder?.order_id || "ORDER-ID";
@@ -65,15 +84,16 @@ export function CheckoutSuccessDesktop() {
         }
     };
 
-    const displayItems = fetchedOrder?.items && fetchedOrder.items.length > 0
-        ? fetchedOrder.items.map((it: any) => {
+    const rawItems = fetchedOrder?.items || fetchedOrder?.OrderItems || fetchedOrder?.order_items || [];
+    const displayItems = rawItems.length > 0
+        ? rawItems.map((it: any) => {
             const matchedCartItem = items.find((ci: any) => ci.title === it.title || String(ci.id) === String(it.product_id || it.id));
             return {
                 id: it.id || it.product_id,
                 title: it.title,
                 quantity: it.quantity,
                 numericPrice: it.price,
-                image: it.image || it.image_url || (matchedCartItem ? matchedCartItem.image : "") || "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=200&auto=format&fit=crop",
+                image: it.image || it.image_url || (matchedCartItem ? matchedCartItem.image : "") || "",
             };
         })
         : items;
@@ -86,7 +106,6 @@ export function CheckoutSuccessDesktop() {
 
     return (
         <div className="w-full bg-zinc-50/60 py-8 px-4 md:px-8 min-h-screen relative">
-            {/* Top Floating Notification Toast */}
             {showNotificationToast && (
                 <div className="fixed top-6 right-6 z-[9999] bg-[#0F172A]/95 text-white px-5 py-4 rounded-xl shadow-2xl flex items-center justify-between gap-4 border border-emerald-500/50 backdrop-blur-md max-w-md animate-in fade-in slide-in-from-top-4 duration-300">
                     <div className="flex items-center gap-3">
@@ -109,7 +128,6 @@ export function CheckoutSuccessDesktop() {
                 </div>
             )}
             <div className="w-full max-w-7xl mx-auto space-y-6">
-                {/* Full-width Banner Hero Card */}
                 <div className="w-full bg-white border border-zinc-200 rounded-2xl p-8 shadow-xs text-center space-y-4">
                     <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto text-emerald-600 ring-8 ring-emerald-50/50 animate-in zoom-in duration-300">
                         <CheckCircle2 className="w-9 h-9" />
@@ -124,7 +142,6 @@ export function CheckoutSuccessDesktop() {
                         </p>
                     </div>
 
-                    {/* Quick Badge Summary Bar */}
                     <div className="pt-2 flex flex-wrap justify-center items-center gap-3 text-xs w-full">
                         <div className="bg-emerald-50 text-emerald-700 font-bold px-3.5 py-1.5 rounded-full border border-emerald-200 flex items-center gap-1.5">
                             <ShieldCheck className="w-4 h-4 text-emerald-600" />
@@ -141,11 +158,8 @@ export function CheckoutSuccessDesktop() {
                     </div>
                 </div>
 
-                {/* Main Content Grid (12 Columns Full Width Layout) */}
                 <div className="w-full grid grid-cols-12 gap-8 items-start">
-                    {/* LEFT: Order Info & Product Items List (8 cols) */}
                     <div className="col-span-8 space-y-6">
-                        {/* Transaction Detail Card */}
                         <div className="w-full bg-white border border-zinc-200 rounded-xl p-6 shadow-xs space-y-4">
                             <h2 className="text-base font-bold text-[#191C1F] pb-3 border-b border-zinc-200 flex items-center gap-2">
                                 <FileText className="w-5 h-5 text-[#2DA5F3]" />
@@ -180,7 +194,6 @@ export function CheckoutSuccessDesktop() {
                             </div>
                         </div>
 
-                        {/* Product Items Purchased List */}
                         <div className="w-full bg-white border border-zinc-200 rounded-xl p-6 shadow-xs space-y-4">
                             <h2 className="text-base font-bold text-[#191C1F] pb-3 border-b border-zinc-200 flex items-center gap-2">
                                 <ShoppingBag className="w-5 h-5 text-[#2DA5F3]" />
@@ -193,7 +206,7 @@ export function CheckoutSuccessDesktop() {
                                         <div className="flex items-center gap-4 min-w-0">
                                             <div className="w-14 h-14 rounded-lg border border-zinc-200 p-1 shrink-0 bg-white">
                                                 <img
-                                                    src={item.image || "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=200&auto=format&fit=crop"}
+                                                    src={item.image || "/placeholder.png"}
                                                     alt={item.title}
                                                     className="w-full h-full object-contain"
                                                 />
@@ -214,7 +227,6 @@ export function CheckoutSuccessDesktop() {
                         </div>
                     </div>
 
-                    {/* RIGHT: Payment Summary & Downloads (4 cols) */}
                     <div className="col-span-4 space-y-6">
                         <div className="w-full bg-white border border-zinc-200 rounded-xl p-6 shadow-xs space-y-6 sticky top-6">
                             <h2 className="text-base font-bold text-[#191C1F] pb-3 border-b border-zinc-200">
@@ -238,7 +250,6 @@ export function CheckoutSuccessDesktop() {
                                 </div>
                             </div>
 
-                            {/* Action Buttons */}
                             <div className="space-y-3 pt-2 w-full">
                                 <Button
                                     asChild

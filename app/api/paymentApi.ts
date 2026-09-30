@@ -147,4 +147,14 @@ export const paymentApi = {
         });
         return response.data;
     },
+
+    /**
+     * PUT /orders/:id/cancel
+     * Membatalkan order pelanggan jika masih berstatus pending
+     */
+    async cancelOrder(orderId: string): Promise<ApiResponse<OrderData>> {
+        const cleanId = orderId.replace(/^#/, "");
+        const response = await client.put<ApiResponse<OrderData>>(`/orders/${cleanId}/cancel`);
+        return response.data;
+    },
 };

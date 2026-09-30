@@ -7,7 +7,15 @@ import { LatestOrdersDesktop } from "../components/DashboardDesktop/LatestOrders
 import { ProdukKeluarDesktop } from "../components/DashboardDesktop/ProdukKeluarDesktop";
 
 export function DashboardDesktop() {
-    const { stats, isLoading, refreshData } = useDashboardStats();
+    const {
+        stats,
+        isLoading,
+        refreshData,
+        selectedYear,
+        setSelectedYear,
+        selectedMonth,
+        setSelectedMonth,
+    } = useDashboardStats();
 
     return (
         <div className="p-6 lg:p-8 space-y-6 font-geist bg-[#f8fafc] min-h-screen text-zinc-900 animate-in fade-in duration-300">
@@ -18,7 +26,13 @@ export function DashboardDesktop() {
             <MetricCardsDesktop stats={stats} />
 
             {/* Tren Penjualan & Produk Terlaris */}
-            <ChartsSectionDesktop stats={stats} />
+            <ChartsSectionDesktop
+                stats={stats}
+                selectedYear={selectedYear}
+                setSelectedYear={setSelectedYear}
+                selectedMonth={selectedMonth}
+                setSelectedMonth={setSelectedMonth}
+            />
 
             {/* Produk Keluar (Unit Terjual) */}
             <ProdukKeluarDesktop stats={stats} />

@@ -28,12 +28,24 @@ export function CheckoutDesktop() {
     const [selectedTab, setSelectedTab] = useState<"wallet" | "bank" | "guide">("wallet");
     const [selectedBank, setSelectedBank] = useState<string>("bca");
 
-    // Redirect to checkout success if status becomes paid or settlement
+    // Redirect to checkout success if status becomes paid, settlement, or completed
     useEffect(() => {
-        if (paymentData?.status === "paid" || paymentData?.status === "settlement") {
+        const st = (paymentData?.status || "").toLowerCase();
+        if (st === "paid" || st === "settlement" || st === "completed") {
             navigate("/checkout/success");
         }
     }, [paymentData?.status, navigate]);
+
+    useEffect(() => {
+        if (items.length > 0) {
+            localStorage.removeItem("last_active_order_id");
+        } else {
+            const lastOrderId = localStorage.getItem("last_active_order_id");
+            if (lastOrderId) {
+                checkPaymentStatus(lastOrderId);
+            }
+        }
+    }, [items.length]);
 
     const handleSubmitOrder = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -56,22 +68,7 @@ export function CheckoutDesktop() {
         <div className="w-full bg-white min-h-screen">
             <BreadCheckoutDesktop />
 
-            {/* Network Status & Protection Bar */}
-            <div className="w-full bg-zinc-900 text-white py-2.5 px-4">
-                <div className="max-w-7xl mx-auto flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2">
-                        <span className={`w-2.5 h-2.5 rounded-full ${isOnline ? "bg-emerald-500 animate-pulse" : "bg-rose-500"}`}></span>
-                        <span className="font-medium">
-                            {isOnline ? "Sinyal Terkoneksi (Online)" : "⚠️ Sinyal Terputus (Mode Proteksi Active)"}
-                        </span>
-                    </div>
-                    <div className="flex items-center gap-2 font-mono text-[11px] text-zinc-400 bg-zinc-800/80 px-2.5 py-1 rounded border border-zinc-700">
-                        <ShieldCheck className="w-3.5 h-3.5 text-[#2DA5F3]" />
-                        <span>Idempotency Key:</span>
-                        <span className="text-sky-300 font-bold">{activeIdempotencyKey || "Memuat..."}</span>
-                    </div>
-                </div>
-            </div>
+            {/* Checkout Header Spacing */}
 
             <section className="w-full py-8">
                 <div className="max-w-7xl mx-auto px-4 md:px-8">
@@ -254,8 +251,8 @@ export function CheckoutDesktop() {
 
                                 {/* Purchased Item Previews */}
                                 <div className="space-y-4 max-h-60 overflow-y-auto pr-1">
-                                    {items.map((item) => (
-                                        <div key={item.id} className="flex items-center gap-3">
+                                    {(items.length > 0 ? items : (paymentData?.items || [])).map((item, idx) => (
+                                        <div key={item.id || idx} className="flex items-center gap-3">
                                             <div className="w-12 h-12 rounded-lg border border-zinc-200 p-1 shrink-0 bg-white">
                                                 <img
                                                     src={item.image}
@@ -281,11 +278,11 @@ export function CheckoutDesktop() {
                                 <div className="border-t border-zinc-200 pt-4 flex justify-between items-center">
                                     <span className="text-xs font-medium text-zinc-600">Total Pembayaran Pas</span>
                                     <span className="text-xl font-extrabold text-[#2DA5F3]">
-                                        {formatRupiah(totals.total)}
+                                        {formatRupiah(items.length > 0 ? totals.total : (paymentData?.total_amount || 0))}
                                     </span>
                                 </div>
 
-                                {errorMessage && (
+                                {errorMessage && items.length > 0 && (
                                     <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-xs text-rose-700 space-y-1">
                                         <p className="font-bold">Informasi Pembayaran</p>
                                         <p>{errorMessage}</p>

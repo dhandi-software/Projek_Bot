@@ -8,7 +8,17 @@ import { LatestOrdersMobile } from "../components/DashboardMobile/LatestOrdersMo
 import { ProdukKeluarMobile } from "../components/DashboardMobile/ProdukKeluarMobile";
 
 export function DashboardMobile() {
-    const { stats, isLoading, refreshData, heatmapDays, getHeatmapColor } = useDashboardStats();
+    const {
+        stats,
+        isLoading,
+        refreshData,
+        heatmapDays,
+        getHeatmapColor,
+        selectedYear,
+        setSelectedYear,
+        selectedMonth,
+        setSelectedMonth,
+    } = useDashboardStats();
 
     return (
         <div className="p-3.5 space-y-4 font-geist bg-zinc-50/80 min-h-screen text-zinc-900 animate-in fade-in duration-300 pb-16">
@@ -19,7 +29,13 @@ export function DashboardMobile() {
             <MetricCardsMobile stats={stats} />
 
             {/* Charts & Target Donut */}
-            <ChartsSectionMobile stats={stats} />
+            <ChartsSectionMobile
+                stats={stats}
+                selectedYear={selectedYear}
+                setSelectedYear={setSelectedYear}
+                selectedMonth={selectedMonth}
+                setSelectedMonth={setSelectedMonth}
+            />
 
             {/* Produk Keluar */}
             <ProdukKeluarMobile stats={stats} />

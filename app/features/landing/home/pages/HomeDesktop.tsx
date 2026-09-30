@@ -31,7 +31,7 @@ export function HomeDesktop() {
 
                 {/* 6. Double Promo Banners Section (HomePod Mini & Xiaomi Mi 11 Ultra) */}
                 <PromoBannersSection />
-4
+
                 {/* 7. Computer Accessories Section */}
                 <ComputerAccessoriesSection />
 

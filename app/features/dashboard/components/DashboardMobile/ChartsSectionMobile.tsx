@@ -1,8 +1,8 @@
 import React from "react";
+import { Calendar, Filter } from "lucide-react";
 import {
-    ComposedChart,
-    Bar,
-    Line,
+    AreaChart,
+    Area,
     XAxis,
     YAxis,
     CartesianGrid,
@@ -10,65 +10,125 @@ import {
     ResponsiveContainer,
 } from "recharts";
 import type { DashboardStats } from "../../types/dashboard.types";
+import { FilterSelect } from "../FilterSelect";
 
 interface ChartsSectionMobileProps {
     stats: DashboardStats;
+    selectedYear?: number;
+    setSelectedYear?: (year: number) => void;
+    selectedMonth?: number;
+    setSelectedMonth?: (month: number) => void;
 }
 
-export function ChartsSectionMobile({ stats }: ChartsSectionMobileProps) {
+export function ChartsSectionMobile({
+    stats,
+    selectedYear,
+    setSelectedYear,
+    selectedMonth,
+    setSelectedMonth,
+}: ChartsSectionMobileProps) {
+    const months = [
+        { value: 0, label: "Semua Bulan (Tahunan)" },
+        { value: 1, label: "Januari" },
+        { value: 2, label: "Februari" },
+        { value: 3, label: "Maret" },
+        { value: 4, label: "April" },
+        { value: 5, label: "Mei" },
+        { value: 6, label: "Juni" },
+        { value: 7, label: "Juli" },
+        { value: 8, label: "Agustus" },
+        { value: 9, label: "September" },
+        { value: 10, label: "Oktober" },
+        { value: 11, label: "November" },
+        { value: 12, label: "Desember" },
+    ];
+
+    const currentYear = new Date().getFullYear();
+    const rawYears = stats.availableYears && stats.availableYears.length > 0
+        ? stats.availableYears
+        : [currentYear, currentYear - 1];
+
+    const yearOptions = rawYears.map((y) => ({
+        value: y,
+        label: `${y}`,
+    }));
+
     return (
         <div className="space-y-4">
             {/* Omset & Order Trend Mobile Chart */}
             <div className="bg-white rounded-2xl p-4 border border-zinc-200/80 shadow-xs space-y-3">
-                <div className="flex flex-col gap-1">
-                    <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-bold text-zinc-900">Trend Penjualan</h3>
-                        <span className="text-[10px] text-zinc-400 font-medium">7 Bln Terakhir</span>
-                    </div>
-                    {/* Compact Chart Legend */}
-                    <div className="flex items-center gap-3 text-[10px] font-bold">
-                        <div className="flex items-center gap-1">
-                            <span className="w-2.5 h-2.5 rounded-xs bg-[#00a884]"></span>
-                            <span className="text-zinc-600">Omset</span>
+                <div className="flex flex-col gap-2">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                        <div>
+                            <h3 className="text-sm font-bold text-zinc-900">Tren Penjualan</h3>
+                            <p className="text-[10px] text-zinc-400 font-medium">
+                                {selectedMonth && selectedMonth > 0
+                                    ? `${months.find((m) => m.value === selectedMonth)?.label || ""} ${selectedYear || currentYear}`
+                                    : `Tahun ${selectedYear || currentYear}`}
+                            </p>
                         </div>
-                        <div className="flex items-center gap-1">
-                            <span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
-                            <span className="text-zinc-600">Order</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                            <span className="w-3 h-0.5 bg-amber-500 border border-dashed border-amber-500"></span>
-                            <span className="text-zinc-600">Target</span>
+
+                        <div className="flex items-center gap-1.5">
+                            {/* Dropdown Tahun */}
+                            <FilterSelect
+                                options={yearOptions}
+                                value={selectedYear || currentYear}
+                                onChange={(val) => setSelectedYear?.(val)}
+                                icon={<Calendar className="w-3 h-3" />}
+                                size="sm"
+                            />
+
+                            {/* Dropdown Bulan */}
+                            <FilterSelect
+                                options={months}
+                                value={selectedMonth ?? 0}
+                                onChange={(val) => setSelectedMonth?.(val)}
+                                icon={<Filter className="w-3 h-3" />}
+                                size="sm"
+                            />
                         </div>
                     </div>
                 </div>
 
-                <div className="w-full h-52">
+                <div className="w-full h-56">
                     <ResponsiveContainer width="100%" height="100%">
-                        <ComposedChart data={stats.monthlyTrends} margin={{ top: 5, right: 0, left: -25, bottom: 0 }}>
+                        <AreaChart data={stats.salesTrend || []} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                             <defs>
-                                <linearGradient id="omsetGradientMobile" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#00a884" stopOpacity={0.8} />
-                                    <stop offset="95%" stopColor="#00a884" stopOpacity={0.1} />
+                                <linearGradient id="salesTrendGradientMobile" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#2563eb" stopOpacity={0.15} />
+                                    <stop offset="95%" stopColor="#2563eb" stopOpacity={0.0} />
                                 </linearGradient>
                             </defs>
                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                            <XAxis dataKey="month" stroke="#94a3b8" fontSize={10} tickLine={false} />
-                            <YAxis yAxisId="left" stroke="#94a3b8" fontSize={10} tickLine={false} unit="j" />
-                            <YAxis yAxisId="right" orientation="right" stroke="#94a3b8" fontSize={10} tickLine={false} />
+                            <XAxis dataKey="day" stroke="#94a3b8" fontSize={10} tickLine={false} axisLine={false} />
+                            <YAxis
+                                stroke="#94a3b8"
+                                fontSize={10}
+                                tickLine={false}
+                                axisLine={false}
+                                tickFormatter={(val) => `${val}jt`}
+                            />
                             <Tooltip
+                                formatter={(value: any) => [`Rp ${value} Juta`, "Omset"]}
                                 contentStyle={{
-                                    backgroundColor: "#1e293b",
+                                    backgroundColor: "#ffffff",
                                     borderRadius: "8px",
-                                    border: "none",
-                                    color: "#ffffff",
+                                    border: "1px solid #e2e8f0",
+                                    color: "#0f172a",
                                     fontSize: "11px",
-                                    padding: "6px 10px",
+                                    fontWeight: "600",
+                                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
                                 }}
                             />
-                            <Bar yAxisId="left" dataKey="omset" fill="url(#omsetGradientMobile)" radius={[4, 4, 0, 0]} barSize={20} />
-                            <Line yAxisId="right" type="monotone" dataKey="order" stroke="#3b82f6" strokeWidth={2.5} dot={{ r: 3, fill: "#3b82f6" }} />
-                            <Line yAxisId="left" type="monotone" dataKey="target" stroke="#f59e0b" strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
-                        </ComposedChart>
+                            <Area
+                                type="monotone"
+                                dataKey="value"
+                                stroke="#2563eb"
+                                strokeWidth={2.5}
+                                fillOpacity={1}
+                                fill="url(#salesTrendGradientMobile)"
+                            />
+                        </AreaChart>
                     </ResponsiveContainer>
                 </div>
             </div>

@@ -24,6 +24,8 @@ export interface OrderDetailData {
     total_amount: number;
     total_price?: number;
     status: "pending" | "paid" | "settlement" | "cancel" | "deny" | "expire" | "expired" | string;
+    snap_token?: string;
+    snap_redirect_url?: string;
     qris_url?: string;
     qris_string?: string;
     va_number?: string;

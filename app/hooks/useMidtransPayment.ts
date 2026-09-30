@@ -18,6 +18,14 @@ declare global {
     }
 }
 
+export interface PaymentDataItem {
+    id?: string | number;
+    title: string;
+    quantity: number;
+    numericPrice: number;
+    image?: string;
+}
+
 export interface PaymentData {
     order_id?: string;
     snap_token?: string;
@@ -28,6 +36,7 @@ export interface PaymentData {
     va_bank?: string;
     total_amount?: number;
     status?: string;
+    items?: PaymentDataItem[];
 }
 
 const MIDTRANS_CLIENT_KEY = import.meta.env.VITE_MIDTRANS_CLIENT_KEY;
@@ -47,13 +56,6 @@ export function useMidtransPayment() {
 
         window.addEventListener("online", handleOnline);
         window.addEventListener("offline", handleOffline);
-
-        let savedKey = sessionStorage.getItem("active_checkout_idempotency_key");
-        if (!savedKey) {
-            savedKey = `IDEM-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-            sessionStorage.setItem("active_checkout_idempotency_key", savedKey);
-        }
-        setActiveIdempotencyKey(savedKey);
 
         return () => {
             window.removeEventListener("online", handleOnline);
@@ -75,11 +77,14 @@ export function useMidtransPayment() {
         }
     }, []);
 
-    // WebSocket real-time listener for payment status updates
     useEffect(() => {
         if (typeof window === "undefined" || !paymentData?.order_id) return;
 
-        const wsUrl = API_BASE_URL ? API_BASE_URL.replace(/^http/, "ws") + "/ws" : "ws://localhost:8080/ws";
+        const isHttps = typeof window !== "undefined" && window.location.protocol === "https:";
+        const defaultWsScheme = isHttps ? "wss" : "ws";
+        const wsUrl = API_BASE_URL
+            ? API_BASE_URL.replace(/^http/, defaultWsScheme) + "/ws"
+            : `${defaultWsScheme}://localhost:8080/ws`;
         let socket: WebSocket | null = null;
 
         try {
@@ -88,14 +93,12 @@ export function useMidtransPayment() {
                 try {
                     const data = JSON.parse(event.data);
                     if (data.event === "payment_status_updated" && data.order_id === paymentData.order_id) {
-                        setPaymentData((prev) => prev ? { ...prev, status: data.status } : prev);
+                        setPaymentData((prev) => (prev ? { ...prev, status: data.status } : prev));
                     }
                 } catch {
-                    // silent catch
                 }
             };
         } catch {
-            // silent catch
         }
 
         return () => {
@@ -105,7 +108,6 @@ export function useMidtransPayment() {
         };
     }, [paymentData?.order_id]);
 
-    // Auto-polling interval every 3 seconds while payment is pending
     useEffect(() => {
         if (typeof window === "undefined" || !paymentData?.order_id) return;
 
@@ -125,24 +127,40 @@ export function useMidtransPayment() {
 
         setIsLoading(true);
         try {
-            const res = await fetch(`${API_BASE_URL}/api/orders/${targetId}`);
+            const cleanId = encodeURIComponent(targetId.replace(/^#/, ""));
+            const res = await fetch(`${API_BASE_URL}/api/orders/${cleanId}`);
             const data = await res.json();
             if (res.ok && data.data) {
-                const newStatus = data.data.status;
-                if (newStatus === "paid" || newStatus === "settlement") {
-                    localStorage.setItem("last_active_order_id", data.data.order_id);
+                const ord = data.data;
+                const newStatus = ord.status;
+                const isOrderPaid = ["paid", "settlement", "completed", "success", "capture"].includes((newStatus || "").toLowerCase());
+                if (isOrderPaid) {
+                    localStorage.removeItem("last_active_order_id");
+                } else if (ord.order_id) {
+                    localStorage.setItem("last_active_order_id", ord.order_id);
                 }
+
+                const rawItems = ord.OrderItems || ord.order_items || ord.items || [];
+                const formattedItems: PaymentDataItem[] = rawItems.map((it: any) => ({
+                    id: String(it.id || it.product_id),
+                    title: it.title || "Produk",
+                    quantity: it.quantity || 1,
+                    numericPrice: it.price || 0,
+                    image: it.image || it.image_url || "",
+                }));
+
                 setPaymentData((prev) => ({
                     ...(prev || {}),
-                    order_id: data.data.order_id,
+                    order_id: ord.order_id,
                     status: newStatus,
-                    total_amount: data.data.total_amount,
-                    qris_url: data.data.qris_url || prev?.qris_url,
-                    qris_string: data.data.qris_string || prev?.qris_string,
-                    va_number: data.data.va_number || prev?.va_number,
-                    va_bank: data.data.va_bank || prev?.va_bank,
-                    snap_token: data.data.snap_token || prev?.snap_token,
-                    snap_redirect_url: data.data.snap_redirect_url || prev?.snap_redirect_url,
+                    total_amount: ord.total_amount || ord.total_price,
+                    qris_url: ord.qris_url || prev?.qris_url,
+                    qris_string: ord.qris_string || prev?.qris_string,
+                    va_number: ord.va_number || prev?.va_number,
+                    va_bank: ord.va_bank || prev?.va_bank,
+                    snap_token: ord.snap_token || prev?.snap_token,
+                    snap_redirect_url: ord.snap_redirect_url || prev?.snap_redirect_url,
+                    items: formattedItems.length > 0 ? formattedItems : prev?.items,
                 }));
             }
         } catch (err) {
@@ -173,15 +191,10 @@ export function useMidtransPayment() {
                 throw new Error("Konfigurasi variabel environment API / Midtrans belum diatur.");
             }
 
-            const cartSig = items.map(i => `${i.id}:${i.quantity}:${i.numericPrice}`).join("|");
-            const storedSig = sessionStorage.getItem("active_checkout_cart_sig");
-            let idempotencyKey = sessionStorage.getItem("active_checkout_idempotency_key");
-
-            if (!idempotencyKey || storedSig !== cartSig) {
-                idempotencyKey = `IDEM-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-                sessionStorage.setItem("active_checkout_idempotency_key", idempotencyKey);
-                sessionStorage.setItem("active_checkout_cart_sig", cartSig);
-            }
+            const secureUuid = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+                ? crypto.randomUUID().replace(/-/g, "")
+                : Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+            const idempotencyKey = `IDEM-${Date.now()}-${secureUuid}`;
             setActiveIdempotencyKey(idempotencyKey);
 
             const payloadItems = items.map((item) => {
@@ -227,15 +240,24 @@ export function useMidtransPayment() {
             }
 
             const data: PaymentData = result.data;
+            const isOrderPaid = ["paid", "settlement", "completed", "success", "capture"].includes((data.status || "").toLowerCase());
+
             if (data.order_id) {
-                localStorage.setItem("last_active_order_id", data.order_id);
+                if (isOrderPaid) {
+                    localStorage.removeItem("last_active_order_id");
+                } else {
+                    localStorage.setItem("last_active_order_id", data.order_id);
+                }
             }
             setPaymentData(data);
             setIsLoading(false);
 
-            if (data.status === "paid" || data.status === "settlement") {
+            if (isOrderPaid) {
                 sessionStorage.removeItem("active_checkout_idempotency_key");
                 if (onSuccessCallback) onSuccessCallback();
+                if (typeof window !== "undefined") {
+                    window.location.href = "/checkout/success";
+                }
             }
         } catch (err: unknown) {
             setIsLoading(false);
@@ -247,13 +269,27 @@ export function useMidtransPayment() {
     const triggerExistingSnap = () => {
         if (paymentData?.snap_token && window.snap && typeof window.snap.pay === "function") {
             window.snap.pay(paymentData.snap_token, {
-                onSuccess: function () {
+                onSuccess: function (result: any) {
+                    const paidId = paymentData?.order_id || (result && (result as any).order_id);
+                    if (paidId) {
+                        localStorage.setItem("last_active_order_id", paidId);
+                    }
                     sessionStorage.removeItem("active_checkout_idempotency_key");
+                    setPaymentData((prev) => (prev ? { ...prev, status: "paid" } : { status: "paid" }));
+                    if (typeof window !== "undefined") {
+                        window.location.href = "/checkout/success";
+                    }
+                },
+                onPending: function () {
+                    checkPaymentStatus();
+                },
+                onError: function () {
+                    setErrorMessage("Pembayaran gagal atau dibatalkan.");
+                },
+                onClose: function () {
                     checkPaymentStatus();
                 },
             });
-        } else if (paymentData?.snap_redirect_url) {
-            window.open(paymentData.snap_redirect_url, "_blank");
         }
     };
 

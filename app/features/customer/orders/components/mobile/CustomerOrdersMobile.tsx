@@ -18,6 +18,8 @@ export function CustomerOrdersMobile() {
         currentPage,
         totalPages,
         handlePageChange,
+        cancelOrder,
+        refreshOrders,
     } = useCustomerOrders();
 
     const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
@@ -33,20 +35,48 @@ export function CustomerOrdersMobile() {
         setSelectedOrderId(null);
     };
 
-    const getStatusStyle = (status: OrderStatus) => {
-        switch (status) {
-            case "IN PROGRESS":
-                return "bg-[#FFF3EB] text-[#FA8232]";
-            case "COMPLETED":
-                return "bg-[#EAF7E9] text-[#2DB224]";
-            case "CANCELED":
-                return "bg-[#FDEEEE] text-[#EE5858]";
-            case "PENDING":
-                return "bg-[#EAF6FE] text-[#2DA5F3]";
-            default:
-                return "bg-zinc-100 text-zinc-600";
+    const handleCancelOrder = async (e: React.MouseEvent, orderId: string) => {
+        e.stopPropagation();
+        if (window.confirm(`Apakah Anda yakin ingin membatalkan order ${orderId}?`)) {
+            const res = await cancelOrder(orderId);
+            if (!res.success) {
+                alert(res.error || "Gagal membatalkan pesanan.");
+            }
         }
     };
+
+    const handlePayNow = (e: React.MouseEvent, order: any) => {
+        e.stopPropagation();
+        const cleanId = order.orderId.replace("#", "");
+        localStorage.setItem("last_active_order_id", cleanId);
+        navigate("/checkout");
+    };
+
+    const getStatusBadge = (status: OrderStatus) => {
+        switch (status) {
+            case "PENDING":
+                return <span className="bg-amber-100 text-amber-800 border border-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full">Belum Dibayar</span>;
+            case "IN PROGRESS":
+                return <span className="bg-orange-100 text-orange-800 border border-orange-300 text-[10px] font-bold px-2 py-0.5 rounded-full">Diproses</span>;
+            case "SHIPPED":
+                return <span className="bg-sky-100 text-sky-800 border border-sky-300 text-[10px] font-bold px-2 py-0.5 rounded-full">Dikirim</span>;
+            case "COMPLETED":
+                return <span className="bg-emerald-100 text-emerald-800 border border-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded-full">Selesai</span>;
+            case "CANCELED":
+                return <span className="bg-rose-100 text-rose-800 border border-rose-300 text-[10px] font-bold px-2 py-0.5 rounded-full">Dibatalkan</span>;
+            default:
+                return <span className="bg-zinc-100 text-zinc-600 text-[10px] font-bold px-2 py-0.5 rounded-full">{status}</span>;
+        }
+    };
+
+    const statusTabs: { id: OrderStatus | "ALL"; label: string }[] = [
+        { id: "ALL", label: "Semua Status" },
+        { id: "PENDING", label: "Belum Dibayar" },
+        { id: "IN PROGRESS", label: "Diproses" },
+        { id: "SHIPPED", label: "Dikirim" },
+        { id: "COMPLETED", label: "Selesai" },
+        { id: "CANCELED", label: "Dibatalkan" },
+    ];
 
     return (
         <div className="w-full bg-zinc-50 min-h-screen pb-20 font-sans">
@@ -79,18 +109,18 @@ export function CustomerOrdersMobile() {
                 </div>
 
                 <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none text-xs font-semibold">
-                    {(["ALL", "IN PROGRESS", "COMPLETED", "CANCELED"] as const).map((st) => (
+                    {statusTabs.map((tab) => (
                         <button
-                            key={st}
+                            key={tab.id}
                             type="button"
-                            onClick={() => setSelectedStatus(st)}
+                            onClick={() => setSelectedStatus(tab.id)}
                             className={`px-3 py-1.5 rounded-full whitespace-nowrap transition-colors ${
-                                selectedStatus === st
+                                selectedStatus === tab.id
                                     ? "bg-[#FA8232] text-white shadow-xs"
                                     : "bg-white border border-zinc-200 text-zinc-600 hover:bg-zinc-100"
                             }`}
                         >
-                            {st === "ALL" ? "Semua Status" : st}
+                            {tab.label}
                         </button>
                     ))}
                 </div>
@@ -115,13 +145,7 @@ export function CustomerOrdersMobile() {
                                     <span className="text-xs font-extrabold text-zinc-900">
                                         {order.orderId}
                                     </span>
-                                    <span
-                                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${getStatusStyle(
-                                            order.status
-                                        )}`}
-                                    >
-                                        {order.status}
-                                    </span>
+                                    {getStatusBadge(order.status)}
                                 </div>
 
                                 <div className="flex items-center gap-3">
@@ -151,10 +175,29 @@ export function CustomerOrdersMobile() {
                                     </span>
                                 </div>
 
+                                {order.status === "PENDING" && (
+                                    <div className="grid grid-cols-2 gap-2 pt-1">
+                                        <button
+                                            type="button"
+                                            onClick={(e) => handlePayNow(e, order)}
+                                            className="w-full py-2 bg-[#2DA5F3] hover:bg-[#1B6392] text-white font-bold text-xs rounded-lg shadow-xs cursor-pointer transition-colors"
+                                        >
+                                            Bayar Sekarang
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={(e) => handleCancelOrder(e, order.orderId)}
+                                            className="w-full py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold text-xs rounded-lg border border-rose-200 cursor-pointer transition-colors"
+                                        >
+                                            Batalkan
+                                        </button>
+                                    </div>
+                                )}
+
                                 <button
                                     type="button"
                                     onClick={() => handleOpenDetail(order.orderId)}
-                                    className="w-full mt-1 block text-center py-2 bg-sky-50 text-[#2DA5F3] font-bold text-xs rounded-lg hover:bg-sky-100 transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                                    className="w-full mt-1 block text-center py-2 bg-zinc-50 text-zinc-700 font-semibold text-xs rounded-lg hover:bg-zinc-100 transition-colors flex items-center justify-center gap-1 cursor-pointer"
                                 >
                                     <span>Rincian Invoice & Detail</span>
                                     <ArrowRight className="w-3.5 h-3.5" />
