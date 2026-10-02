@@ -8,7 +8,13 @@ import { BreadCartMobile } from "~/components/template/breadcrumb/BreadCartMobil
 export function ShoppingCardMobile() {
     const navigate = useNavigate();
     const {
+        allItems,
         items,
+        selectedItems,
+        selectedTotalCount,
+        isAllSelected,
+        toggleSelectItem,
+        toggleSelectAll,
         totals,
         couponCode,
         setCouponCode,
@@ -21,19 +27,32 @@ export function ShoppingCardMobile() {
     } = useCheckout();
 
     return (
-        <div className="w-full bg-white">
+        <div className="w-full bg-white pb-6">
             <BreadCartMobile />
-            <section className="w-full py-6 px-4 space-y-5">
-                <div className="flex items-center justify-between pb-2 border-b border-zinc-200">
+            <section className="w-full py-5 px-4 space-y-4">
+                <div className="flex items-center justify-between pb-3 border-b border-zinc-200">
                     <h1 className="text-lg font-bold text-[#191C1F]">Shopping Card</h1>
-                    <span className="text-xs font-semibold text-zinc-500">
-                        {items.length} items
+                    <span className="text-xs font-semibold text-zinc-500 bg-zinc-100 px-2.5 py-0.5 rounded-full">
+                        {selectedItems.length}/{allItems.length} Dipilih
                     </span>
                 </div>
 
+                {/* Shopee-style Select All Bar */}
+                {allItems.length > 0 && (
+                    <div className="flex items-center gap-2.5 p-3 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-semibold text-zinc-700">
+                        <input
+                            type="checkbox"
+                            checked={isAllSelected}
+                            onChange={() => toggleSelectAll()}
+                            className="w-4 h-4 rounded border-zinc-300 text-[#2DA5F3] focus:ring-[#2DA5F3] cursor-pointer"
+                        />
+                        <span>Pilih Semua ({allItems.length} Produk)</span>
+                    </div>
+                )}
+
                 {/* Items List */}
                 <div className="space-y-3">
-                    {items.length === 0 ? (
+                    {allItems.length === 0 ? (
                         <div className="p-8 text-center text-xs text-zinc-500 space-y-3 border border-zinc-200 rounded-lg">
                             <p className="font-semibold text-zinc-700">Keranjang Belanja Anda Kosong</p>
                             <Button asChild className="bg-[#2DA5F3] hover:bg-[#1B6392] text-white">
@@ -41,10 +60,14 @@ export function ShoppingCardMobile() {
                             </Button>
                         </div>
                     ) : (
-                        items.map((item) => (
+                        allItems.map((item) => (
                             <div
                                 key={item.id}
-                                className="border border-zinc-200 rounded-lg p-3 bg-white shadow-xs relative flex flex-col gap-3"
+                                className={`border rounded-lg p-3 shadow-xs relative flex flex-col gap-3 transition-colors ${
+                                    item.selected !== false
+                                        ? "border-[#2DA5F3]/50 bg-sky-50/20"
+                                        : "border-zinc-200 bg-white"
+                                }`}
                             >
                                 <button
                                     type="button"
@@ -55,7 +78,13 @@ export function ShoppingCardMobile() {
                                     <XCircle className="w-5 h-5 text-red-400" />
                                 </button>
 
-                                <div className="flex gap-3 items-start pr-8">
+                                <div className="flex gap-3 items-center pr-8">
+                                    <input
+                                        type="checkbox"
+                                        checked={item.selected !== false}
+                                        onChange={() => toggleSelectItem(item.id)}
+                                        className="w-4 h-4 rounded border-zinc-300 text-[#2DA5F3] focus:ring-[#2DA5F3] cursor-pointer shrink-0"
+                                    />
                                     <div className="w-16 h-16 rounded border border-zinc-200 bg-white p-1 shrink-0 overflow-hidden flex items-center justify-center">
                                         <img
                                             src={item.image}
@@ -63,7 +92,7 @@ export function ShoppingCardMobile() {
                                             className="max-h-full max-w-full object-contain"
                                         />
                                     </div>
-                                    <div className="space-y-1">
+                                    <div className="space-y-1 min-w-0 flex-1">
                                         <h3 className="text-xs font-medium text-[#191C1F] line-clamp-2 leading-tight">
                                             {item.title}
                                         </h3>
@@ -113,27 +142,19 @@ export function ShoppingCardMobile() {
                         asChild
                         variant="outline"
                         size="md"
-                        className="flex-1"
+                        className="w-full"
                     >
                         <Link to="/" className="flex items-center justify-center gap-1.5">
                             <ArrowLeft className="w-4 h-4" />
                             <span>Kembali ke Toko</span>
                         </Link>
                     </Button>
-                    <Button
-                        type="button"
-                        variant="outline"
-                        size="md"
-                        className="flex-1"
-                    >
-                        Update Cart
-                    </Button>
                 </div>
 
                 {/* Card Totals */}
                 <div className="border border-zinc-200 rounded-lg bg-white p-4 shadow-xs space-y-4">
                     <h2 className="text-base font-bold text-[#191C1F] pb-2 border-b border-zinc-200">
-                        Total Belanja
+                        Total Belanja ({selectedTotalCount} barang)
                     </h2>
 
                     <div className="space-y-2.5 text-xs text-zinc-600">
@@ -164,10 +185,11 @@ export function ShoppingCardMobile() {
                         type="button"
                         variant="default"
                         size="lg"
+                        disabled={selectedItems.length === 0}
                         onClick={() => navigate("/checkout")}
-                        className="w-full uppercase tracking-wider gap-2"
+                        className="w-full uppercase tracking-wider gap-2 bg-[#2DA5F3] hover:bg-[#1B6392] text-white font-bold disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        <span>Lanjut ke Checkout</span>
+                        <span>Checkout ({selectedTotalCount})</span>
                         <ArrowRight className="w-4 h-4" />
                     </Button>
                 </div>

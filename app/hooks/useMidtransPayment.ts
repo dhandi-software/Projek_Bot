@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { CartItem } from "~/context/CartContext";
+import { useCart } from "~/context/CartContext";
 import type { BillingInfo } from "~/types/checkout";
 
 declare global {
@@ -44,6 +45,7 @@ const MIDTRANS_SNAP_URL = import.meta.env.VITE_MIDTRANS_SNAP_URL;
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export function useMidtransPayment() {
+    const { removePurchasedItems } = useCart();
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [paymentData, setPaymentData] = useState<PaymentData | null>(null);
@@ -248,6 +250,7 @@ export function useMidtransPayment() {
                 } else {
                     localStorage.setItem("last_active_order_id", data.order_id);
                 }
+                removePurchasedItems(payloadItems);
             }
             setPaymentData(data);
             setIsLoading(false);

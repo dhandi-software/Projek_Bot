@@ -241,31 +241,77 @@ export function ComputerAccessoriesSectionMobile() {
           </div>
 
           {/* Pagination Controls */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between pt-3 border-t border-gray-200 text-xs text-gray-500">
-              <span>
-                Hal {currentPage} dari {totalPages}
-              </span>
-              <div className="flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  disabled={currentPage === 1}
-                  className="p-1 rounded border border-gray-200 disabled:opacity-40 hover:bg-gray-50 cursor-pointer"
-                >
-                  <ChevronLeft className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={currentPage === totalPages}
-                  className="p-1 rounded border border-gray-200 disabled:opacity-40 hover:bg-gray-50 cursor-pointer"
-                >
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </button>
+          {totalPages > 1 && (() => {
+            const currentGroupIndex = Math.floor((currentPage - 1) / 5);
+            const startPage = currentGroupIndex * 5 + 1;
+            const endPage = Math.min(startPage + 4, totalPages);
+            const groupPages = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
+            const hasPrevGroup = startPage > 1;
+            const hasNextGroup = endPage < totalPages;
+
+            return (
+              <div className="flex items-center justify-between pt-3 border-t border-gray-200 text-xs text-gray-500">
+                <span>
+                  Hal <span className="font-bold text-gray-900">{currentPage}</span> / {totalPages}
+                </span>
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className="p-1 rounded border border-gray-200 disabled:opacity-40 hover:bg-gray-50 cursor-pointer"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                  </button>
+
+                  {hasPrevGroup && (
+                    <button
+                      type="button"
+                      onClick={() => setCurrentPage(startPage - 1)}
+                      className="px-2 py-0.5 rounded border text-xs font-bold bg-white text-gray-700 border-gray-200 hover:bg-gray-50 cursor-pointer"
+                    >
+                      ...
+                    </button>
+                  )}
+
+                  {groupPages.map((pageNum) => (
+                    <button
+                      key={pageNum}
+                      type="button"
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={cn(
+                        "px-2 py-0.5 rounded border text-xs font-bold transition-colors cursor-pointer",
+                        currentPage === pageNum
+                          ? "bg-[#FA8232] text-white border-[#FA8232]"
+                          : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+                      )}
+                    >
+                      {pageNum}
+                    </button>
+                  ))}
+
+                  {hasNextGroup && (
+                    <button
+                      type="button"
+                      onClick={() => setCurrentPage(endPage + 1)}
+                      className="px-2 py-0.5 rounded border text-xs font-bold bg-white text-gray-700 border-gray-200 hover:bg-gray-50 cursor-pointer"
+                    >
+                      ...
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className="p-1 rounded border border-gray-200 disabled:opacity-40 hover:bg-gray-50 cursor-pointer"
+                  >
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
         </>
       )}
 

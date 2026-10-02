@@ -8,7 +8,13 @@ import { BreadCartDesktop } from "~/components/template/breadcrumb/BreadCartDesk
 export function ShoppingCardDesktop() {
     const navigate = useNavigate();
     const {
+        allItems,
         items,
+        selectedItems,
+        selectedTotalCount,
+        isAllSelected,
+        toggleSelectItem,
+        toggleSelectAll,
         totals,
         couponCode,
         setCouponCode,
@@ -28,13 +34,25 @@ export function ShoppingCardDesktop() {
                     <div className="grid grid-cols-12 gap-6 items-start">
                         {/* LEFT COLUMN: Shopping Card Table (8 cols) */}
                         <div className="col-span-8 border border-zinc-200 rounded-lg overflow-hidden bg-white shadow-xs">
-                            <div className="p-6 border-b border-zinc-200">
+                            <div className="p-6 border-b border-zinc-200 flex items-center justify-between">
                                 <h1 className="text-xl font-bold text-[#191C1F]">Shopping Card</h1>
+                                <span className="text-xs font-semibold text-zinc-500 bg-zinc-100 px-3 py-1 rounded-full">
+                                  {selectedItems.length} dari {allItems.length} Produk Dipilih
+                                </span>
                             </div>
 
-                            {/* Table Sub-Heading */}
-                            <div className="grid grid-cols-12 bg-zinc-50 border-b border-zinc-200 px-6 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider">
-                                <div className="col-span-6">Products</div>
+                            {/* Table Sub-Heading with Shopee-style Select All */}
+                            <div className="grid grid-cols-12 bg-zinc-50 border-b border-zinc-200 px-6 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider items-center">
+                                <div className="col-span-6 flex items-center gap-3">
+                                    <input
+                                        type="checkbox"
+                                        checked={isAllSelected}
+                                        onChange={() => toggleSelectAll()}
+                                        className="w-4 h-4 rounded border-zinc-300 text-[#2DA5F3] focus:ring-[#2DA5F3] cursor-pointer"
+                                        title="Pilih Semua Produk"
+                                    />
+                                    <span>Pilih Semua Produk</span>
+                                </div>
                                 <div className="col-span-2">Price</div>
                                 <div className="col-span-2">Quantity</div>
                                 <div className="col-span-2 text-right">Sub-Total</div>
@@ -42,7 +60,7 @@ export function ShoppingCardDesktop() {
 
                             {/* Table Products List */}
                             <div className="divide-y divide-zinc-200">
-                                {items.length === 0 ? (
+                                {allItems.length === 0 ? (
                                     <div className="p-12 text-center text-xs text-zinc-500 space-y-3">
                                         <p className="font-semibold text-zinc-700">Keranjang Belanja Anda Kosong</p>
                                         <Button asChild className="bg-[#2DA5F3] hover:bg-[#1B6392] text-white">
@@ -50,17 +68,25 @@ export function ShoppingCardDesktop() {
                                         </Button>
                                     </div>
                                 ) : (
-                                    items.map((item) => (
+                                    allItems.map((item) => (
                                         <div
                                             key={item.id}
-                                            className="grid grid-cols-12 items-center px-6 py-5 hover:bg-zinc-50/50 transition-colors group"
+                                            className={`grid grid-cols-12 items-center px-6 py-5 transition-colors group ${
+                                                item.selected !== false ? "bg-sky-50/20" : "hover:bg-zinc-50/50"
+                                            }`}
                                         >
-                                            {/* Product info + Remove */}
+                                            {/* Product Checkbox + info + Remove */}
                                             <div className="col-span-6 flex items-center gap-3.5 pr-4">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={item.selected !== false}
+                                                    onChange={() => toggleSelectItem(item.id)}
+                                                    className="w-4 h-4 rounded border-zinc-300 text-[#2DA5F3] focus:ring-[#2DA5F3] cursor-pointer shrink-0"
+                                                />
                                                 <button
                                                     type="button"
                                                     onClick={() => removeFromCart(item.id)}
-                                                    className="text-zinc-400 hover:text-red-500 transition-colors p-1 cursor-pointer"
+                                                    className="text-zinc-400 hover:text-red-500 transition-colors p-1 cursor-pointer shrink-0"
                                                     title="Hapus barang"
                                                 >
                                                     <XCircle className="w-5 h-5 text-red-400 hover:text-red-600" />
@@ -129,14 +155,6 @@ export function ShoppingCardDesktop() {
                                         <span>Kembali ke Toko</span>
                                     </Link>
                                 </Button>
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="md"
-                                    className="px-6 uppercase tracking-wider"
-                                >
-                                    Update Keranjang
-                                </Button>
                             </div>
                         </div>
 
@@ -184,10 +202,11 @@ export function ShoppingCardDesktop() {
                                     type="button"
                                     variant="default"
                                     size="lg"
+                                    disabled={selectedItems.length === 0}
                                     onClick={() => navigate("/checkout")}
-                                    className="w-full uppercase tracking-wider gap-2"
+                                    className="w-full uppercase tracking-wider gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed bg-[#2DA5F3] hover:bg-[#1B6392] text-white font-bold"
                                 >
-                                    <span>Lanjut ke Checkout</span>
+                                    <span>Checkout ({selectedTotalCount})</span>
                                     <ArrowRight className="w-4 h-4" />
                                 </Button>
                             </div>

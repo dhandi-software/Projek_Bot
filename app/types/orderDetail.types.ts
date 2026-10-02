@@ -73,4 +73,15 @@ export interface OrderDetailHookResult {
     handlePrint: () => void;
     handleDownloadPDF: () => void;
     isDownloadingPDF: boolean;
+    bankInfo: { bankName: string; bankCode: string; fullLabel: string };
+    countdown: {
+        remainingMs: number;
+        isExpired: boolean;
+        formattedTime: string;
+        hours: number;
+        minutes: number;
+        seconds: number;
+        expireAtStr: string;
+    };
+    effectiveStatus: string;
 }

@@ -206,63 +206,104 @@ export function BestDealsTableDesktop({
         )}
       </div>
 
-      {totalPages > 1 && (
-        <div className="p-4 border-t border-[#E2E8F0] bg-white flex items-center justify-between">
-          <div className="text-xs text-[#64748B] font-medium">
-            Menampilkan <span className="font-bold text-[#0F172A]">{startIndex + 1}</span> - <span className="font-bold text-[#0F172A]">{Math.min(startIndex + ITEMS_PER_PAGE, bestDealProducts.length)}</span> dari <span className="font-bold text-[#0F172A]">{bestDealProducts.length}</span> produk Best Deals
-          </div>
-          <Pagination className="w-auto mx-0">
-            <PaginationContent className="gap-1">
-              <PaginationItem>
-                <PaginationPrevious
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (currentPage > 1) setCurrentPage(currentPage - 1);
-                  }}
-                  className={cn(
-                    "cursor-pointer text-xs h-8 px-2.5 rounded-md border border-[#E2E8F0] hover:bg-zinc-100",
-                    currentPage === 1 && "pointer-events-none opacity-40"
-                  )}
-                />
-              </PaginationItem>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <PaginationItem key={page}>
-                  <PaginationLink
+      {totalPages > 1 && (() => {
+        const currentGroupIndex = Math.floor((currentPage - 1) / 10);
+        const startPage = currentGroupIndex * 10 + 1;
+        const endPage = Math.min(startPage + 9, totalPages);
+        const groupPages = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
+        const hasPrevGroup = startPage > 1;
+        const hasNextGroup = endPage < totalPages;
+
+        return (
+          <div className="p-4 border-t border-[#E2E8F0] bg-white flex items-center justify-between">
+            <div className="text-xs text-[#64748B] font-medium">
+              Menampilkan <span className="font-bold text-[#0F172A]">{startIndex + 1}</span> - <span className="font-bold text-[#0F172A]">{Math.min(startIndex + ITEMS_PER_PAGE, bestDealProducts.length)}</span> dari <span className="font-bold text-[#0F172A]">{bestDealProducts.length}</span> produk Best Deals
+            </div>
+            <Pagination className="w-auto mx-0">
+              <PaginationContent className="gap-1">
+                <PaginationItem>
+                  <PaginationPrevious
                     href="#"
-                    isActive={page === currentPage}
                     onClick={(e) => {
                       e.preventDefault();
-                      setCurrentPage(page);
+                      if (currentPage > 1) setCurrentPage(currentPage - 1);
                     }}
                     className={cn(
-                      "cursor-pointer text-xs h-8 w-8 rounded-md font-semibold border transition-all",
-                      page === currentPage
-                        ? "bg-[#FA8232] text-white border-[#FA8232] shadow-2xs"
-                        : "bg-white text-[#475569] border-[#E2E8F0] hover:bg-zinc-100"
+                      "cursor-pointer text-xs h-8 px-2.5 rounded-md border border-[#E2E8F0] hover:bg-zinc-100",
+                      currentPage === 1 && "pointer-events-none opacity-40"
                     )}
-                  >
-                    {page}
-                  </PaginationLink>
+                  />
                 </PaginationItem>
-              ))}
-              <PaginationItem>
-                <PaginationNext
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
-                  }}
-                  className={cn(
-                    "cursor-pointer text-xs h-8 px-2.5 rounded-md border border-[#E2E8F0] hover:bg-zinc-100",
-                    currentPage === totalPages && "pointer-events-none opacity-40"
-                  )}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-      )}
+
+                {hasPrevGroup && (
+                  <PaginationItem>
+                    <PaginationLink
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setCurrentPage(startPage - 1);
+                      }}
+                      className="cursor-pointer text-xs h-8 px-2 rounded-md font-semibold border bg-white text-[#475569] border-[#E2E8F0] hover:bg-zinc-100"
+                    >
+                      ...
+                    </PaginationLink>
+                  </PaginationItem>
+                )}
+
+                {groupPages.map((page) => (
+                  <PaginationItem key={page}>
+                    <PaginationLink
+                      href="#"
+                      isActive={page === currentPage}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setCurrentPage(page);
+                      }}
+                      className={cn(
+                        "cursor-pointer text-xs h-8 w-8 rounded-md font-semibold border transition-all",
+                        page === currentPage
+                          ? "bg-[#FA8232] text-white border-[#FA8232] shadow-2xs"
+                          : "bg-white text-[#475569] border-[#E2E8F0] hover:bg-zinc-100"
+                      )}
+                    >
+                      {page}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+
+                {hasNextGroup && (
+                  <PaginationItem>
+                    <PaginationLink
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setCurrentPage(endPage + 1);
+                      }}
+                      className="cursor-pointer text-xs h-8 px-2 rounded-md font-semibold border bg-white text-[#475569] border-[#E2E8F0] hover:bg-zinc-100"
+                    >
+                      ...
+                    </PaginationLink>
+                  </PaginationItem>
+                )}
+
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+                    }}
+                    className={cn(
+                      "cursor-pointer text-xs h-8 px-2.5 rounded-md border border-[#E2E8F0] hover:bg-zinc-100",
+                      currentPage === totalPages && "pointer-events-none opacity-40"
+                    )}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        );
+      })()}
     </div>
   );
 }

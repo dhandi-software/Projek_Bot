@@ -131,33 +131,38 @@ export function FeaturedProductsSection() {
         </div>
 
         {/* Right Side Section */}
-        <div className="flex flex-col justify-start">
+        <div className="flex flex-col justify-start min-w-0">
           {/* Header Row: Title, Tabs & Browse Link */}
-          <div className="flex flex-wrap items-center justify-between gap-4 mb-6 border-b border-gray-200 pb-2">
-            <h2 className="text-xl font-bold text-gray-900">Featured Products</h2>
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 border-b border-gray-200 pb-2 min-w-0">
+            <div className="flex items-center gap-6 min-w-0 flex-1 overflow-hidden">
+              <h2 className="text-xl font-bold text-gray-900 shrink-0">Featured Products</h2>
 
-            {/* Filter Tabs */}
-            <div className="flex items-center gap-6 overflow-x-auto text-sm">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={cn(
-                    "pb-2 font-medium transition-all duration-200 whitespace-nowrap border-b-2 cursor-pointer",
-                    activeTab === tab.id
-                      ? "text-gray-900 font-bold border-[#FA8232]"
-                      : "text-gray-500 border-transparent hover:text-gray-900"
-                  )}
-                >
-                  {tab.label}
-                </button>
-              ))}
+              {/* Filter Tabs - Scroll horizontal if overflow */}
+              <div
+                className="flex items-center gap-6 overflow-x-auto text-sm min-w-0 flex-1 py-1 scrollbar-none"
+                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+              >
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={cn(
+                      "pb-2 font-medium transition-all duration-200 whitespace-nowrap border-b-2 cursor-pointer shrink-0",
+                      activeTab === tab.id
+                        ? "text-gray-900 font-bold border-[#FA8232]"
+                        : "text-gray-500 border-transparent hover:text-gray-900"
+                    )}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Browse All Products Link */}
             <Link
               to="/products"
-              className="text-sm font-semibold text-[#FA8232] hover:text-[#e07228] flex items-center gap-1.5 transition-colors"
+              className="text-sm font-semibold text-[#FA8232] hover:text-[#e07228] flex items-center gap-1.5 transition-colors shrink-0"
             >
               <span>Browse All Product</span>
               <ArrowRight className="w-4 h-4" />

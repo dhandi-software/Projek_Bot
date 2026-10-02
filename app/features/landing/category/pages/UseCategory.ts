@@ -113,6 +113,8 @@ export function useCategory() {
   const paramSearch = searchParams.get("search");
 
   const [showMobileFilter, setShowMobileFilter] = React.useState(false);
+  const [dbProducts, setDbProducts] = React.useState<any[]>([]);
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const [selectedCatId, setSelectedCatId] = React.useState(() => {
     if (paramCat) {
@@ -137,9 +139,86 @@ export function useCategory() {
     }
   }, [paramCat]);
 
+  React.useEffect(() => {
+    const fetchCategoryProducts = async () => {
+      setIsLoading(true);
+      try {
+        const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+        let res = await fetch(`${baseUrl}/api/products`);
+        if (!res.ok) {
+          res = await fetch("/api/products");
+        }
+        if (res.ok) {
+          const json = await res.json();
+          const itemsArr = json.data || json;
+          if (Array.isArray(itemsArr) && itemsArr.length > 0) {
+            setDbProducts(itemsArr);
+          }
+        }
+      } catch (e) {
+        console.error("Gagal mengambil produk kategori dari database:", e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchCategoryProducts();
+  }, []);
+
   const activeCategoryTitle = paramSearch
     ? `Pencarian: "${paramSearch}"`
     : CATEGORY_NAMES[selectedCatId] || (paramCat ? paramCat : "All Categories");
+
+  // Filter DB products by active category or search query
+  const filteredProducts = React.useMemo(() => {
+    if (dbProducts.length === 0) return SAMPLE_PRODUCTS;
+
+    const formatRp = (num: number) =>
+      new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        maximumFractionDigits: 0,
+      }).format(num);
+
+    let list = dbProducts;
+
+    if (paramSearch) {
+      const q = paramSearch.toLowerCase();
+      list = list.filter(
+        (p) =>
+          String(p.title || "").toLowerCase().includes(q) ||
+          String(p.description || "").toLowerCase().includes(q) ||
+          String(p.brand || "").toLowerCase().includes(q) ||
+          String(p.category || "").toLowerCase().includes(q)
+      );
+    } else {
+      const targetCatName = CATEGORY_NAMES[selectedCatId] || selectedCatId;
+      const c2 = targetCatName.toLowerCase().replace(/[^a-z0-9]/g, "");
+      list = list.filter((p) => {
+        const c1 = String(p.category || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+        return c1.includes(c2) || c2.includes(c1);
+      });
+
+      // If category filter returned no exact matches, fallback to all DB products so user always sees DB products
+      if (list.length === 0) {
+        list = dbProducts;
+      }
+    }
+
+    return list.map((p) => {
+      const hasDiscount = p.discount_price > 0 && p.discount_price < p.price;
+      return {
+        id: String(p.id),
+        title: p.title || p.name || "Produk Database",
+        price: formatRp(hasDiscount ? p.discount_price : p.price),
+        originalPrice: hasDiscount ? formatRp(p.price) : "",
+        rating: (4.5 + ((Number(p.id) || 1) % 5) * 0.1).toFixed(1),
+        badge: hasDiscount ? "PROMO" : (p.is_featured ? "FEATURED" : "BEST SELLER"),
+        brand: p.brand || "Official",
+        image: p.image || "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80",
+        specs: p.short_description || p.category || "Produk Original",
+      };
+    });
+  }, [dbProducts, selectedCatId, paramSearch]);
 
   return {
     selectedCatId,
@@ -147,6 +226,7 @@ export function useCategory() {
     activeCategoryTitle,
     showMobileFilter,
     setShowMobileFilter,
-    products: SAMPLE_PRODUCTS,
+    products: filteredProducts,
+    isLoading,
   };
 }

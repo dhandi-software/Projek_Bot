@@ -19,6 +19,8 @@ import {
   Instagram,
   X,
   Trash2,
+  Minus,
+  Plus,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { useCart } from "~/context/CartContext";
@@ -43,7 +45,21 @@ export default function HeaderDesktop() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated, logout } = useAuth();
-  const { cartItems, removeFromCart, totalCount, totalPrice, lastAddedItem } = useCart();
+  const {
+    cartItems,
+    selectedItems,
+    selectedTotalCount,
+    selectedTotalPrice,
+    isAllSelected,
+    toggleSelectItem,
+    toggleSelectAll,
+    removeFromCart,
+    updateQuantity,
+    setQuantity,
+    totalCount,
+    totalPrice,
+    lastAddedItem,
+  } = useCart();
   const { wishlistCount } = useWishlist();
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
 
@@ -74,6 +90,7 @@ export default function HeaderDesktop() {
   const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string>("smartphone");
   const [activeBrand, setActiveBrand] = useState<string>("iPhone");
+  const [categoryFlyoutState, setCategoryFlyoutState] = useState<Record<string, FlyoutData>>({});
 
   const cartRef = React.useRef<HTMLDivElement>(null);
   const userMenuRef = React.useRef<HTMLDivElement>(null);
@@ -470,10 +487,70 @@ export default function HeaderDesktop() {
         console.error("Search API error:", err);
         setSearchResults([]);
       })
-      .finally(() => {
-        setIsSearching(false);
-      });
   }, [debouncedQuery]);
+
+  React.useEffect(() => {
+    const fetchCategoryProducts = async () => {
+      try {
+        const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+        let res = await fetch(`${baseUrl}/api/products`);
+        if (!res.ok) {
+          res = await fetch("/api/products");
+        }
+        if (!res.ok) return;
+
+        const data = await res.json();
+        const allDbProducts: any[] = data.data || data;
+
+        if (!Array.isArray(allDbProducts) || allDbProducts.length === 0) return;
+
+        const updated = { ...CATEGORY_FLYOUT_DATA };
+
+        CATEGORIES.forEach((cat) => {
+          const matching = allDbProducts.filter((p) => {
+            const dbCat = String(p.category || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+            const targetName = String(cat.name).toLowerCase().replace(/[^a-z0-9]/g, "");
+            const targetId = String(cat.id).toLowerCase().replace(/[^a-z0-9]/g, "");
+            return dbCat.includes(targetName) || targetName.includes(dbCat) || dbCat.includes(targetId) || targetId.includes(dbCat);
+          });
+
+          if (matching.length > 0) {
+            const uniqueBrands = Array.from(new Set(matching.map((p) => p.brand).filter(Boolean)));
+            const brandsList = ["All", ...uniqueBrands];
+
+            const formatted = matching.slice(0, 4).map((p) => {
+              const hasDiscount = p.discount_price > 0 && p.discount_price < p.price;
+              const formatRp = (num: number) =>
+                new Intl.NumberFormat("id-ID", {
+                  style: "currency",
+                  currency: "IDR",
+                  maximumFractionDigits: 0,
+                }).format(num);
+
+              return {
+                title: p.title || p.name || "Produk",
+                price: formatRp(hasDiscount ? p.discount_price : p.price),
+                oldPrice: hasDiscount ? formatRp(p.price) : undefined,
+                image: p.image || "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=200&q=80",
+              };
+            });
+
+            updated[cat.id] = {
+              ...updated[cat.id],
+              brands: brandsList.length > 1 ? brandsList : updated[cat.id]?.brands || ["All"],
+              products: formatted,
+            };
+          }
+        });
+
+        setCategoryFlyoutState(updated);
+      } catch (err) {
+        console.error("Gagal memuat produk real kategori:", err);
+      }
+    };
+
+    fetchCategoryProducts();
+  }, []);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -729,40 +806,107 @@ export default function HeaderDesktop() {
 
               {/* Cart Dropdown Modal */}
               {isCartOpen && (
-                <div className="absolute right-0 top-full mt-3 w-84 bg-white text-zinc-800 rounded-lg shadow-2xl border border-zinc-200 p-4 z-50 animate-in fade-in slide-in-from-top-2">
-                  <div className="flex items-center justify-between border-b border-zinc-100 pb-3 mb-3">
+                <div className="absolute right-0 top-full mt-3 w-88 bg-white text-zinc-800 rounded-lg shadow-2xl border border-zinc-200 p-4 z-50 animate-in fade-in slide-in-from-top-2">
+                  <div className="flex items-center justify-between border-b border-zinc-100 pb-3 mb-2">
                     <h4 className="font-bold text-sm text-zinc-900 flex items-center gap-2">
                       <ShoppingCart className="w-4 h-4 text-[#1B6392]" />
-                      Keranjang Belanja ({totalCount})
+                      <span>Keranjang Belanja ({cartItems.length})</span>
                     </h4>
                     <button onClick={() => setIsCartOpen(false)} className="text-zinc-400 hover:text-zinc-700 cursor-pointer">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
 
-                  <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
+                  {cartItems.length > 0 && (
+                    <div className="px-2.5 py-1.5 mb-2 bg-zinc-50 rounded-md border border-zinc-100 flex items-center justify-between text-xs text-zinc-600 font-semibold">
+                      <label className="flex items-center gap-2 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={isAllSelected}
+                          onChange={() => toggleSelectAll()}
+                          className="w-4 h-4 rounded border-zinc-300 text-[#2DA5F3] focus:ring-[#2DA5F3] cursor-pointer"
+                        />
+                        <span>Pilih Semua ({cartItems.length})</span>
+                      </label>
+                      <span className="text-[11px] text-zinc-500 font-normal">
+                        {selectedItems.length} Dipilih
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1">
                     {cartItems.length === 0 ? (
                       <p className="text-center py-6 text-xs text-zinc-400">Keranjang Anda masih kosong</p>
                     ) : (
                       cartItems.map((item) => (
-                        <div key={item.id} className="flex items-center gap-3 p-2 hover:bg-zinc-50 rounded-md transition-colors group">
+                        <div
+                          key={item.id}
+                          className={`flex items-start gap-2.5 p-2 rounded-lg transition-colors border ${
+                            item.selected !== false
+                              ? "bg-sky-50/40 border-sky-200/80"
+                              : "bg-white border-zinc-100/80"
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={item.selected !== false}
+                            onChange={() => toggleSelectItem(item.id)}
+                            className="w-4 h-4 mt-4 rounded border-zinc-300 text-[#2DA5F3] focus:ring-[#2DA5F3] cursor-pointer shrink-0"
+                          />
                           <img
                             src={item.image}
                             alt={item.title}
-                            className="w-11 h-11 rounded object-cover border border-zinc-100 shrink-0"
+                            className="w-12 h-12 rounded-md object-cover border border-zinc-200 shrink-0 mt-0.5"
                           />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs font-semibold text-zinc-800 truncate">{item.title}</p>
-                            <p className="text-xs text-zinc-500">
-                              {item.quantity} x {item.price}
+                          <div className="flex-1 min-w-0 space-y-1">
+                            <p className="text-xs font-semibold text-zinc-900 truncate" title={item.title}>
+                              {item.title}
                             </p>
+
+                            <div className="flex items-center justify-between gap-2 pt-0.5">
+                              {/* Quantity Controls (- QTY +) */}
+                              <div className="flex items-center border border-zinc-200 rounded-md bg-white overflow-hidden shrink-0 shadow-2xs">
+                                <button
+                                  type="button"
+                                  onClick={() => updateQuantity(item.id, -1)}
+                                  className="w-6 h-6 flex items-center justify-center hover:bg-zinc-100 text-zinc-600 transition-colors cursor-pointer"
+                                  title="Kurangi"
+                                >
+                                  <Minus className="w-3 h-3" />
+                                </button>
+                                <input
+                                  type="number"
+                                  min="1"
+                                  value={item.quantity}
+                                  onChange={(e) => {
+                                    const val = parseInt(e.target.value, 10);
+                                    setQuantity(item.id, isNaN(val) || val < 1 ? 1 : val);
+                                  }}
+                                  className="w-9 text-center text-xs font-bold text-zinc-900 bg-transparent outline-none py-0.5 focus:bg-amber-50"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => updateQuantity(item.id, 1)}
+                                  className="w-6 h-6 flex items-center justify-center hover:bg-zinc-100 text-zinc-600 transition-colors cursor-pointer"
+                                  title="Tambah"
+                                >
+                                  <Plus className="w-3 h-3" />
+                                </button>
+                              </div>
+
+                              {/* Item Price */}
+                              <span className="text-xs font-bold text-[#1B6392]">
+                                {item.price}
+                              </span>
+                            </div>
                           </div>
+
                           <button
                             onClick={() => removeFromCart(item.id)}
-                            className="text-zinc-300 hover:text-red-500 transition-colors p-1 opacity-0 group-hover:opacity-100"
+                            className="text-zinc-400 hover:text-red-500 transition-colors p-1 cursor-pointer shrink-0"
                             title="Hapus barang"
                           >
-                            <Trash2 className="w-3.5 h-3.5" />
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
                       ))
@@ -772,8 +916,8 @@ export default function HeaderDesktop() {
                   {cartItems.length > 0 && (
                     <div className="border-t border-zinc-100 pt-3 mt-3 space-y-3">
                       <div className="flex items-center justify-between text-sm font-bold text-zinc-900">
-                        <span>Subtotal:</span>
-                        <span className="text-[#1B6392]">Rp {totalPrice.toLocaleString("id-ID")}</span>
+                        <span>Subtotal ({selectedTotalCount}):</span>
+                        <span className="text-[#1B6392]">Rp {selectedTotalPrice.toLocaleString("id-ID")}</span>
                       </div>
                       <div className="grid grid-cols-2 gap-2">
                         <Button asChild variant="outline" size="sm" className="w-full text-xs border-zinc-300 hover:bg-zinc-100 text-zinc-800">
@@ -781,11 +925,17 @@ export default function HeaderDesktop() {
                             Lihat Keranjang
                           </Link>
                         </Button>
-                        <Button asChild variant="default" size="sm" className="w-full text-xs bg-[#1B6392] hover:bg-[#134b70] text-white">
-                          <Link to="/checkout" onClick={() => setIsCartOpen(false)}>
-                            Checkout
-                          </Link>
-                        </Button>
+                        {selectedItems.length > 0 ? (
+                          <Button asChild variant="default" size="sm" className="w-full text-xs bg-[#1B6392] hover:bg-[#134b70] text-white">
+                            <Link to="/checkout" onClick={() => setIsCartOpen(false)}>
+                              Checkout ({selectedTotalCount})
+                            </Link>
+                          </Button>
+                        ) : (
+                          <Button disabled variant="default" size="sm" className="w-full text-xs bg-[#1B6392] text-white opacity-50 cursor-not-allowed">
+                            Checkout (0)
+                          </Button>
+                        )}
                       </div>
                     </div>
                   )}
@@ -973,7 +1123,7 @@ export default function HeaderDesktop() {
                             key={cat.id}
                             onMouseEnter={() => {
                               setActiveCategory(cat.id);
-                              const flyData = CATEGORY_FLYOUT_DATA[cat.id];
+                              const flyData = categoryFlyoutState[cat.id] || CATEGORY_FLYOUT_DATA[cat.id];
                               if (flyData && flyData.brands.length > 0) {
                                 setActiveBrand(flyData.brands[0]);
                               }
@@ -999,7 +1149,7 @@ export default function HeaderDesktop() {
 
                     {/* Right Column: Mega Menu Subcontent (Dynamic for active category) */}
                     {(() => {
-                      const flyoutData = CATEGORY_FLYOUT_DATA[activeCategory] || CATEGORY_FLYOUT_DATA["smartphone"];
+                      const flyoutData = categoryFlyoutState[activeCategory] || CATEGORY_FLYOUT_DATA[activeCategory] || CATEGORY_FLYOUT_DATA["smartphone"];
                       return (
                         <div className="p-6 flex gap-6 bg-white shrink-0">
                           {/* Sub-column 1: Brand list */}

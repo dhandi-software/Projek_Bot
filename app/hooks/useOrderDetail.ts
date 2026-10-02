@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import type { OrderDetailData, OrderDetailHookResult, OrderActivityItem, OrderTimelineStep } from "../types/orderDetail.types";
+import { getBankDisplayInfo, usePaymentCountdown } from "~/utils/paymentUtils";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
@@ -10,6 +11,13 @@ export function useOrderDetail(orderId: string | null): OrderDetailHookResult {
     const [isDownloadingPDF, setIsDownloadingPDF] = useState<boolean>(false);
 
     const cleanId = orderId ? orderId.replace("#", "").trim() : "";
+
+    const countdown = usePaymentCountdown(orderDetail?.created_at, orderDetail?.status);
+    const bankInfo = getBankDisplayInfo(orderDetail?.va_bank, orderDetail?.payment_type, orderDetail?.va_number);
+
+    const rawStatus = (orderDetail?.status || "pending").toLowerCase();
+    const isPendingStatus = rawStatus === "pending" || rawStatus === "menunggu pembayaran";
+    const effectiveStatus = isPendingStatus && countdown.isExpired ? "canceled" : rawStatus;
 
     const formatRupiah = (val: number) => {
         return new Intl.NumberFormat("id-ID", {
@@ -164,7 +172,7 @@ export function useOrderDetail(orderId: string | null): OrderDetailHookResult {
                     order_notes: rawData.order_notes || "Tidak ada catatan khusus dari pembeli.",
                     total_amount: rawData.total_amount || rawData.total_price || 0,
                     status: rawData.status || "pending",
-                    payment_type: rawData.payment_type || rawData.payment_method || "QRIS / Instant Payment",
+                    payment_type: rawData.payment_type || rawData.payment_method || "bank_transfer",
                     va_number: rawData.va_number,
                     va_bank: rawData.va_bank,
                     qris_url: rawData.qris_url,
@@ -216,7 +224,7 @@ export function useOrderDetail(orderId: string | null): OrderDetailHookResult {
         }
     };
 
-    const currentStep = determineStep(orderDetail?.status);
+    const currentStep = determineStep(effectiveStatus);
 
     const timelineSteps: OrderTimelineStep[] = [
         { id: 1, label: "Order Placed", isCompleted: currentStep >= 1, isCurrent: currentStep === 1 },
@@ -236,5 +244,8 @@ export function useOrderDetail(orderId: string | null): OrderDetailHookResult {
         handlePrint,
         handleDownloadPDF,
         isDownloadingPDF,
+        bankInfo,
+        countdown,
+        effectiveStatus,
     };
 }

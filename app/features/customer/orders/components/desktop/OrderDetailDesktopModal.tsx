@@ -14,6 +14,7 @@ import {
     Calendar,
     Star,
     CreditCard,
+    Clock,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { useOrderDetail } from "~/hooks/useOrderDetail";
@@ -31,6 +32,9 @@ export function OrderDetailDesktopModal({ orderId, isOpen, onClose }: OrderDetai
         handlePrint,
         handleDownloadPDF,
         isDownloadingPDF,
+        bankInfo,
+        countdown,
+        effectiveStatus,
     } = useOrderDetail(orderId);
 
     const handleCopyVA = (vaNum: string) => {
@@ -41,7 +45,7 @@ export function OrderDetailDesktopModal({ orderId, isOpen, onClose }: OrderDetai
 
     if (!isOpen || !orderId) return null;
 
-    const statusUpper = (orderDetail?.status || "").toUpperCase();
+    const statusUpper = (effectiveStatus || orderDetail?.status || "").toUpperCase();
     const isPaid =
         statusUpper === "PAID" ||
         statusUpper === "SETTLEMENT" ||
@@ -54,6 +58,7 @@ export function OrderDetailDesktopModal({ orderId, isOpen, onClose }: OrderDetai
         statusUpper === "CANCEL" ||
         statusUpper === "CANCELED" ||
         statusUpper === "EXPIRE" ||
+        statusUpper === "EXPIRED" ||
         statusUpper === "FAILED";
 
     const getActivityIcon = (type: string) => {
@@ -298,6 +303,82 @@ export function OrderDetailDesktopModal({ orderId, isOpen, onClose }: OrderDetai
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Payment Box if unpaid */}
+                            {!isPaid && !isCanceled && (
+                                <div className="bg-sky-50/80 border border-sky-200/90 rounded-2xl p-5 flex flex-col md:flex-row items-center justify-between gap-4 shadow-2xs my-4">
+                                    <div className="flex items-start md:items-center gap-4">
+                                        <div className="w-11 h-11 rounded-xl bg-sky-100 text-[#2DA5F3] flex items-center justify-center shrink-0 border border-sky-200 mt-0.5 md:mt-0">
+                                            <CreditCard className="w-5 h-5" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <p className="text-xs md:text-sm font-bold text-zinc-900">
+                                                Metode Pembayaran: <span className="text-[#2DA5F3] font-extrabold">{bankInfo.fullLabel}</span>
+                                            </p>
+                                            <p className="text-[11px] md:text-xs text-zinc-600">
+                                                Transfer ke <span className="font-bold text-zinc-800">{bankInfo.bankName}</span> sebelum batas 24 jam berakhir.
+                                            </p>
+                                            {/* 24h Countdown Timer Pill */}
+                                            <div className="pt-1 flex items-center gap-2">
+                                                <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-200 px-3 py-1 rounded-xl text-xs font-semibold text-amber-900">
+                                                    <Clock className="w-3.5 h-3.5 text-amber-600 animate-pulse shrink-0" />
+                                                    <span>Sisa Waktu (24 Jam):</span>
+                                                    <span className="font-mono text-xs font-extrabold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-md border border-amber-300">
+                                                        {countdown.formattedTime}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-wrap items-center gap-3 shrink-0">
+                                        {orderDetail.va_number && (
+                                            <div className="flex items-center gap-2 bg-white px-3.5 py-2 rounded-xl border border-sky-200 shadow-2xs">
+                                                <div className="flex flex-col text-left">
+                                                    <span className="text-[10px] font-bold text-sky-600 uppercase tracking-wider">{bankInfo.bankName}</span>
+                                                    <span className="text-xs font-mono font-extrabold text-zinc-900">VA: {orderDetail.va_number}</span>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleCopyVA(orderDetail.va_number!)}
+                                                    className="text-[11px] bg-[#2DA5F3] text-white font-bold px-2.5 py-1 rounded-lg hover:bg-[#1B6392] transition-colors cursor-pointer ml-1"
+                                                >
+                                                    {isCopied ? "Tersalin!" : "Salin"}
+                                                </button>
+                                            </div>
+                                        )}
+
+                                        <Button
+                                            type="button"
+                                            onClick={() => {
+                                                if (orderDetail?.snap_token && (window as any).snap) {
+                                                    (window as any).snap.pay(orderDetail.snap_token);
+                                                } else {
+                                                    window.location.href = "/checkout";
+                                                }
+                                            }}
+                                            className="bg-[#2DA5F3] hover:bg-[#1B6392] text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-xs cursor-pointer"
+                                        >
+                                            Bayar Sekarang
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Expired / Canceled Notice */}
+                            {isCanceled && (
+                                <div className="bg-rose-50 border border-rose-200/90 rounded-2xl p-4 flex items-center gap-3.5 text-rose-800 shadow-2xs my-4">
+                                    <div className="w-9 h-9 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0 border border-rose-200">
+                                        <Clock className="w-4.5 h-4.5" />
+                                    </div>
+                                    <div>
+                                        <p className="text-xs md:text-sm font-bold text-rose-900">Pesanan Dibatalkan / Kedaluwarsa</p>
+                                        <p className="text-[11px] text-rose-700 mt-0.5">
+                                            Batas waktu 24 jam telah habis atau pesanan ini telah dibatalkan.
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Order Activity Section */}
                             <div className="space-y-4">

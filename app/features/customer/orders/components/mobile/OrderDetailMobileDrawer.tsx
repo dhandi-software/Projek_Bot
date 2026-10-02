@@ -13,12 +13,15 @@ import {
     CheckCircle,
     Calendar,
     Star,
+    CreditCard,
+    Clock,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { useOrderDetail } from "~/hooks/useOrderDetail";
 import type { OrderDetailModalProps } from "~/types/orderDetail.types";
 
 export function OrderDetailMobileDrawer({ orderId, isOpen, onClose }: OrderDetailModalProps) {
+    const [isCopied, setIsCopied] = useState(false);
     const {
         orderDetail,
         isLoading,
@@ -29,11 +32,20 @@ export function OrderDetailMobileDrawer({ orderId, isOpen, onClose }: OrderDetai
         handlePrint,
         handleDownloadPDF,
         isDownloadingPDF,
+        bankInfo,
+        countdown,
+        effectiveStatus,
     } = useOrderDetail(orderId);
+
+    const handleCopyVA = (vaNum: string) => {
+        navigator.clipboard.writeText(vaNum);
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+    };
 
     if (!isOpen || !orderId) return null;
 
-    const statusUpper = (orderDetail?.status || "").toUpperCase();
+    const statusUpper = (effectiveStatus || orderDetail?.status || "").toUpperCase();
     const isPaid =
         statusUpper === "PAID" ||
         statusUpper === "SETTLEMENT" ||
@@ -46,6 +58,7 @@ export function OrderDetailMobileDrawer({ orderId, isOpen, onClose }: OrderDetai
         statusUpper === "CANCEL" ||
         statusUpper === "CANCELED" ||
         statusUpper === "EXPIRE" ||
+        statusUpper === "EXPIRED" ||
         statusUpper === "FAILED";
 
     const getActivityIcon = (type: string) => {
@@ -266,6 +279,67 @@ export function OrderDetailMobileDrawer({ orderId, isOpen, onClose }: OrderDetai
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Mobile Drawer Payment Box if unpaid */}
+                            {!isPaid && !isCanceled && (
+                                <div className="bg-sky-50/90 border border-sky-200/90 rounded-2xl p-4 space-y-3 shadow-2xs">
+                                    <div className="flex items-start gap-3">
+                                        <div className="w-10 h-10 rounded-xl bg-sky-100 text-[#2DA5F3] flex items-center justify-center shrink-0 border border-sky-200 mt-0.5">
+                                            <CreditCard className="w-5 h-5" />
+                                        </div>
+                                        <div className="space-y-1 min-w-0 flex-1">
+                                            <p className="text-xs font-bold text-zinc-900 leading-snug">
+                                                Metode Pembayaran: <span className="text-[#2DA5F3] font-extrabold block sm:inline">{bankInfo.fullLabel}</span>
+                                            </p>
+                                            <p className="text-[11px] text-zinc-600 leading-snug">
+                                                Transfer ke <span className="font-bold text-zinc-800">{bankInfo.bankName}</span> sebelum 24 jam.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* 24h Countdown Timer Pill */}
+                                    <div className="inline-flex items-center gap-1.5 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-xl text-[11px] font-semibold text-amber-900 w-full justify-between">
+                                        <div className="flex items-center gap-1.5">
+                                            <Clock className="w-3.5 h-3.5 text-amber-600 animate-pulse shrink-0" />
+                                            <span>Batas Waktu (24 Jam):</span>
+                                        </div>
+                                        <span className="font-mono text-[11px] font-extrabold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-md border border-amber-300 shrink-0">
+                                            {countdown.formattedTime}
+                                        </span>
+                                    </div>
+
+                                    {orderDetail.va_number && (
+                                        <div className="flex items-center justify-between bg-white px-3 py-2 rounded-xl border border-sky-200 shadow-2xs">
+                                            <div className="flex flex-col">
+                                                <span className="text-[9px] font-bold text-sky-600 uppercase">{bankInfo.bankName}</span>
+                                                <span className="text-xs font-mono font-extrabold text-zinc-900">VA: {orderDetail.va_number}</span>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleCopyVA(orderDetail.va_number!)}
+                                                className="text-[10px] bg-[#2DA5F3] text-white font-bold px-2.5 py-1 rounded-lg hover:bg-[#1B6392] transition-colors cursor-pointer"
+                                            >
+                                                {isCopied ? "Tersalin!" : "Salin"}
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Mobile Drawer Expired Notice */}
+                            {isCanceled && (
+                                <div className="bg-rose-50 border border-rose-200/90 rounded-2xl p-3.5 flex items-center gap-3 text-rose-800 shadow-2xs">
+                                    <div className="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center shrink-0 border border-rose-200">
+                                        <Clock className="w-4 h-4" />
+                                    </div>
+                                    <div className="text-[11px]">
+                                        <p className="font-bold text-rose-900">Pesanan Dibatalkan / Kedaluwarsa</p>
+                                        <p className="text-rose-700 mt-0.5">
+                                            Batas waktu 24 jam telah habis atau pesanan dibatalkan.
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Order Activity Section */}
                             <div className="space-y-3">

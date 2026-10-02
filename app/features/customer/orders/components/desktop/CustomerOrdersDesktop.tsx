@@ -1,6 +1,16 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
-import { ArrowRight, ChevronLeft, ChevronRight, Search } from "lucide-react";
+import {
+    ArrowRight,
+    ChevronLeft,
+    ChevronRight,
+    Search,
+    ChevronDown,
+    Eye,
+    CreditCard,
+    XCircle,
+    MoreHorizontal,
+} from "lucide-react";
 import { NavigationSideBar } from "~/components/ui/NavigationSideBar";
 import { useCustomerOrders } from "~/hooks/useCustomerOrders";
 import { OrderDetailModal } from "../OrderDetailModal";
@@ -26,6 +36,7 @@ export function CustomerOrdersDesktop() {
 
     const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
 
     const handleOpenDetail = (orderId: string) => {
         const cleanId = orderId.replace("#", "").trim();
@@ -231,36 +242,88 @@ export function CustomerOrdersDesktop() {
                                                 </span>
                                             </td>
 
-                                            <td className="py-3.5 px-5 text-right whitespace-nowrap">
-                                                <div className="flex items-center justify-end gap-2">
-                                                    {order.status === "PENDING" && (
-                                                        <>
-                                                            <button
-                                                                type="button"
-                                                                onClick={(e) => handlePayNow(e, order)}
-                                                                className="px-3 py-1 bg-[#2DA5F3] hover:bg-[#1B6392] text-white text-xs font-bold rounded shadow-2xs cursor-pointer transition-colors shrink-0"
-                                                            >
-                                                                Bayar
-                                                            </button>
-                                                            <button
-                                                                type="button"
-                                                                onClick={(e) => handleCancelOrder(e, order.orderId)}
-                                                                className="px-3 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold rounded border border-rose-200 cursor-pointer transition-colors shrink-0"
-                                                            >
-                                                                Batal
-                                                            </button>
-                                                        </>
-                                                    )}
+                                             <td className="py-3.5 px-5 text-right whitespace-nowrap relative">
+                                                <div className="inline-block text-left relative">
                                                     <button
                                                         type="button"
-                                                        onClick={() => handleOpenDetail(order.orderId)}
-                                                        className="text-[#2DA5F3] hover:text-[#1B6392] font-semibold text-xs flex items-center gap-1 group cursor-pointer shrink-0"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setOpenDropdownId((prev) => (prev === order.id ? null : order.id));
+                                                        }}
+                                                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all cursor-pointer shadow-2xs ${
+                                                            openDropdownId === order.id
+                                                                ? "border-sky-300 bg-sky-50 text-[#2DA5F3] ring-2 ring-sky-500/20"
+                                                                : "border-zinc-200 bg-white hover:bg-zinc-50 hover:border-zinc-300 text-zinc-700"
+                                                        }`}
                                                     >
-                                                        <span>Detail</span>
-                                                        <ArrowRight className="w-3.5 h-3.5 text-[#2DA5F3] group-hover:translate-x-0.5 transition-transform" />
+                                                        <span>Aksi</span>
+                                                        <ChevronDown
+                                                            className={`w-3.5 h-3.5 text-zinc-400 transition-transform duration-200 ${
+                                                                openDropdownId === order.id ? "rotate-180 text-[#2DA5F3]" : ""
+                                                            }`}
+                                                        />
                                                     </button>
+
+                                                    {openDropdownId === order.id && (
+                                                        <>
+                                                            {/* Backdrop overlay to dismiss dropdown */}
+                                                            <div
+                                                                className="fixed inset-0 z-30"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setOpenDropdownId(null);
+                                                                }}
+                                                            />
+                                                            <div className="absolute right-0 top-full mt-1.5 z-40 w-44 bg-white rounded-xl border border-zinc-200/90 shadow-lg p-1.5 space-y-0.5 animate-in fade-in zoom-in-95 duration-100 font-sans text-left">
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        setOpenDropdownId(null);
+                                                                        handleOpenDetail(order.orderId);
+                                                                    }}
+                                                                    className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
+                                                                >
+                                                                    <Eye className="w-4 h-4 text-zinc-400 shrink-0" />
+                                                                    <span>Lihat Detail</span>
+                                                                </button>
+
+                                                                {order.status === "PENDING" && (
+                                                                    <>
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={(e) => {
+                                                                                e.stopPropagation();
+                                                                                setOpenDropdownId(null);
+                                                                                handlePayNow(e, order);
+                                                                            }}
+                                                                            className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-bold text-[#2DA5F3] hover:bg-sky-50 transition-colors cursor-pointer"
+                                                                        >
+                                                                            <CreditCard className="w-4 h-4 text-[#2DA5F3] shrink-0" />
+                                                                            <span>Bayar Sekarang</span>
+                                                                        </button>
+
+                                                                        <div className="my-1 border-t border-zinc-100" />
+
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={(e) => {
+                                                                                e.stopPropagation();
+                                                                                setOpenDropdownId(null);
+                                                                                handleCancelOrder(e, order.orderId);
+                                                                            }}
+                                                                            className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                                                                        >
+                                                                            <XCircle className="w-4 h-4 text-rose-500 shrink-0" />
+                                                                            <span>Batalkan Pesanan</span>
+                                                                        </button>
+                                                                    </>
+                                                                )}
+                                                            </div>
+                                                        </>
+                                                    )}
                                                 </div>
-                                            </td>
+                                             </td>
                                         </tr>
                                     ))
                                 )}
@@ -268,43 +331,74 @@ export function CustomerOrdersDesktop() {
                         </table>
                     </div>
 
-                    <div className="p-6 border-t border-[#E4E7E9] flex items-center justify-center gap-2">
-                        <button
-                            type="button"
-                            onClick={() => handlePageChange(currentPage - 1)}
-                            disabled={currentPage === 1}
-                            className="w-10 h-10 rounded-full border border-[#E4E7E9] flex items-center justify-center text-[#191C1F] hover:border-[#FA8232] hover:text-[#FA8232] disabled:opacity-40 disabled:hover:border-[#E4E7E9] disabled:hover:text-[#191C1F] transition-colors cursor-pointer"
-                        >
-                            <ChevronLeft className="w-5 h-5" />
-                        </button>
+                    {totalPages > 1 && (() => {
+                        const currentGroupIndex = Math.floor((currentPage - 1) / 10);
+                        const startPage = currentGroupIndex * 10 + 1;
+                        const endPage = Math.min(startPage + 9, totalPages);
+                        const groupPages = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
+                        const hasPrevGroup = startPage > 1;
+                        const hasNextGroup = endPage < totalPages;
 
-                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-                            const isActive = page === currentPage;
-                            return (
+                        return (
+                            <div className="p-6 border-t border-[#E4E7E9] flex items-center justify-center gap-2">
                                 <button
-                                    key={page}
                                     type="button"
-                                    onClick={() => handlePageChange(page)}
-                                    className={`w-10 h-10 rounded-full font-semibold text-[14px] transition-colors cursor-pointer ${
-                                        isActive
-                                            ? "bg-[#FA8232] text-white shadow-xs"
-                                            : "border border-[#E4E7E9] text-[#191C1F] hover:border-[#FA8232] hover:text-[#FA8232]"
-                                    }`}
+                                    onClick={() => handlePageChange(currentPage - 1)}
+                                    disabled={currentPage === 1}
+                                    className="w-10 h-10 rounded-full border border-[#E4E7E9] flex items-center justify-center text-[#191C1F] hover:border-[#FA8232] hover:text-[#FA8232] disabled:opacity-40 disabled:hover:border-[#E4E7E9] disabled:hover:text-[#191C1F] transition-colors cursor-pointer"
                                 >
-                                    {page < 10 ? `0${page}` : page}
+                                    <ChevronLeft className="w-5 h-5" />
                                 </button>
-                            );
-                        })}
 
-                        <button
-                            type="button"
-                            onClick={() => handlePageChange(currentPage + 1)}
-                            disabled={currentPage === totalPages}
-                            className="w-10 h-10 rounded-full border border-[#E4E7E9] flex items-center justify-center text-[#191C1F] hover:border-[#FA8232] hover:text-[#FA8232] disabled:opacity-40 disabled:hover:border-[#E4E7E9] disabled:hover:text-[#191C1F] transition-colors cursor-pointer"
-                        >
-                            <ChevronRight className="w-5 h-5" />
-                        </button>
-                    </div>
+                                {hasPrevGroup && (
+                                    <button
+                                        type="button"
+                                        onClick={() => handlePageChange(startPage - 1)}
+                                        className="w-10 h-10 rounded-full font-semibold text-[14px] border border-[#E4E7E9] text-[#191C1F] hover:border-[#FA8232] hover:text-[#FA8232] transition-colors cursor-pointer"
+                                    >
+                                        ...
+                                    </button>
+                                )}
+
+                                {groupPages.map((page) => {
+                                    const isActive = page === currentPage;
+                                    return (
+                                        <button
+                                            key={page}
+                                            type="button"
+                                            onClick={() => handlePageChange(page)}
+                                            className={`w-10 h-10 rounded-full font-semibold text-[14px] transition-colors cursor-pointer ${
+                                                isActive
+                                                    ? "bg-[#FA8232] text-white shadow-xs"
+                                                    : "border border-[#E4E7E9] text-[#191C1F] hover:border-[#FA8232] hover:text-[#FA8232]"
+                                            }`}
+                                        >
+                                            {page < 10 ? `0${page}` : page}
+                                        </button>
+                                    );
+                                })}
+
+                                {hasNextGroup && (
+                                    <button
+                                        type="button"
+                                        onClick={() => handlePageChange(endPage + 1)}
+                                        className="w-10 h-10 rounded-full font-semibold text-[14px] border border-[#E4E7E9] text-[#191C1F] hover:border-[#FA8232] hover:text-[#FA8232] transition-colors cursor-pointer"
+                                    >
+                                        ...
+                                    </button>
+                                )}
+
+                                <button
+                                    type="button"
+                                    onClick={() => handlePageChange(currentPage + 1)}
+                                    disabled={currentPage === totalPages}
+                                    className="w-10 h-10 rounded-full border border-[#E4E7E9] flex items-center justify-center text-[#191C1F] hover:border-[#FA8232] hover:text-[#FA8232] disabled:opacity-40 disabled:hover:border-[#E4E7E9] disabled:hover:text-[#191C1F] transition-colors cursor-pointer"
+                                >
+                                    <ChevronRight className="w-5 h-5" />
+                                </button>
+                            </div>
+                        );
+                    })()}
                 </main>
             </div>
 

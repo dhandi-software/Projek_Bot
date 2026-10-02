@@ -223,8 +223,8 @@ export function CheckoutMobile() {
                         </h2>
 
                         <div className="space-y-3">
-                            {items.map((item) => (
-                                <div key={item.id} className="flex items-center gap-2.5">
+                            {(items.length > 0 ? items : (paymentData?.items || [])).map((item, idx) => (
+                                <div key={item.id || idx} className="flex items-center gap-2.5">
                                     <img
                                         src={item.image}
                                         alt={item.title}
@@ -241,7 +241,9 @@ export function CheckoutMobile() {
 
                         <div className="border-t border-zinc-200 pt-3 flex justify-between items-center">
                             <span className="text-xs font-bold text-[#191C1F]">Total Pembayaran Pas</span>
-                            <span className="text-lg font-extrabold text-[#2DA5F3]">{formatRupiah(totals.total)}</span>
+                            <span className="text-lg font-extrabold text-[#2DA5F3]">
+                                {formatRupiah(items.length > 0 ? totals.total : (paymentData?.total_amount || 0))}
+                            </span>
                         </div>
 
                         {errorMessage && (

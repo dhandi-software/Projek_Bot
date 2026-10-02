@@ -12,7 +12,16 @@ export function formatRupiah(amount: number): string {
 }
 
 export function useCheckout() {
-    const { cartItems, removeFromCart, updateQuantity, totalCount } = useCart();
+    const {
+        cartItems,
+        selectedItems,
+        removeFromCart,
+        updateQuantity,
+        toggleSelectItem,
+        toggleSelectAll,
+        selectedTotalCount,
+        isAllSelected,
+    } = useCart();
     const { user } = useAuth();
 
     const [couponCode, setCouponCode] = useState("");
@@ -98,7 +107,8 @@ export function useCheckout() {
         }
     }, [user]);
 
-    const items = cartItems;
+    const items = selectedItems.length > 0 ? selectedItems : cartItems;
+    const totalCount = selectedItems.length > 0 ? selectedTotalCount : cartItems.reduce((acc, it) => acc + it.quantity, 0);
 
     const subTotal = items.reduce(
         (sum, item) => sum + item.numericPrice * item.quantity,
@@ -142,9 +152,15 @@ export function useCheckout() {
     };
 
     return {
+        allItems: cartItems,
         items,
+        selectedItems,
         totals,
         totalCount,
+        selectedTotalCount,
+        isAllSelected,
+        toggleSelectItem,
+        toggleSelectAll,
         couponCode,
         setCouponCode,
         appliedCoupon,

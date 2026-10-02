@@ -88,38 +88,50 @@ export function ComputerAccessoriesSection() {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedProducts = filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
+  const currentGroupIndex = Math.floor((currentPage - 1) / 10);
+  const startPage = currentGroupIndex * 10 + 1;
+  const endPage = Math.min(startPage + 9, totalPages);
+  const groupPages = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
+  const hasPrevGroup = startPage > 1;
+  const hasNextGroup = endPage < totalPages;
+
   return (
     <section className="w-full my-8">
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         {/* Left Side Section: Products Header & 4x3 Grid (4 Columns) */}
-        <div className="lg:col-span-4 flex flex-col justify-between">
+        <div className="lg:col-span-4 flex flex-col justify-between min-w-0">
           <div>
             {/* Header Row */}
-            <div className="flex flex-wrap items-center justify-between gap-4 mb-6 border-b border-gray-200 pb-2">
-              <h2 className="text-xl font-bold text-gray-900">Computer Accessories</h2>
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 border-b border-gray-200 pb-2 min-w-0">
+              <div className="flex items-center gap-6 min-w-0 flex-1 overflow-hidden">
+                <h2 className="text-xl font-bold text-gray-900 shrink-0">Computer Accessories</h2>
 
-              {/* Filter Tabs */}
-              <div className="flex items-center gap-6 overflow-x-auto text-sm">
-                {tabs.map((tab: { id: string; label: string }) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => handleTabChange(tab.id)}
-                    className={cn(
-                      "pb-2 font-medium transition-all duration-200 whitespace-nowrap border-b-2 cursor-pointer",
-                      activeTab === tab.id
-                        ? "text-gray-900 font-bold border-[#FA8232]"
-                        : "text-gray-500 border-transparent hover:text-gray-900"
-                    )}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
+                {/* Filter Tabs */}
+                <div
+                  className="flex items-center gap-6 overflow-x-auto text-sm min-w-0 flex-1 py-1 scrollbar-none"
+                  style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+                >
+                  {tabs.map((tab: { id: string; label: string }) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => handleTabChange(tab.id)}
+                      className={cn(
+                        "pb-2 font-medium transition-all duration-200 whitespace-nowrap border-b-2 cursor-pointer shrink-0",
+                        activeTab === tab.id
+                          ? "text-gray-900 font-bold border-[#FA8232]"
+                          : "text-gray-500 border-transparent hover:text-gray-900"
+                      )}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Browse All Products Link */}
               <Link
                 to="/products"
-                className="text-sm font-semibold text-[#FA8232] hover:text-[#e07228] flex items-center gap-1.5 transition-colors"
+                className="text-sm font-semibold text-[#FA8232] hover:text-[#e07228] flex items-center gap-1.5 transition-colors shrink-0"
               >
                 <span>Browse All Product</span>
                 <ArrowRight className="w-4 h-4" />
@@ -267,21 +279,41 @@ export function ComputerAccessoriesSection() {
                   <ChevronLeft className="w-4 h-4" />
                 </button>
 
-                {Array.from({ length: totalPages }).map((_, i) => (
+                {hasPrevGroup && (
                   <button
-                    key={i + 1}
                     type="button"
-                    onClick={() => setCurrentPage(i + 1)}
+                    onClick={() => setCurrentPage(startPage - 1)}
+                    className="px-3 py-1 rounded border text-xs font-bold transition-colors cursor-pointer bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                  >
+                    ...
+                  </button>
+                )}
+
+                {groupPages.map((pageNum) => (
+                  <button
+                    key={pageNum}
+                    type="button"
+                    onClick={() => setCurrentPage(pageNum)}
                     className={cn(
                       "px-3 py-1 rounded border text-xs font-bold transition-colors cursor-pointer",
-                      currentPage === i + 1
+                      currentPage === pageNum
                         ? "bg-[#FA8232] text-white border-[#FA8232]"
                         : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
                     )}
                   >
-                    {i + 1}
+                    {pageNum}
                   </button>
                 ))}
+
+                {hasNextGroup && (
+                  <button
+                    type="button"
+                    onClick={() => setCurrentPage(endPage + 1)}
+                    className="px-3 py-1 rounded border text-xs font-bold transition-colors cursor-pointer bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                  >
+                    ...
+                  </button>
+                )}
 
                 <button
                   type="button"
