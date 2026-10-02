@@ -1,5 +1,5 @@
 import React from "react";
-import { useUserProfile } from "../hooks/useUserProfile";
+import { useUserProfile } from "~/hooks/useUserProfile";
 import { ProfileHeaderMobile } from "../components/ProfileMobile/ProfileHeaderMobile";
 import { ProfileFormMobile } from "../components/ProfileMobile/ProfileFormMobile";
 import { ProfileSecurityMobile } from "../components/ProfileMobile/ProfileSecurityMobile";

@@ -1,6 +1,6 @@
 import React from "react";
 import { User, Mail, Phone, MapPin, FileText, Save, RotateCcw } from "lucide-react";
-import type { ProfileFormData } from "../../types/profile.types";
+import type { ProfileFormData } from "~/types/profile.types";
 
 interface ProfileFormMobileProps {
     formData: ProfileFormData;

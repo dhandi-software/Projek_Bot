@@ -1,5 +1,5 @@
 import React from "react";
-import { useDashboardStats } from "../hooks/useDashboardStats";
+import { useDashboardStats } from "~/hooks/useDashboardStats";
 import { DashboardHeaderDesktop } from "../components/DashboardDesktop/DashboardHeaderDesktop";
 import { MetricCardsDesktop } from "../components/DashboardDesktop/MetricCardsDesktop";
 import { ChartsSectionDesktop } from "../components/DashboardDesktop/ChartsSectionDesktop";

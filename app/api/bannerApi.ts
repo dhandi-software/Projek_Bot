@@ -1,5 +1,5 @@
 import { client } from "./client";
-import type { BannerItem, BannerPayload } from "~/features/products/types/types";
+import type { BannerItem, BannerPayload } from "~/types/types";
 
 export const bannerApi = {
   async getAll(params?: { active?: boolean }) {

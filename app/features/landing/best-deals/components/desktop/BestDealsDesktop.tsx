@@ -11,7 +11,7 @@ import {
 } from "~/components/ui/breadcrumb";
 import { Button } from "~/components/ui/button";
 import { cn, getProductDetailUrl } from "~/lib/utils";
-import { useBestDealsPage } from "../../hooks/useBestDealsPage";
+import { useBestDealsPage } from "~/hooks/useBestDealsPage";
 
 export function BestDealsDesktop() {
   const {

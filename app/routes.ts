@@ -38,6 +38,8 @@ export default [
         route("user/dashboard", "routes/customer/dashboard.tsx", { id: "user-dashboard-alias" }),
         route("customer/orders", "routes/customer/orders.tsx"),
         route("orders", "routes/customer/orders.tsx", { id: "orders-alias" }),
+        route("customer/orders/:orderId", "routes/customer/order-detail.tsx"),
+        route("orders/:orderId", "routes/customer/order-detail.tsx", { id: "order-detail-alias" }),
 
         // Catch-all & Explicit 404 Route inside landing layout
         route("404", "routes/$.tsx", { id: "explicit-404" }),

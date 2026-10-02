@@ -9,7 +9,7 @@ import {
     Tooltip,
     ResponsiveContainer,
 } from "recharts";
-import type { DashboardStats } from "../../types/dashboard.types";
+import type { DashboardStats } from "~/types/dashboard.types";
 import { FilterSelect } from "../FilterSelect";
 
 interface ChartsSectionDesktopProps {

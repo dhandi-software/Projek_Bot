@@ -3,7 +3,7 @@ import { Link } from "react-router";
 import { ArrowRight } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { bannerApi } from "~/api/bannerApi";
-import type { BannerItem } from "~/features/products/types/types";
+import type { BannerItem } from "~/types/bannerTypes";
 
 export function MainHeroBannerDesktop() {
   const [banners, setBanners] = useState<BannerItem[]>([]);

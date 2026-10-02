@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Check, Flame, Package, PackageCheck } from "lucide-react";
-import { useProductDesktop } from "~/features/products/hooks";
-import { useProductImport } from "~/features/products/hooks/useProductImport";
-import { useDashboardStats } from "~/features/dashboard/hooks/useDashboardStats";
+import { useProductDesktop } from "~/hooks/useProductDesktop";
+import { useProductImport } from "~/hooks/useProductImport";
+import { useDashboardStats } from "~/hooks/useDashboardStats";
 import { ProductHeaderDesktop } from "./components/desktop/ProductHeaderDesktop";
 import { ProductFilterDesktop } from "./components/desktop/ProductFilterDesktop";
 import { ProductTableDesktop } from "./components/desktop/ProductTableDesktop";

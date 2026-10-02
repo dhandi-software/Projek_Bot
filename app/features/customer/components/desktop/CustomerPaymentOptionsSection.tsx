@@ -1,6 +1,6 @@
 import React from "react";
 import { ArrowRight, MoreHorizontal, Copy } from "lucide-react";
-import type { CustomerPaymentCard } from "../../types/customerDashboard.types";
+import type { CustomerPaymentCard } from "~/types/customerDashboard.types";
 
 export interface CustomerPaymentOptionsSectionProps {
     cards: CustomerPaymentCard[];

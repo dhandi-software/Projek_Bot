@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Image as ImageIcon, Plus, Edit3, Trash2, Check, RefreshCw, AlertCircle } from "lucide-react";
 import { bannerApi } from "~/api/bannerApi";
-import type { BannerItem, BannerPayload } from "~/features/products/types/types";
+import type { BannerItem, BannerPayload } from "~/types/bannerTypes";
 
 export function BannerManagementDesktop() {
   const [banners, setBanners] = useState<BannerItem[]>([]);

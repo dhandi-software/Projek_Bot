@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useNavigate } from "react-router";
 import { NavigationSideBar } from "~/components/ui/NavigationSideBar";
-import { useCustomerDashboard } from "../../hooks/useCustomerDashboard";
+import { useCustomerDashboard } from "~/hooks/useCustomerDashboard";
 import { CustomerAccountInfoSection } from "./CustomerAccountInfoSection";
 import { CustomerPaymentOptionsSection } from "./CustomerPaymentOptionsSection";
 import { CustomerRecentOrdersSection } from "./CustomerRecentOrdersSection";

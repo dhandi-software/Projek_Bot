@@ -10,7 +10,7 @@ import {
     LogOut,
     ShoppingBag,
 } from "lucide-react";
-import { useCustomerDashboard } from "../../hooks/useCustomerDashboard";
+import { useCustomerDashboard } from "~/hooks/useCustomerDashboard";
 
 export function CustomerDashboardMobile() {
     const navigate = useNavigate();

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { OrderDetailDesktopModal } from "./desktop/OrderDetailDesktopModal";
 import { OrderDetailMobileDrawer } from "./mobile/OrderDetailMobileDrawer";
-import type { OrderDetailModalProps } from "../types/orderDetail.types";
+import type { OrderDetailModalProps } from "~/types/orderDetail.types";
 
 export function OrderDetailModal({ orderId, isOpen, onClose }: OrderDetailModalProps) {
     const [isMobile, setIsMobile] = useState(false);

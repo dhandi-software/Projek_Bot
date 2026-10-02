@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router";
 import { ArrowRight, ChevronLeft, ChevronRight, ShoppingBag } from "lucide-react";
-import type { DashboardStats } from "../../types/dashboard.types";
+import type { DashboardStats } from "~/types/dashboard.types";
 
 interface LatestOrdersDesktopProps {
     stats: DashboardStats;

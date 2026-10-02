@@ -1,7 +1,7 @@
 import React from "react";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router";
-import type { CustomerRecentOrder, OrderStatusType } from "../../types/customerDashboard.types";
+import type { CustomerRecentOrder, OrderStatusType } from "~/types/customerDashboard.types";
 
 export interface CustomerRecentOrdersSectionProps {
     orders: CustomerRecentOrder[];

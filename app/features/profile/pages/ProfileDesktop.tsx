@@ -1,5 +1,5 @@
 import React from "react";
-import { useUserProfile } from "../hooks/useUserProfile";
+import { useUserProfile } from "~/hooks/useUserProfile";
 import { ProfileHeaderDesktop } from "../components/ProfileDesktop/ProfileHeaderDesktop";
 import { ProfileFormDesktop } from "../components/ProfileDesktop/ProfileFormDesktop";
 import { ProfileSecurityDesktop } from "../components/ProfileDesktop/ProfileSecurityDesktop";

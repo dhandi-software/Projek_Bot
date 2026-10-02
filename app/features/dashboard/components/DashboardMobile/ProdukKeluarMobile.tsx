@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { PackageCheck, Box, ChevronLeft, ChevronRight } from "lucide-react";
-import type { DashboardStats } from "../../types/dashboard.types";
+import type { DashboardStats } from "~/types/dashboard.types";
 
 interface ProdukKeluarMobileProps {
     stats: DashboardStats;

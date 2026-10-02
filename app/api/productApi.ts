@@ -1,5 +1,5 @@
 import { client } from "./client";
-import type { ProductItem, ProductPayload } from "~/features/products/types/types";
+import type { ProductItem, ProductPayload } from "~/types/types";
 
 export const productApi = {
   async getAll(params?: { category?: string; q?: string; featured?: boolean; active?: boolean }) {

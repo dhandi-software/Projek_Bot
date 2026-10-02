@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Search } from "lucide-react";
-import { useCustomerOrders } from "../../hooks/useCustomerOrders";
+import { useCustomerOrders } from "~/hooks/useCustomerOrders";
 import { OrderDetailModal } from "../OrderDetailModal";
-import type { OrderStatus } from "../../types/customerOrders.types";
+import type { OrderStatus } from "~/types/customerOrders.types";
 
 export function CustomerOrdersMobile() {
     const navigate = useNavigate();
@@ -26,8 +26,8 @@ export function CustomerOrdersMobile() {
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
     const handleOpenDetail = (orderId: string) => {
-        setSelectedOrderId(orderId);
-        setIsModalOpen(true);
+        const cleanId = orderId.replace("#", "").trim();
+        navigate(`/customer/orders/${cleanId}`);
     };
 
     const handleCloseDetail = () => {

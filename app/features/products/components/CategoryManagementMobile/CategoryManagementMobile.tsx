@@ -11,7 +11,8 @@ import {
   Package,
   AlertCircle
 } from "lucide-react";
-import { useCategoryMobile, renderCategoryIcon } from "~/features/products/hooks";
+import { useCategoryMobile } from "~/hooks/useCategoryMobile";
+import { renderCategoryIcon } from "~/hooks/useProductFormControls";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 

@@ -1,7 +1,7 @@
 import React from "react";
 import { ArrowRight, Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router";
-import type { CustomerHistoryProduct } from "../../types/customerDashboard.types";
+import type { CustomerHistoryProduct } from "~/types/customerDashboard.types";
 
 export interface CustomerBrowsingHistorySectionProps {
     products: CustomerHistoryProduct[];

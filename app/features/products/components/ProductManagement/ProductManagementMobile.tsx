@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Check, Flame, Package, PackageCheck } from "lucide-react";
-import { useProductMobile } from "~/features/products/hooks";
-import { useDashboardStats } from "~/features/dashboard/hooks/useDashboardStats";
+import { useProductMobile } from "~/hooks/useProductMobile";
+import { useDashboardStats } from "~/hooks/useDashboardStats";
 import { ProductHeaderMobile } from "./components/mobile/ProductHeaderMobile";
 import { ProductFilterMobile } from "./components/mobile/ProductFilterMobile";
 import { ProductListMobile } from "./components/mobile/ProductListMobile";

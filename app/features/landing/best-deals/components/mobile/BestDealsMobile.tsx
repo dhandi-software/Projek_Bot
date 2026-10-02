@@ -3,7 +3,7 @@ import { Link } from "react-router";
 import { Star, Heart, ShoppingCart, Clock, Tag, Search } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { cn, getProductDetailUrl } from "~/lib/utils";
-import { useBestDealsPage } from "../../hooks/useBestDealsPage";
+import { useBestDealsPage } from "~/hooks/useBestDealsPage";
 
 export function BestDealsMobile() {
   const {

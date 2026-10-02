@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { productApi } from "~/api/productApi";
-import type { ProductPayload } from "~/features/products/types/types";
+import type { ProductPayload } from "~/types/productTypes";
 
 export function useProductImport(onSuccess?: () => void) {
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);

@@ -1,5 +1,5 @@
 import React from "react";
-import { useDashboardStats } from "../hooks/useDashboardStats";
+import { useDashboardStats } from "~/hooks/useDashboardStats";
 import { DashboardHeaderMobile } from "../components/DashboardMobile/DashboardHeaderMobile";
 import { MetricCardsMobile } from "../components/DashboardMobile/MetricCardsMobile";
 import { ChartsSectionMobile } from "../components/DashboardMobile/ChartsSectionMobile";

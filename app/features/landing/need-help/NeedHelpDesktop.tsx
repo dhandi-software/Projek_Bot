@@ -1,4 +1,4 @@
-import { useNeedHelp } from "./hooks/useNeedHelp";
+import { useNeedHelp } from "~/hooks/useNeedHelp";
 import {
     NeedHelpHeaderDesktop,
     NeedHelpQuickCardsDesktop,

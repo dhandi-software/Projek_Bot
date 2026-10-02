@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import type { QuickHelpCategory } from "../../hooks/useNeedHelp";
+import type { QuickHelpCategory } from "~/hooks/useNeedHelp";
 
 interface NeedHelpQuickCardsDesktopProps {
     categories: QuickHelpCategory[];

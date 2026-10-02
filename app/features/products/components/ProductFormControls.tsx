@@ -16,7 +16,7 @@ import type {
   CategorySelectProps,
   RichTextEditorProps,
   MediaUploaderProps,
-} from "../types/productFormControlsTypes";
+} from "~/types/productFormControlsTypes";
 import {
   usePriceInput,
   useNumberInput,
@@ -24,7 +24,7 @@ import {
   useRichTextEditor,
   useMediaUploader,
   renderCategoryIcon,
-} from "../hooks/useProductFormControls";
+} from "~/hooks/useProductFormControls";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 

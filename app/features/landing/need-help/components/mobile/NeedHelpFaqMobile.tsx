@@ -1,5 +1,5 @@
 import { Plus, Minus } from "lucide-react";
-import type { FaqItem } from "../../hooks/useNeedHelp";
+import type { FaqItem } from "~/hooks/useNeedHelp";
 
 interface NeedHelpFaqMobileProps {
     faqItems: FaqItem[];

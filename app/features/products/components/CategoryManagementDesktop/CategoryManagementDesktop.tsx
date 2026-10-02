@@ -11,7 +11,8 @@ import {
   Package,
   AlertCircle
 } from "lucide-react";
-import { useCategoryDesktop, renderCategoryIcon } from "~/features/products/hooks";
+import { useCategoryDesktop } from "~/hooks/useCategoryDesktop";
+import { renderCategoryIcon } from "~/hooks/useProductFormControls";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 

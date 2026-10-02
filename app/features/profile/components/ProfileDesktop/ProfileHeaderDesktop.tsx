@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { Camera, Shield, CheckCircle2, UploadCloud, User, Star, RotateCcw } from "lucide-react";
-import type { ProfileFormData, UserProfileData } from "../../types/profile.types";
+import type { ProfileFormData, UserProfileData } from "~/types/profile.types";
 import { getAvatarInitials } from "~/lib/avatar";
 
 interface ProfileHeaderDesktopProps {

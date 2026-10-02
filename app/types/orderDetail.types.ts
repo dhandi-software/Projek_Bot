@@ -6,8 +6,23 @@ export interface OrderDetailItem {
     quantity: number;
     price: number;
     subtotal?: number;
+    category?: string;
     image?: string;
     image_url?: string;
+}
+
+export interface OrderActivityItem {
+    id: string | number;
+    title: string;
+    date: string;
+    type: "delivered" | "shipping" | "packaging" | "verified" | "placed" | "canceled";
+}
+
+export interface OrderTimelineStep {
+    id: number;
+    label: string;
+    isCompleted: boolean;
+    isCurrent: boolean;
 }
 
 export interface OrderDetailData {
@@ -21,9 +36,11 @@ export interface OrderDetailData {
     customer_email: string;
     customer_phone: string;
     shipping_address: string;
+    billing_address?: string;
+    order_notes?: string;
     total_amount: number;
     total_price?: number;
-    status: "pending" | "paid" | "settlement" | "cancel" | "deny" | "expire" | "expired" | string;
+    status: "pending" | "paid" | "settlement" | "packaging" | "on_the_road" | "shipped" | "delivered" | "completed" | "cancel" | "canceled" | "deny" | "expire" | "expired" | string;
     snap_token?: string;
     snap_redirect_url?: string;
     qris_url?: string;
@@ -34,7 +51,9 @@ export interface OrderDetailData {
     payment_method?: string;
     created_at: string;
     paid_at?: string;
+    expected_arrival?: string;
     items: OrderDetailItem[];
+    activities: OrderActivityItem[];
 }
 
 export interface OrderDetailModalProps {
@@ -47,6 +66,8 @@ export interface OrderDetailHookResult {
     orderDetail: OrderDetailData | null;
     isLoading: boolean;
     error: string | null;
+    currentStep: number;
+    timelineSteps: OrderTimelineStep[];
     formatRupiah: (val: number) => string;
     formatDate: (dateStr?: string) => string;
     handlePrint: () => void;

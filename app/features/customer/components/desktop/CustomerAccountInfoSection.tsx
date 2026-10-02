@@ -4,7 +4,7 @@ import type {
     CustomerProfileInfo,
     CustomerBillingAddress,
     CustomerDashboardStats,
-} from "../../types/customerDashboard.types";
+} from "~/types/customerDashboard.types";
 
 export interface CustomerAccountInfoSectionProps {
     profile: CustomerProfileInfo;

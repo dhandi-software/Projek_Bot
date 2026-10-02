@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { productApi } from "~/api/productApi";
 import type { ProductItem, ProductPayload } from "~/types/product";
-import { useCategories } from "~/features/products/hooks/useCategories";
+import { useCategories } from "~/hooks/useCategories";
 
 export function useProducts() {
   const [products, setProducts] = useState<ProductItem[]>([]);
